@@ -71,6 +71,18 @@
     .delete-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #222; cursor: pointer; font-size: 1.2rem; }
     .delete-btn:hover { color: var(--danger); }
 
+    /* --- STILE UNDO IDENTICO ALLA INDEX --- */
+    #undo-toast { 
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+      background: #ffffff; color: #000000; padding: 12px 25px; border-radius: 50px; 
+      display: none; align-items: center; gap: 15px; font-weight: 800; z-index: 1000; 
+      border: 2px solid var(--blue); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .undo-btn-style {
+      background: var(--danger); color: white; border: none; border-radius: 8px; 
+      padding: 5px 10px; cursor: pointer; font-weight: 800; text-transform: uppercase;
+    }
+
     @media (max-width: 850px) { 
       .goal-card { grid-template-columns: 1fr; } 
       .input-group-big { flex-direction: column; }
@@ -86,6 +98,11 @@
       <a href="info.html">Info</a>
   </nav>
 
+  <div id="undo-toast">
+    <span>Azione eseguita</span>
+    <button class="undo-btn-style" onclick="undo()">UNDO</button>
+  </div>
+
   <div class="container">
     <div class="creator-box">
       <h2>Nuovo Obiettivo</h2>
@@ -99,12 +116,31 @@
   </div>
 
   <script>
-    // Caricamento sicuro: se la struttura non esiste, la inizializza correttamente
     let rawData = localStorage.getItem('wallet_infinite_data');
-    let db = rawData ? JSON.parse(rawData) : { total: 0, logs: [], extra: 0, extraLogs: [], goals: [] };
+    let db = rawData ? JSON.parse(rawData) : { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] };
     
-    // Assicuriamoci che l'array goals esista sempre
     if (!db.goals) db.goals = [];
+
+    // Variabili per Undo
+    let lastState = null;
+    let undoTimeout = null;
+
+    function saveState() {
+      lastState = JSON.stringify(db);
+      const toast = document.getElementById('undo-toast');
+      toast.style.display = 'flex';
+      if(undoTimeout) clearTimeout(undoTimeout);
+      undoTimeout = setTimeout(() => { toast.style.display = 'none'; }, 10000);
+    }
+
+    function undo() {
+            if (lastState) { 
+        db = JSON.parse(lastState); 
+        lastState = null; 
+        document.getElementById('undo-toast').style.display = 'none'; 
+        saveAndRender(); 
+      } 
+    }
 
     function createGoal() {
       const nameInput = document.getElementById('goal-name');
@@ -115,6 +151,7 @@
         return;
       }
 
+      saveState(); // Rende annullabile la creazione
       const newGoal = {
         id: Date.now(),
         name: name,
@@ -136,6 +173,7 @@
         return;
       }
 
+      saveState(); // Salva lo stato prima di modificare i soldi
       const goal = db.goals.find(g => g.id === id);
       const ora = new Date();
       const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
@@ -146,6 +184,7 @@
       } else {
         if (goal.amount - val < 0) {
           alert("Fondi insufficienti in questo salvadanaio!");
+          document.getElementById('undo-toast').style.display = 'none'; // Nascondi l'undo se fallisce
           return;
         }
         goal.amount -= val;
@@ -158,6 +197,7 @@
 
     function deleteGoal(id) {
       if (confirm("Vuoi davvero eliminare questo obiettivo?")) {
+        saveState(); // Rende annullabile l'eliminazione
         db.goals = db.goals.filter(g => g.id !== id);
         saveAndRender();
       }
@@ -178,7 +218,6 @@
       }
 
       db.goals.forEach(goal => {
-        // Genera cronologia
         let historyHTML = "";
         if (goal.history && goal.history.length > 0) {
           historyHTML = [...goal.history].reverse().map(h => `
@@ -212,7 +251,6 @@
       });
     }
 
-    // Avvio iniziale
     render();
   </script>
 </body>
