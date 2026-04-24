@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Conto Corrente Dan</title>
+  <title>Home - Conto Corrente Dan</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
     :root { 
@@ -13,55 +12,71 @@
       --muted: #888888; --blue: #3b82f6; --danger: #ff3333; --success: #22c55e; --yellow: #ffca28;
     }
     * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: env(safe-area-inset-top) 20px 30px 20px; min-height: 100vh; }
     
-    .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 25px; padding: 20px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
-    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number], select, input[type=text] { -moz-appearance: textfield; }
+
+    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 0 20px 30px 20px; min-height: 100vh; }
     
+    .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .navbar a:hover { color: var(--text); }
+
     .app { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
-    .main { display: flex; flex-direction: column; gap: 25px; }
+    .main { display: flex; flex-direction: column; gap: 30px; }
     
-    .total-card { padding: 10px 0; text-align: center; }
-    .total-card span { color: var(--muted); letter-spacing: 3px; font-size: 0.7rem; text-transform: uppercase; }
-    .total-card h1 { font-size: 4rem; margin: 5px 0; font-weight: 800; }
+    .total-card { padding: 20px 0; text-align: center; }
+    .total-card span { color: var(--muted); letter-spacing: 3px; font-size: 0.8rem; text-transform: uppercase; }
+    .total-card h1 { font-size: 5rem; margin: 10px 0; font-weight: 800; }
     
-    .split-balances { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .balance-box { background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid #222; text-align: center; }
-    .balance-box div { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
-    .balance-box h2 { margin: 0; font-size: 1.8rem; font-weight: 800; }
+    .split-balances { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 10px; }
+    .balance-box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid #222; text-align: center; }
+    .balance-box div { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+    .balance-box h2 { margin: 0; font-size: 2.2rem; font-weight: 800; }
     .cash-text { color: var(--yellow); }
     .card-text { color: var(--blue); }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .note { height: 140px; border-radius: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.05); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .note { height: 200px; border-radius: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 800; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+    .note:active { transform: scale(0.96); }
     .n20 { background: linear-gradient(135deg, #1e40af, #3b82f6); }
     .n50 { background: linear-gradient(135deg, #92400e, #fbbf24); }
     
-    .sub-bar { width: 100%; background: #111; border: 1px solid #222; padding: 12px; margin-top: 8px; border-radius: 15px; color: var(--danger); font-weight: 600; cursor: pointer; }
+    .sub-bar { width: 100%; background: #111; border: 1px solid #222; padding: 16px; margin-top: 12px; border-radius: 20px; color: var(--danger); font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .sub-bar:hover { background: #1a1a1a; border-color: var(--danger); }
     
-    .extra-box { background: var(--card); border: 1px solid #222; padding: 20px; border-radius: 25px; }
-    .extra-box h3 { margin: 0 0 15px 0; font-size: 0.9rem; color: var(--muted); text-transform: uppercase; }
+    .extra-box { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 30px; margin-top: 10px; }
+    .extra-box h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
     
-    .extra-input-group { display: flex; flex-direction: column; gap: 10px; }
-    .extra-input, .extra-select { background: #111; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; font-size: 1rem; outline: none; }
+    .extra-input-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; }
+    .extra-input, .extra-select { flex: 1; background: #111; border: 1px solid #333; padding: 12px; border-radius: 15px; color: white; font-size: 1.1rem; outline: none; min-width: 100px; }
     
-    .extra-btn { background: var(--success); color: black; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; }
-    .sub-btn { background: var(--danger); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+    .extra-btn { background: var(--success); color: black; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; cursor: pointer; }
+    .sub-btn { background: var(--danger); color: white; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; cursor: pointer; }
+    
+    .extra-val { font-size: 1.8rem; font-weight: 800; color: var(--success); text-align: right; }
 
-    #history { flex: 1; overflow-y: auto; max-height: 400px; }
-    .log { padding: 12px; border-radius: 15px; background: #111; margin-bottom: 10px; border-left: 4px solid var(--blue); display: flex; justify-content: space-between; align-items: center; }
-    .del-history-item { background: none; border: none; color: #444; font-size: 1.2rem; cursor: pointer; font-weight: 800; }
-
-    #modal, #modal-sub { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 20px; }
-    .modal-content { background: var(--card); padding: 30px; border-radius: 25px; text-align: center; border: 1px solid #333; width: 100%; max-width: 400px; }
-    .modal-btn { display: block; width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: none; cursor: pointer; font-size: 1rem; font-weight: bold; background: #222; color: white; }
+    #extra-history { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #222; font-size: 0.9rem; max-height: 250px; overflow-y: auto; }
+    .extra-log-item { margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 12px; }
     
-    .side { background: var(--card); border-radius: 30px; padding: 20px; border: 1px solid #151515; }
+    .del-log { background: #1a1a1a; border: 1px solid #333; color: var(--danger); cursor: pointer; border-radius: 8px; width: 25px; height: 25px; font-weight: bold; margin-right: 10px; display: flex; align-items: center; justify-content: center; }
 
-    @media (max-width: 900px) { 
-      .app { grid-template-columns: 1fr; } 
-      .total-card h1 { font-size: 3.5rem; }
-    }
+    #modal, #modal-sub { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
+    .modal-content { background: var(--card); padding: 40px; border-radius: 30px; text-align: center; border: 1px solid #333; width: 90%; max-width: 400px; }
+    .modal-btn { display: block; width: 100%; padding: 15px; margin: 12px 0; border-radius: 15px; border: none; cursor: pointer; font-size: 1.1rem; font-weight: bold; background: #222; color: white; }
+    .m-type-btn { padding: 10px; border-radius: 12px; border: 1px solid #333; background: #111; color: var(--muted); cursor: pointer; font-weight: bold; }
+    .m-type-btn.active { border-color: var(--blue); color: white; background: #1a1a1a; }
+
+    .side { background: var(--card); border-radius: 40px; padding: 25px; border: 1px solid #151515; height: calc(100vh - 150px); display: flex; flex-direction: column; position: sticky; top: 30px; }
+    .history { flex: 1; overflow-y: auto; }
+    .log { padding: 16px; border-radius: 18px; background: #111; margin-bottom: 12px; border-left: 4px solid var(--blue); }
+    
+    .reset { margin-top: 20px; background: none; border: 1px solid #222; color: #444; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+    
+    #undo-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffffff; color: #000000; padding: 12px 25px; border-radius: 50px; display: none; align-items: center; gap: 15px; font-weight: 800; z-index: 1000; border: 2px solid var(--blue); }
+
+    .meta-info { color: var(--muted); font-size: 0.85rem; font-weight: 500; display: block; }
+    @media (max-width: 900px) { .app { grid-template-columns: 1fr; } .side { height: auto; position: static; } }
   </style>
 </head>
 <body>
@@ -70,18 +85,54 @@
       <a href="index.html" style="color:white">Home</a>
       <a href="vinted.html">Vinted</a>
       <a href="risparmi.html">Risparmi</a>
+      <a href="info.html">Info</a>
   </nav>
+
+  <div id="undo-toast">
+    <span>Azione eseguita</span>
+    <button onclick="undo()" style="background:var(--danger); color:white; border:none; border-radius:8px; padding:5px 10px; cursor:pointer">UNDO</button>
+  </div>
 
   <div id="modal">
     <div class="modal-content">
-      <h2 id="modal-title">Operazione</h2>
+      <h2 style="margin-top:0">Operazione <span id="modal-val-display"></span>€</h2>
+      <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px">Preleva da:</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
-        <button id="m-btn-cash" class="modal-btn" onclick="setModalType('Cash')" style="border: 1px solid #333;">CASH</button>
-        <button id="m-btn-card" class="modal-btn" onclick="setModalType('Carta')" style="border: 1px solid #333;">CARTA</button>
+        <button id="m-btn-cash" class="m-type-btn active" onclick="setModalType('Cash')">CASH</button>
+        <button id="m-btn-card" class="m-type-btn" onclick="setModalType('Carta')">CARTA</button>
       </div>
-      <button class="modal-btn" onclick="addMoney('Vinted')">Vinted</button>
-      <button class="modal-btn" onclick="addMoney('Lavoro')">Lavoro</button>
+      <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; margin-bottom: 15px;">
+        <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase;">Entrata Semplice (Patrimonio)</div>
+        <button class="modal-btn" onclick="addMoney('Vinted')">Vinted</button>
+        <button class="modal-btn" onclick="addMoney('Lavoro')">Lavoro</button>
+        <div id="other-input-area" style="display:none; margin-top:10px">
+          <input type="text" id="m-other-reason" class="extra-input" style="width:100%; border-color:var(--blue)" placeholder="Motivo...">
+          <button class="modal-btn" style="background:var(--blue)" onclick="addMoney(document.getElementById('m-other-reason').value || 'Altro')">CONFERMA</button>
+        </div>
+        <button id="m-other-btn" class="modal-btn" onclick="showOtherInput()">Altro motivo...</button>
+      </div>
+      <div style="border: 2px solid var(--success); padding: 15px; border-radius: 20px;">
+        <div style="color:var(--success); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase; font-weight:800">Sposta in Obiettivo</div>
+        <select id="modal-goal-select" class="extra-select" style="width: 100%; margin-bottom: 10px; border-color: var(--success);">
+          <option value="">-- Scegli Salvadanaio --</option>
+        </select>
+        <button class="modal-btn" style="background:var(--success); color:black" onclick="addMoneyToGoalModal()">CONFERMA SPOSTAMENTO</button>
+      </div>
       <button class="modal-btn" style="background:var(--danger); margin-top:20px" onclick="closeModal()">Chiudi</button>
+    </div>
+  </div>
+
+  <div id="modal-sub">
+    <div class="modal-content" style="border-color: var(--danger);">
+      <h2 style="margin-top:0; color: var(--danger);">Togli <span id="modal-sub-val-display"></span>€</h2>
+      <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase;">Togli da:</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
+        <button id="ms-btn-cash" class="m-type-btn active" onclick="setSubModalType('Cash')">CASH</button>
+        <button id="ms-btn-card" class="m-type-btn" onclick="setSubModalType('Carta')">CARTA</button>
+      </div>
+      <input type="text" id="ms-reason" class="extra-input" style="width:100%; border-color:var(--danger); margin-bottom:10px;" placeholder="Motivo prelievo...">
+      <button class="modal-btn" style="background:var(--danger)" onclick="confirmSub()">CONFERMA USCITA</button>
+      <button class="modal-btn" style="background:#111" onclick="closeSubModal()">Annulla</button>
     </div>
   </div>
 
@@ -89,7 +140,7 @@
     <main class="main">
       <div class="total-card">
         <span>Patrimonio Totale</span>
-        <h1 id="total">€ 0,00</h1>
+        <h1 id="total">€ 0</h1>
         <div class="split-balances">
           <div class="balance-box"><div>Contanti</div><h2 id="cash-display" class="cash-text">€ 0</h2></div>
           <div class="balance-box"><div>Carta</div><h2 id="card-display" class="card-text">€ 0</h2></div>
@@ -97,29 +148,65 @@
       </div>
       
       <div class="grid">
-        <div class="col"><div class="note n20" onclick="openModal(20)">20€</div><button class="sub-bar" onclick="quickSub(20, 'Cash')">− Togli 20 Cash</button></div>
-        <div class="col"><div class="note n50" onclick="openModal(50)">50€</div><button class="sub-bar" onclick="quickSub(50, 'Cash')">− Togli 50 Cash</button></div>
+        <div class="col"><div class="note n20" onclick="openModal(20)">20€</div><button class="sub-bar" onclick="op(20)">− Togli 20</button></div>
+        <div class="col"><div class="note n50" onclick="openModal(50)">50€</div><button class="sub-bar" onclick="op(50)">− Togli 50</button></div>
+      </div>
+
+      <div class="extra-box" style="border-color: rgba(34, 197, 94, 0.2);">
+        <h3>Aggiunta Rapida</h3>
+        <div class="extra-input-group">
+          <input type="number" id="add-money-input" class="extra-input" placeholder="Importo  €" style="border-color: var(--success); font-weight: 800; font-size: 1.5rem; text-align: center;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-top: 10px;">
+            <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px;">
+              <div style="font-size:0.7rem; color:var(--muted); margin-bottom:5px">NUOVA ENTRATA</div>
+              <input type="text" id="add-reason-input" class="extra-input" placeholder="Motivo..." style="margin-bottom:5px; font-size: 0.8rem;">
+              <select id="add-type-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
+              <button class="extra-btn" style="width: 100%;" onclick="addCustom()">AGGIUNGI</button>
+            </div>
+            <div style="background: rgba(34, 197, 94, 0.05); border: 1px solid #222; padding: 15px; border-radius: 20px;">
+              <div style="font-size:0.7rem; color:var(--success); margin-bottom:5px">SPOSTA IN OBIETTIVO</div>
+              <select id="quick-goal-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="">-- Scegli Obiettivo --</option></select>
+              <select id="quick-source-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
+              <button class="extra-btn" style="background:var(--success); color:black; width: 100%;" onclick="addCustomGoal()">SPOSTA</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="extra-box" style="border-color: rgba(255, 51, 51, 0.2);">
+        <h3>Prelievo Patrimonio</h3>
+        <div class="extra-input-group">
+          <input type="number" id="sub-money-input" class="extra-input" placeholder="€">
+          <input type="text" id="sub-reason-input" class="extra-input" placeholder="Motivo...">
+          <select id="sub-type-select" class="extra-select"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
+          <button class="sub-btn" onclick="subCustom()">TOGLI</button>
+        </div>
       </div>
 
       <div class="extra-box">
-        <h3>Aggiunta Manuale</h3>
+        <h3>Risparmi Generali (Extra)</h3>
         <div class="extra-input-group">
-          <input type="number" id="add-val" class="extra-input" placeholder="Importo €">
-          <input type="text" id="add-reason" class="extra-input" placeholder="Motivo...">
-          <select id="add-type" class="extra-select"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
-          <button class="extra-btn" onclick="manualAdd()">AGGIUNGI</button>
+          <input type="number" id="extra-money-input" class="extra-input" placeholder="€">
+          <input type="text" id="extra-reason-input" class="extra-input" placeholder="Motivo...">
+          <button class="extra-btn" onclick="addExtra()">AGGIUNGI</button>
         </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <div class="extra-val" id="extra-display">€ 0,00</div>
+            <button class="reset" onclick="resetExtra()">Svuota Lista</button>
+        </div>
+        <div id="extra-history"></div>
       </div>
     </main>
 
     <aside class="side">
-      <h3>Cronologia</h3>
-      <div id="history"></div>
-      <button onclick="if(confirm('Reset?')) resetDB()" style="background:none; border:none; color:#333; margin-top:20px; width:100%; cursor:pointer">Reset Database</button>
+      <h2>Movimenti</h2>
+      <div class="history" id="history"></div>
+      <button class="reset" onclick="resetAll()">RESET TUTTO</button>
     </aside>
   </div>
 
   <script type="module">
+    // --- FIREBASE SETUP ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -134,72 +221,186 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const dbRef = ref(db, 'wallet');
+    const dbFirebase = getDatabase(app);
+    const walletRef = ref(dbFirebase, 'wallet');
+    const goalsRef = ref(dbFirebase, 'goals');
 
-    let wallet = { cash: 0, card: 0, logs: [] };
-    let tempVal = 0;
-    let tempType = 'Cash';
+    // --- VARIABILI LOCALI ---
+    let db = { cash: 0, card: 0, logs: [], extraLogs: [], goals: [] };
+    let tempVal = 0, tempType = 'Cash', subTempVal = 0, subTempType = 'Cash';
+    let lastState = null, undoTimeout = null;
 
-    // Caricamento dati in tempo reale
-    onValue(dbRef, (snapshot) => {
+    // --- ASCOLTO DATI IN TEMPO REALE ---
+    onValue(ref(dbFirebase), (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        wallet = data;
-        if (!wallet.logs) wallet.logs = [];
+        db.cash = data.wallet?.cash || 0;
+        db.card = data.wallet?.card || 0;
+        db.logs = data.wallet?.logs || [];
+        db.extraLogs = data.wallet?.extraLogs || [];
+        db.goals = data.goals || [];
         updateUI();
       }
     });
 
-    function updateUI() {
-      const euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
-      document.getElementById('total').textContent = euro.format(wallet.cash + wallet.card);
-      document.getElementById('cash-display').textContent = euro.format(wallet.cash);
-      document.getElementById('card-display').textContent = euro.format(wallet.card);
-      
-      const histDiv = document.getElementById('history');
-      histDiv.innerHTML = '';
-      [...wallet.logs].reverse().slice(0, 20).forEach((l, index) => {
-        const realIndex = wallet.logs.length - 1 - index;
-        histDiv.innerHTML += `
-          <div class="log" style="border-left-color:${l.type==='add'?'var(--success)':'var(--danger)'}">
-            <div><b>${l.type==='add'?'+':'-'}${l.val}€</b><br><small style="color:#555">${l.reason} (${l.to})</small></div>
-            <button class="del-history-item" onclick="deleteLog(${realIndex})">✕</button>
-          </div>`;
+    // --- FUNZIONI CORE ---
+    function sync() {
+      set(walletRef, {
+        cash: db.cash,
+        card: db.card,
+        logs: db.logs,
+        extraLogs: db.extraLogs
       });
+      set(goalsRef, db.goals);
     }
 
-    // Funzioni globali per i bottoni
-    window.openModal = (val) => { tempVal = val; document.getElementById('modal-title').textContent = val + "€"; document.getElementById('modal').style.display = 'flex'; };
+    window.saveState = () => {
+      lastState = JSON.stringify(db);
+      const toast = document.getElementById('undo-toast');
+      toast.style.display = 'flex';
+      if(undoTimeout) clearTimeout(undoTimeout);
+      undoTimeout = setTimeout(() => { toast.style.display = 'none'; }, 10000);
+    };
+
+    window.undo = () => { 
+      if (lastState) { 
+        db = JSON.parse(lastState); 
+        lastState = null; 
+        document.getElementById('undo-toast').style.display = 'none'; 
+        sync(); 
+      } 
+    };
+
+    window.openModal = (val) => { 
+      tempVal = val; 
+      document.getElementById('modal-val-display').textContent = val;
+      document.getElementById('modal').style.display = 'flex';
+      refreshGoalDropdowns();
+    };
+
     window.closeModal = () => { document.getElementById('modal').style.display = 'none'; };
-    window.setModalType = (t) => { tempType = t; document.getElementById('m-btn-cash').style.borderColor = t==='Cash'?'var(--blue)':'#333'; document.getElementById('m-btn-card').style.borderColor = t==='Carta'?'var(--blue)':'#333'; };
-    
-    window.addMoney = (reason) => {
-      if (tempType === 'Cash') wallet.cash += tempVal; else wallet.card += tempVal;
-      wallet.logs.push({ val: tempVal, type: 'add', reason, to: tempType, date: Date.now() });
-      save(); closeModal();
+    window.setModalType = (type) => {
+      tempType = type;
+      document.getElementById('m-btn-cash').classList.toggle('active', type === 'Cash');
+      document.getElementById('m-btn-card').classList.toggle('active', type === 'Carta');
     };
 
-    window.quickSub = (val, type) => {
-      if (type === 'Cash') wallet.cash -= val; else wallet.card -= val;
-      wallet.logs.push({ val: val, type: 'sub', reason: 'Prelievo rapido', to: type, date: Date.now() });
-      save();
+    window.op = (val) => {
+      subTempVal = val;
+      document.getElementById('modal-sub-val-display').textContent = val;
+      document.getElementById('modal-sub').style.display = 'flex';
     };
 
-    window.manualAdd = () => {
-      const v = parseFloat(document.getElementById('add-val').value);
-      const r = document.getElementById('add-reason').value || "Entrata";
-      const t = document.getElementById('add-type').value;
-      if (!v) return;
-      if (t === 'Cash') wallet.cash += v; else wallet.card += v;
-      wallet.logs.push({ val: v, type: 'add', reason: r, to: t, date: Date.now() });
-      save(); document.getElementById('add-val').value = '';
+    window.closeSubModal = () => { document.getElementById('modal-sub').style.display = 'none'; };
+    window.setSubModalType = (type) => {
+      subTempType = type;
+      document.getElementById('ms-btn-cash').classList.toggle('active', type === 'Cash');
+      document.getElementById('ms-btn-card').classList.toggle('active', type === 'Carta');
     };
 
-    window.deleteLog = (i) => { wallet.logs.splice(i, 1); save(); };
-    window.resetDB = () => { set(dbRef, { cash: 0, card: 0, logs: [] }); };
-    
-    function save() { set(dbRef, wallet); }
+    window.confirmSub = () => {
+      const motivo = document.getElementById('ms-reason').value || "Altro";
+      if (subTempType === 'Cash' && db.cash < subTempVal) return alert("Cash insufficiente!");
+      if (subTempType === 'Carta' && db.card < subTempVal) return alert("Carta insufficiente!");
+      saveState();
+      if (subTempType === 'Cash') db.cash -= subTempVal; else db.card -= subTempVal;
+      saveLog(subTempVal, 'sub', `${motivo} (${subTempType})`);
+      closeSubModal();
+      sync();
+    };
+
+    window.addMoney = (source) => {
+      saveState();
+      if (tempType === 'Cash') db.cash += tempVal; else db.card += tempVal;
+      saveLog(tempVal, 'add', `${source} (${tempType})`);
+      closeModal();
+      sync();
+    };
+
+    window.addMoneyToGoalModal = () => {
+      const goalId = document.getElementById('modal-goal-select').value;
+      const goal = db.goals.find(g => g.id == goalId || (g.name === goalId)); // Supporto per vecchi ID
+      if (!goal) return alert("Obiettivo non trovato!");
+      saveState();
+      if (tempType === 'Cash') db.cash -= tempVal; else db.card -= tempVal;
+      goal.current = (parseFloat(goal.current) || 0) + tempVal;
+      saveLog(tempVal, 'sub', `Spostato in ${goal.name} (${tempType})`);
+      closeModal();
+      sync();
+    };
+
+    window.addCustom = () => {
+      const v = document.getElementById('add-money-input'), r = document.getElementById('add-reason-input'), t = document.getElementById('add-type-select').value;
+      const val = parseFloat(v.value);
+      if (isNaN(val)) return;
+      saveState();
+      if (t === 'Cash') db.cash += val; else db.card += val;
+      saveLog(val, 'add', `${r.value || "Entrata"} (${t})`);
+      v.value = ""; r.value = ""; sync();
+    };
+
+    window.subCustom = () => {
+      const v = document.getElementById('sub-money-input'), r = document.getElementById('sub-reason-input'), t = document.getElementById('sub-type-select').value;
+      const val = parseFloat(v.value);
+      if (isNaN(val) || (t === 'Cash' && db.cash < val)) return alert("Fondi insufficienti");
+      saveState();
+      if (t === 'Cash') db.cash -= val; else db.card -= val;
+      saveLog(val, 'sub', `${r.value || "Spesa"} (${t})`);
+      v.value = ""; r.value = ""; sync();
+    };
+
+    function saveLog(val, type, source) {
+      const ora = new Date();
+      const dateStr = ora.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) + ', ' + ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+      db.logs.push({ val, type, source, date: dateStr });
+    }
+
+    function updateUI() {
+      const Euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+      document.getElementById('total').textContent = Euro.format(db.cash + db.card);
+      document.getElementById('cash-display').textContent = Euro.format(db.cash);
+      document.getElementById('card-display').textContent = Euro.format(db.card);
+      
+      const extraTotal = db.extraLogs.reduce((s, l) => s + l.val, 0);
+      document.getElementById('extra-display').textContent = Euro.format(extraTotal);
+
+      const hist = document.getElementById('history'); hist.innerHTML = '';
+      [...db.logs].reverse().slice(0, 30).forEach(l => {
+        hist.innerHTML += `<div class="log" style="border-left-color:${l.type==='add'?'var(--blue)':'var(--danger)'}">
+          <div><b style="color:${l.type==='add'?'var(--blue)':'var(--danger)'}">${l.type==='add'?'+':'-'} ${l.val}€</b>
+          <span class="meta-info">${l.source} • ${l.date}</span></div></div>`;
+      });
+
+      const eHist = document.getElementById('extra-history'); eHist.innerHTML = '';
+      [...db.extraLogs].reverse().forEach(l => {
+          eHist.innerHTML += `<div class="extra-log-item"><div style="display:flex; align-items:center"><button class="del-log" onclick="deleteExtraLog(${l.id})">×</button>
+            <span>${l.reason} <small style="color:#555">(${l.date})</small></span></div><b style="color:var(--success)">+${l.val}€</b></div>`;
+      });
+      refreshGoalDropdowns();
+    }
+
+    window.refreshGoalDropdowns = () => {
+      const modalSelect = document.getElementById('modal-goal-select');
+      const quickSelect = document.getElementById('quick-goal-select');
+      const goalOptions = db.goals.map(g => `<option value="${g.name}">${g.name}</option>`).join('');
+      const placeholder = '<option value="">-- Scegli --</option>';
+      if(modalSelect) modalSelect.innerHTML = placeholder + goalOptions;
+      if(quickSelect) quickSelect.innerHTML = placeholder + goalOptions;
+    };
+
+    window.addExtra = () => {
+      const v = document.getElementById('extra-money-input'), r = document.getElementById('extra-reason-input');
+      const val = parseFloat(v.value);
+      if (isNaN(val)) return;
+      saveState();
+      db.extraLogs.push({ id: Date.now(), val, reason: r.value || "Risparmio", date: new Date().toLocaleDateString('it-IT') });
+      v.value = ""; r.value = ""; sync();
+    };
+
+    window.deleteExtraLog = (id) => { saveState(); db.extraLogs = db.extraLogs.filter(i => i.id !== id); sync(); };
+    window.resetExtra = () => { if(confirm("Svuotare?")) { saveState(); db.extraLogs = []; sync(); } };
+    window.resetAll = () => { if(confirm("Resettare tutto il DATABASE?")) { set(ref(dbFirebase), { wallet: { cash:0, card:0, logs:[], extraLogs:[] }, goals:[] }); } };
+    window.showOtherInput = () => { document.getElementById('other-input-area').style.display='block'; document.getElementById('m-other-btn').style.display='none'; };
   </script>
 </body>
 </html>
