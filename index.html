@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Conto Corrente Dan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { 
+      --bg: #000000; --card: #0a0a0a; --text: #ffffff; 
+      --muted: #888888; --blue: #3b82f6; --danger: #ff3333; --success: #22c55e; --yellow: #ffca28;
+    }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: env(safe-area-inset-top) 20px 30px 20px; min-height: 100vh; }
+    
+    .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 25px; padding: 20px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    
+    .app { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+    .main { display: flex; flex-direction: column; gap: 25px; }
+    
+    .total-card { padding: 10px 0; text-align: center; }
+    .total-card span { color: var(--muted); letter-spacing: 3px; font-size: 0.7rem; text-transform: uppercase; }
+    .total-card h1 { font-size: 4rem; margin: 5px 0; font-weight: 800; }
+    
+    .split-balances { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .balance-box { background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid #222; text-align: center; }
+    .balance-box div { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+    .balance-box h2 { margin: 0; font-size: 1.8rem; font-weight: 800; }
+    .cash-text { color: var(--yellow); }
+    .card-text { color: var(--blue); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .note { height: 140px; border-radius: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.05); }
+    .n20 { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+    .n50 { background: linear-gradient(135deg, #92400e, #fbbf24); }
+    
+    .sub-bar { width: 100%; background: #111; border: 1px solid #222; padding: 12px; margin-top: 8px; border-radius: 15px; color: var(--danger); font-weight: 600; cursor: pointer; }
+    
+    .extra-box { background: var(--card); border: 1px solid #222; padding: 20px; border-radius: 25px; }
+    .extra-box h3 { margin: 0 0 15px 0; font-size: 0.9rem; color: var(--muted); text-transform: uppercase; }
+    
+    .extra-input-group { display: flex; flex-direction: column; gap: 10px; }
+    .extra-input, .extra-select { background: #111; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; font-size: 1rem; outline: none; }
+    
+    .extra-btn { background: var(--success); color: black; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+    .sub-btn { background: var(--danger); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+
+    #history { flex: 1; overflow-y: auto; max-height: 400px; }
+    .log { padding: 12px; border-radius: 15px; background: #111; margin-bottom: 10px; border-left: 4px solid var(--blue); display: flex; justify-content: space-between; align-items: center; }
+    .del-history-item { background: none; border: none; color: #444; font-size: 1.2rem; cursor: pointer; font-weight: 800; }
+
+    #modal, #modal-sub { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 20px; }
+    .modal-content { background: var(--card); padding: 30px; border-radius: 25px; text-align: center; border: 1px solid #333; width: 100%; max-width: 400px; }
+    .modal-btn { display: block; width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: none; cursor: pointer; font-size: 1rem; font-weight: bold; background: #222; color: white; }
+    
+    .side { background: var(--card); border-radius: 30px; padding: 20px; border: 1px solid #151515; }
+
+    @media (max-width: 900px) { 
+      .app { grid-template-columns: 1fr; } 
+      .total-card h1 { font-size: 3.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+      <a href="index.html" style="color:white">Home</a>
+      <a href="vinted.html">Vinted</a>
+      <a href="risparmi.html">Risparmi</a>
+  </nav>
+
+  <div id="modal">
+    <div class="modal-content">
+      <h2 id="modal-title">Operazione</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
+        <button id="m-btn-cash" class="modal-btn" onclick="setModalType('Cash')" style="border: 1px solid #333;">CASH</button>
+        <button id="m-btn-card" class="modal-btn" onclick="setModalType('Carta')" style="border: 1px solid #333;">CARTA</button>
+      </div>
+      <button class="modal-btn" onclick="addMoney('Vinted')">Vinted</button>
+      <button class="modal-btn" onclick="addMoney('Lavoro')">Lavoro</button>
+      <button class="modal-btn" style="background:var(--danger); margin-top:20px" onclick="closeModal()">Chiudi</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <main class="main">
+      <div class="total-card">
+        <span>Patrimonio Totale</span>
+        <h1 id="total">€ 0,00</h1>
+        <div class="split-balances">
+          <div class="balance-box"><div>Contanti</div><h2 id="cash-display" class="cash-text">€ 0</h2></div>
+          <div class="balance-box"><div>Carta</div><h2 id="card-display" class="card-text">€ 0</h2></div>
+        </div>
+      </div>
+      
+      <div class="grid">
+        <div class="col"><div class="note n20" onclick="openModal(20)">20€</div><button class="sub-bar" onclick="quickSub(20, 'Cash')">− Togli 20 Cash</button></div>
+        <div class="col"><div class="note n50" onclick="openModal(50)">50€</div><button class="sub-bar" onclick="quickSub(50, 'Cash')">− Togli 50 Cash</button></div>
+      </div>
+
+      <div class="extra-box">
+        <h3>Aggiunta Manuale</h3>
+        <div class="extra-input-group">
+          <input type="number" id="add-val" class="extra-input" placeholder="Importo €">
+          <input type="text" id="add-reason" class="extra-input" placeholder="Motivo...">
+          <select id="add-type" class="extra-select"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
+          <button class="extra-btn" onclick="manualAdd()">AGGIUNGI</button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="side">
+      <h3>Cronologia</h3>
+      <div id="history"></div>
+      <button onclick="if(confirm('Reset?')) resetDB()" style="background:none; border:none; color:#333; margin-top:20px; width:100%; cursor:pointer">Reset Database</button>
+    </aside>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYlXWmpTqJDsbrww39Rk7r7ZFC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.appspot.com",
+      messagingSenderId: "138913358347",
+      appId: "1:138913358347:web:35a016a855be2597989d0e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'wallet');
+
+    let wallet = { cash: 0, card: 0, logs: [] };
+    let tempVal = 0;
+    let tempType = 'Cash';
+
+    // Caricamento dati in tempo reale
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        wallet = data;
+        if (!wallet.logs) wallet.logs = [];
+        updateUI();
+      }
+    });
+
+    function updateUI() {
+      const euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+      document.getElementById('total').textContent = euro.format(wallet.cash + wallet.card);
+      document.getElementById('cash-display').textContent = euro.format(wallet.cash);
+      document.getElementById('card-display').textContent = euro.format(wallet.card);
+      
+      const histDiv = document.getElementById('history');
+      histDiv.innerHTML = '';
+      [...wallet.logs].reverse().slice(0, 20).forEach((l, index) => {
+        const realIndex = wallet.logs.length - 1 - index;
+        histDiv.innerHTML += `
+          <div class="log" style="border-left-color:${l.type==='add'?'var(--success)':'var(--danger)'}">
+            <div><b>${l.type==='add'?'+':'-'}${l.val}€</b><br><small style="color:#555">${l.reason} (${l.to})</small></div>
+            <button class="del-history-item" onclick="deleteLog(${realIndex})">✕</button>
+          </div>`;
+      });
+    }
+
+    // Funzioni globali per i bottoni
+    window.openModal = (val) => { tempVal = val; document.getElementById('modal-title').textContent = val + "€"; document.getElementById('modal').style.display = 'flex'; };
+    window.closeModal = () => { document.getElementById('modal').style.display = 'none'; };
+    window.setModalType = (t) => { tempType = t; document.getElementById('m-btn-cash').style.borderColor = t==='Cash'?'var(--blue)':'#333'; document.getElementById('m-btn-card').style.borderColor = t==='Carta'?'var(--blue)':'#333'; };
+    
+    window.addMoney = (reason) => {
+      if (tempType === 'Cash') wallet.cash += tempVal; else wallet.card += tempVal;
+      wallet.logs.push({ val: tempVal, type: 'add', reason, to: tempType, date: Date.now() });
+      save(); closeModal();
+    };
+
+    window.quickSub = (val, type) => {
+      if (type === 'Cash') wallet.cash -= val; else wallet.card -= val;
+      wallet.logs.push({ val: val, type: 'sub', reason: 'Prelievo rapido', to: type, date: Date.now() });
+      save();
+    };
+
+    window.manualAdd = () => {
+      const v = parseFloat(document.getElementById('add-val').value);
+      const r = document.getElementById('add-reason').value || "Entrata";
+      const t = document.getElementById('add-type').value;
+      if (!v) return;
+      if (t === 'Cash') wallet.cash += v; else wallet.card += v;
+      wallet.logs.push({ val: v, type: 'add', reason: r, to: t, date: Date.now() });
+      save(); document.getElementById('add-val').value = '';
+    };
+
+    window.deleteLog = (i) => { wallet.logs.splice(i, 1); save(); };
+    window.resetDB = () => { set(dbRef, { cash: 0, card: 0, logs: [] }); };
+    
+    function save() { set(dbRef, wallet); }
+  </script>
+</body>
+</html>
