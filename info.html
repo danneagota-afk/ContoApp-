@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Info & Statistiche - Dan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #000000; --card: #0a0a0a; --text: #ffffff; --muted: #888888; --blue: #3b82f6; }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    
+    .navbar { width: 100%; max-width: 600px; display: flex; justify-content: center; gap: 25px; padding: 20px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    
+    .container { width: 100%; max-width: 600px; }
+    
+    .stat-card { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 30px; margin-bottom: 20px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #111; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: var(--muted); font-size: 0.9rem; }
+    .stat-value { font-weight: 800; font-size: 1.1rem; }
+
+    .total-highlight { background: linear-gradient(135deg, #1e1e1e, #333); border: 1px solid var(--blue); }
+    
+    .db-info { font-size: 0.7rem; color: #444; text-align: center; margin-top: 40px; text-transform: uppercase; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+      <a href="index.html">Home</a>
+      <a href="vinted.html">Vinted</a>
+      <a href="risparmi.html">Risparmi</a>
+      <a href="info.html" style="color:white">Info</a>
+  </nav>
+
+  <div class="container">
+    <h2 style="font-weight: 800; margin-bottom: 20px;">Riepilogo Generale</h2>
+    
+    <div class="stat-card total-highlight">
+      <div class="stat-row">
+        <span class="stat-label" style="color:var(--blue)">PATRIMONIO TOTALE</span>
+        <span class="stat-value" id="grand-total" style="font-size: 1.8rem; color:var(--blue)">€ 0,00</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-row">
+        <span class="stat-label">Saldo Conto (Cash + Carta)</span>
+        <span class="stat-value" id="stat-wallet">€ 0,00</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">In sospeso su Vinted</span>
+        <span class="stat-value" id="stat-vinted">€ 0,00</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Totale nei Risparmi</span>
+        <span class="stat-value" id="stat-goals">€ 0,00</span>
+      </div>
+    </div>
+
+    <div class="db-info">
+      Cloud Database: Firebase Realtime<br>
+      Status: Sincronizzato <span style="color:var(--blue)">●</span><br>
+      Versione App: 3.0 (Cloud Edition)
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYlXWmpTqJDsbrww39Rk7r7ZFC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.appspot.com",
+      messagingSenderId: "138913358347",
+      appId: "1:138913358347:web:35a016a855be2597989d0e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+
+    onValue(ref(db), (snapshot) => {
+      const data = snapshot.val() || {};
+      
+      // Calcolo Wallet
+      const walletTotal = (data.wallet?.cash || 0) + (data.wallet?.card || 0);
+      
+      // Calcolo Vinted
+      const vintedTotal = (data.vinted || []).reduce((sum, item) => sum + parseFloat(item.price || 0), 0);
+      
+      // Calcolo Risparmi
+      const goalsTotal = (data.goals || []).reduce((sum, g) => sum + parseFloat(g.current || 0), 0);
+
+      // Aggiornamento UI
+      document.getElementById('stat-wallet').textContent = euro.format(walletTotal);
+      document.getElementById('stat-vinted').textContent = euro.format(vintedTotal);
+      document.getElementById('stat-goals').textContent = euro.format(goalsTotal);
+      document.getElementById('grand-total').textContent = euro.format(walletTotal + vintedTotal + goalsTotal);
+    });
+  </script>
+</body>
+</html>
