@@ -2,8 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home - Conto Corrente Dan</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
@@ -11,7 +10,7 @@
       --bg: #000000; --card: #0a0a0a; --text: #ffffff; 
       --muted: #888888; --blue: #3b82f6; --danger: #ff3333; --success: #22c55e; --yellow: #ffca28;
     }
-    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
     
     input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number], select, input[type=text] { -moz-appearance: textfield; }
@@ -69,7 +68,18 @@
 
     .side { background: var(--card); border-radius: 40px; padding: 25px; border: 1px solid #151515; height: calc(100vh - 150px); display: flex; flex-direction: column; position: sticky; top: 30px; }
     .history { flex: 1; overflow-y: auto; }
-    .log { padding: 16px; border-radius: 18px; background: #111; margin-bottom: 12px; border-left: 4px solid var(--blue); }
+    
+    /* Stile per la riga log con tasto X */
+    .log { 
+      padding: 16px; border-radius: 18px; background: #111; margin-bottom: 12px; 
+      border-left: 4px solid var(--blue); position: relative; 
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .del-history-item {
+      background: none; border: none; color: #444; font-size: 1.2rem; 
+      cursor: pointer; padding: 0 5px; transition: 0.2s; font-weight: 800;
+    }
+    .del-history-item:hover { color: var(--danger); }
     
     .reset { margin-top: 20px; background: none; border: 1px solid #222; color: #444; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
     
@@ -205,100 +215,79 @@
     </aside>
   </div>
 
-  <script type="module">
-    // --- FIREBASE SETUP ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  <script>
+    let db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] };
+    let tempVal = 0;
+    let tempType = 'Cash';
+    let subTempVal = 0;
+    let subTempType = 'Cash';
+    let lastState = null;
+    let undoTimeout = null;
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDTYlXWmpTqJDsbrww39Rk7r7ZFC40xqkw",
-      authDomain: "conto-corrente.firebaseapp.com",
-      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "conto-corrente",
-      storageBucket: "conto-corrente.appspot.com",
-      messagingSenderId: "138913358347",
-      appId: "1:138913358347:web:35a016a855be2597989d0e"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const dbFirebase = getDatabase(app);
-    const walletRef = ref(dbFirebase, 'wallet');
-    const goalsRef = ref(dbFirebase, 'goals');
-
-    // --- VARIABILI LOCALI ---
-    let db = { cash: 0, card: 0, logs: [], extraLogs: [], goals: [] };
-    let tempVal = 0, tempType = 'Cash', subTempVal = 0, subTempType = 'Cash';
-    let lastState = null, undoTimeout = null;
-
-    // --- ASCOLTO DATI IN TEMPO REALE ---
-    onValue(ref(dbFirebase), (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        db.cash = data.wallet?.cash || 0;
-        db.card = data.wallet?.card || 0;
-        db.logs = data.wallet?.logs || [];
-        db.extraLogs = data.wallet?.extraLogs || [];
-        db.goals = data.goals || [];
-        updateUI();
-      }
-    });
-
-    // --- FUNZIONI CORE ---
-    function sync() {
-      set(walletRef, {
-        cash: db.cash,
-        card: db.card,
-        logs: db.logs,
-        extraLogs: db.extraLogs
-      });
-      set(goalsRef, db.goals);
-    }
-
-    window.saveState = () => {
+    function saveState() {
       lastState = JSON.stringify(db);
       const toast = document.getElementById('undo-toast');
       toast.style.display = 'flex';
       if(undoTimeout) clearTimeout(undoTimeout);
       undoTimeout = setTimeout(() => { toast.style.display = 'none'; }, 10000);
-    };
+    }
 
-    window.undo = () => { 
+    function undo() { 
       if (lastState) { 
         db = JSON.parse(lastState); 
         lastState = null; 
         document.getElementById('undo-toast').style.display = 'none'; 
-        sync(); 
+        updateUI(); 
       } 
-    };
+    }
 
-    window.openModal = (val) => { 
+    function loadData() {
+        const saved = localStorage.getItem('wallet_infinite_data');
+        if (saved) {
+            db = JSON.parse(saved);
+            if (!db.goals) db.goals = [];
+            if (!db.extraLogs) db.extraLogs = [];
+        }
+        updateUI();
+    }
+
+    function refreshGoalDropdowns() {
+      const modalSelect = document.getElementById('modal-goal-select');
+      const quickSelect = document.getElementById('quick-goal-select');
+      const goalOptions = db.goals.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+      const placeholder = '<option value="">-- Scegli --</option>';
+      if(modalSelect) modalSelect.innerHTML = placeholder + goalOptions;
+      if(quickSelect) quickSelect.innerHTML = placeholder + goalOptions;
+    }
+
+    function openModal(val) { 
       tempVal = val; 
       document.getElementById('modal-val-display').textContent = val;
       document.getElementById('modal').style.display = 'flex';
+      document.getElementById('other-input-area').style.display = 'none';
+      document.getElementById('m-other-btn').style.display = 'block';
       refreshGoalDropdowns();
-    };
-
-    window.closeModal = () => { document.getElementById('modal').style.display = 'none'; };
-    window.setModalType = (type) => {
+    }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function setModalType(type) {
       tempType = type;
       document.getElementById('m-btn-cash').classList.toggle('active', type === 'Cash');
       document.getElementById('m-btn-card').classList.toggle('active', type === 'Carta');
-    };
+    }
 
-    window.op = (val) => {
+    function op(val) {
       subTempVal = val;
       document.getElementById('modal-sub-val-display').textContent = val;
+      document.getElementById('ms-reason').value = "";
       document.getElementById('modal-sub').style.display = 'flex';
-    };
-
-    window.closeSubModal = () => { document.getElementById('modal-sub').style.display = 'none'; };
-    window.setSubModalType = (type) => {
+    }
+    function closeSubModal() { document.getElementById('modal-sub').style.display = 'none'; }
+    function setSubModalType(type) {
       subTempType = type;
       document.getElementById('ms-btn-cash').classList.toggle('active', type === 'Cash');
       document.getElementById('ms-btn-card').classList.toggle('active', type === 'Carta');
-    };
-
-    window.confirmSub = () => {
+    }
+    function confirmSub() {
       const motivo = document.getElementById('ms-reason').value || "Altro";
       if (subTempType === 'Cash' && db.cash < subTempVal) return alert("Cash insufficiente!");
       if (subTempType === 'Carta' && db.card < subTempVal) return alert("Carta insufficiente!");
@@ -306,101 +295,143 @@
       if (subTempType === 'Cash') db.cash -= subTempVal; else db.card -= subTempVal;
       saveLog(subTempVal, 'sub', `${motivo} (${subTempType})`);
       closeSubModal();
-      sync();
-    };
+    }
 
-    window.addMoney = (source) => {
+    function addMoney(source) {
       saveState();
       if (tempType === 'Cash') db.cash += tempVal; else db.card += tempVal;
       saveLog(tempVal, 'add', `${source} (${tempType})`);
       closeModal();
-      sync();
-    };
+    }
 
-    window.addMoneyToGoalModal = () => {
+    function addMoneyToGoalModal() {
       const goalId = document.getElementById('modal-goal-select').value;
-      const goal = db.goals.find(g => g.id == goalId || (g.name === goalId)); // Supporto per vecchi ID
-      if (!goal) return alert("Obiettivo non trovato!");
+      if (!goalId) return alert("Seleziona un obiettivo!");
+      if (tempType === 'Cash' && db.cash < tempVal) return alert("Cash insufficiente!");
+      if (tempType === 'Carta' && db.card < tempVal) return alert("Carta insufficiente!");
       saveState();
+      const goal = db.goals.find(g => g.id == goalId);
       if (tempType === 'Cash') db.cash -= tempVal; else db.card -= tempVal;
-      goal.current = (parseFloat(goal.current) || 0) + tempVal;
+      const ora = new Date();
+      const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+      goal.amount += tempVal;
+      goal.history.push({ val: `+${tempVal.toFixed(2)}`, date: timeStr, color: 'var(--success)' });
       saveLog(tempVal, 'sub', `Spostato in ${goal.name} (${tempType})`);
       closeModal();
-      sync();
-    };
+    }
 
-    window.addCustom = () => {
-      const v = document.getElementById('add-money-input'), r = document.getElementById('add-reason-input'), t = document.getElementById('add-type-select').value;
+    function addCustomGoal() {
+      const v = document.getElementById('add-money-input');
+      const goalId = document.getElementById('quick-goal-select').value;
+      const source = document.getElementById('quick-source-select').value;
       const val = parseFloat(v.value);
-      if (isNaN(val)) return;
+      if (isNaN(val) || !goalId) return alert("Importo o obiettivo mancante!");
+      if (source === 'Cash' && db.cash < val) return alert("Cash insufficiente!");
+      if (source === 'Carta' && db.card < val) return alert("Carta insufficiente!");
+      saveState();
+      const goal = db.goals.find(g => g.id == goalId);
+      if (source === 'Cash') db.cash -= val; else db.card -= val;
+      const ora = new Date();
+      const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+      goal.amount += val;
+      goal.history.push({ val: `+${val.toFixed(2)}`, date: timeStr, color: 'var(--success)' });
+      saveLog(val, 'sub', `Spostato in ${goal.name} (${source})`);
+      v.value = "";
+    }
+
+    function addCustom() {
+      const v = document.getElementById('add-money-input');
+      const r = document.getElementById('add-reason-input');
+      const t = document.getElementById('add-type-select').value;
+      const val = parseFloat(v.value);
+      if (isNaN(val) || val <= 0) return alert("Manca l'importo!");
       saveState();
       if (t === 'Cash') db.cash += val; else db.card += val;
       saveLog(val, 'add', `${r.value || "Entrata"} (${t})`);
-      v.value = ""; r.value = ""; sync();
-    };
+      v.value = ""; r.value = "";
+    }
 
-    window.subCustom = () => {
-      const v = document.getElementById('sub-money-input'), r = document.getElementById('sub-reason-input'), t = document.getElementById('sub-type-select').value;
+    function subCustom() {
+      const v = document.getElementById('sub-money-input');
+      const r = document.getElementById('sub-reason-input');
+      const t = document.getElementById('sub-type-select').value;
       const val = parseFloat(v.value);
-      if (isNaN(val) || (t === 'Cash' && db.cash < val)) return alert("Fondi insufficienti");
+      if (isNaN(val) || val <= 0) return;
+      if ((t === 'Cash' && db.cash < val) || (t === 'Carta' && db.card < val)) return alert("Fondi insufficienti!");
       saveState();
       if (t === 'Cash') db.cash -= val; else db.card -= val;
       saveLog(val, 'sub', `${r.value || "Spesa"} (${t})`);
-      v.value = ""; r.value = ""; sync();
-    };
+      v.value = ""; r.value = "";
+    }
 
     function saveLog(val, type, source) {
       const ora = new Date();
       const dateStr = ora.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) + ', ' + ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
       db.logs.push({ val, type, source, date: dateStr });
+      updateUI();
+    }
+
+    // ELIMINA SOLO IL LOG (non tocca i soldi)
+    function deleteLog(index) {
+      saveState();
+      db.logs.splice(index, 1);
+      updateUI();
     }
 
     function updateUI() {
       const Euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
-      document.getElementById('total').textContent = Euro.format(db.cash + db.card);
+      db.total = db.cash + db.card;
+      db.extra = db.extraLogs.reduce((total, log) => total + log.val, 0);
+      
+      document.getElementById('total').textContent = Euro.format(db.total);
       document.getElementById('cash-display').textContent = Euro.format(db.cash);
       document.getElementById('card-display').textContent = Euro.format(db.card);
+      document.getElementById('extra-display').textContent = Euro.format(db.extra);
       
-      const extraTotal = db.extraLogs.reduce((s, l) => s + l.val, 0);
-      document.getElementById('extra-display').textContent = Euro.format(extraTotal);
-
       const hist = document.getElementById('history'); hist.innerHTML = '';
-      [...db.logs].reverse().slice(0, 30).forEach(l => {
-        hist.innerHTML += `<div class="log" style="border-left-color:${l.type==='add'?'var(--blue)':'var(--danger)'}">
-          <div><b style="color:${l.type==='add'?'var(--blue)':'var(--danger)'}">${l.type==='add'?'+':'-'} ${l.val}€</b>
-          <span class="meta-info">${l.source} • ${l.date}</span></div></div>`;
-      });
+      
+      // Costruzione dei log con X per eliminare riga
+      for (let i = db.logs.length - 1; i >= 0; i--) {
+        const l = db.logs[i];
+        hist.innerHTML += `
+          <div class="log" style="border-left-color:${l.type==='add'?'var(--blue)':'var(--danger)'}">
+            <div style="flex: 1;">
+              <b style="color:${l.type==='add'?'var(--blue)':'var(--danger)'}">${l.type==='add'?'+':'-'} ${l.val}€</b>
+              <span class="meta-info">${l.source} • ${l.date}</span>
+            </div>
+            <button class="del-history-item" onclick="deleteLog(${i})">✕</button>
+          </div>`;
+      }
 
       const eHist = document.getElementById('extra-history'); eHist.innerHTML = '';
       [...db.extraLogs].reverse().forEach(l => {
           eHist.innerHTML += `<div class="extra-log-item"><div style="display:flex; align-items:center"><button class="del-log" onclick="deleteExtraLog(${l.id})">×</button>
             <span>${l.reason} <small style="color:#555">(${l.date})</small></span></div><b style="color:var(--success)">+${l.val}€</b></div>`;
       });
+      localStorage.setItem('wallet_infinite_data', JSON.stringify(db));
       refreshGoalDropdowns();
     }
 
-    window.refreshGoalDropdowns = () => {
-      const modalSelect = document.getElementById('modal-goal-select');
-      const quickSelect = document.getElementById('quick-goal-select');
-      const goalOptions = db.goals.map(g => `<option value="${g.name}">${g.name}</option>`).join('');
-      const placeholder = '<option value="">-- Scegli --</option>';
-      if(modalSelect) modalSelect.innerHTML = placeholder + goalOptions;
-      if(quickSelect) quickSelect.innerHTML = placeholder + goalOptions;
-    };
+    function showOtherInput() {
+      document.getElementById('other-input-area').style.display = 'block';
+      document.getElementById('m-other-btn').style.display = 'none';
+    }
 
-    window.addExtra = () => {
-      const v = document.getElementById('extra-money-input'), r = document.getElementById('extra-reason-input');
+    function addExtra() {
+      const v = document.getElementById('extra-money-input');
+      const r = document.getElementById('extra-reason-input');
       const val = parseFloat(v.value);
-      if (isNaN(val)) return;
+      if (isNaN(val) || val <= 0) return;
       saveState();
-      db.extraLogs.push({ id: Date.now(), val, reason: r.value || "Risparmio", date: new Date().toLocaleDateString('it-IT') });
-      v.value = ""; r.value = ""; sync();
-    };
-
-    window.deleteExtraLog = (id) => { saveState(); db.extraLogs = db.extraLogs.filter(i => i.id !== id); sync(); };
-    window.resetExtra = () => { if(confirm("Svuotare?")) { saveState(); db.extraLogs = []; sync(); } };
-    window.resetAll = () => { if(confirm("Resettare tutto il DATABASE?")) { set(ref(dbFirebase), { wallet: { cash:0, card:0, logs:[], extraLogs:[] }, goals:[] }); } };
-    window.showOtherInput = () => { document.getElementById('other-input-area').style.display='block'; document.getElementById('m-other-btn').style.display='none'; };
+      db.extraLogs.push({ id: Date.now(), val: val, reason: r.value || "Risparmio", date: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) });
+      v.value = ""; r.value = "";
+      updateUI();
+    }
+    function deleteExtraLog(id) { saveState(); db.extraLogs = db.extraLogs.filter(item => item.id !== id); updateUI(); }
+    function resetExtra() { if(confirm("Svuotare lista?")) { saveState(); db.extraLogs = []; updateUI(); } }
+    function resetAll() { if (confirm('Vuoi resettare tutto?')) { db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] }; updateUI(); } }
+    
+    loadData();
   </script>
 </body>
 </html>
