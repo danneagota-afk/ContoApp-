@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Vinted Tracker - Dan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #000000; --card: #0a0a0a; --text: #ffffff; --muted: #888888; --vinted: #00c1d4; }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    
+    .navbar { width: 100%; max-width: 600px; display: flex; justify-content: center; gap: 25px; padding: 20px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    
+    .container { width: 100%; max-width: 600px; }
+    
+    .vinted-card { background: linear-gradient(135deg, #007a87, #00c1d4); padding: 30px; border-radius: 30px; text-align: center; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,193,212,0.2); }
+    .vinted-card span { text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; opacity: 0.8; }
+    .vinted-card h1 { font-size: 3.5rem; margin: 10px 0; font-weight: 800; }
+
+    .input-box { background: var(--card); border: 1px solid #222; padding: 20px; border-radius: 25px; margin-bottom: 25px; }
+    .input-box h3 { margin-top: 0; font-size: 0.9rem; color: var(--muted); text-transform: uppercase; margin-bottom: 15px; }
+    
+    input, select { width: 100%; background: #111; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; font-size: 1rem; margin-bottom: 10px; outline: none; }
+    
+    button { width: 100%; background: var(--vinted); color: black; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1rem; }
+
+    .item-list { display: flex; flex-direction: column; gap: 10px; }
+    .item { background: #111; padding: 15px; border-radius: 15px; border-left: 4px solid var(--vinted); display: flex; justify-content: space-between; align-items: center; }
+    .item-info b { font-size: 1.1rem; display: block; }
+    .item-info small { color: var(--muted); }
+    .delete-btn { background: none; border: none; color: #444; font-size: 1.2rem; cursor: pointer; width: auto; padding: 5px; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+      <a href="index.html">Home</a>
+      <a href="vinted.html" style="color:var(--vinted)">Vinted</a>
+      <a href="risparmi.html">Risparmi</a>
+  </nav>
+
+  <div class="container">
+    <div class="vinted-card">
+      <span>Saldo Vinted in sospeso</span>
+      <h1 id="vinted-total">€ 0,00</h1>
+    </div>
+
+    <div class="input-box">
+      <h3>Nuovo Oggetto in Vendita</h3>
+      <input type="text" id="item-name" placeholder="Cosa hai venduto?">
+      <input type="number" id="item-price" placeholder="Prezzo (€)">
+      <button onclick="addItem()">AGGIUNGI ALLA LISTA</button>
+    </div>
+
+    <div class="item-list" id="item-list">
+      </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // Stessa configurazione del file principale
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYlXWmpTqJDsbrww39Rk7r7ZFC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.appspot.com",
+      messagingSenderId: "138913358347",
+      appId: "1:138913358347:web:35a016a855be2597989d0e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const vintedRef = ref(db, 'vinted');
+
+    let items = [];
+
+    onValue(vintedRef, (snapshot) => {
+      const data = snapshot.val();
+      items = data || [];
+      updateUI();
+    });
+
+    function updateUI() {
+      const listDiv = document.getElementById('item-list');
+      const totalH1 = document.getElementById('vinted-total');
+      let total = 0;
+      listDiv.innerHTML = '';
+
+      items.forEach((item, index) => {
+        total += parseFloat(item.price);
+        listDiv.innerHTML += `
+          <div class="item">
+            <div class="item-info">
+              <b>${item.name}</b>
+              <small>Venduto per €${item.price}</small>
+            </div>
+            <button class="delete-btn" onclick="removeItem(${index})">✕</button>
+          </div>
+        `;
+      });
+
+      totalH1.textContent = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(total);
+    }
+
+    window.addItem = () => {
+      const name = document.getElementById('item-name').value;
+      const price = document.getElementById('item-price').value;
+      if(!name || !price) return;
+      
+      items.push({ name, price: parseFloat(price) });
+      set(vintedRef, items);
+      
+      document.getElementById('item-name').value = '';
+      document.getElementById('item-price').value = '';
+    };
+
+    window.removeItem = (index) => {
+      items.splice(index, 1);
+      set(vintedRef, items);
+    };
+  </script>
+</body>
+</html>
