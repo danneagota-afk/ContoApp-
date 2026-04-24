@@ -2,29 +2,52 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Info & Statistiche - Dan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Info - Guida all'uso</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #000000; --card: #0a0a0a; --text: #ffffff; --muted: #888888; --blue: #3b82f6; }
-    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    :root { 
+      --bg: #000000; --card: #0a0a0a; --text: #ffffff; 
+      --muted: #888888; --blue: #3b82f6; --danger: #ff3333; --success: #22c55e; --yellow: #ffca28;
+      --vinted: #008f95;
+    }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
     
-    .navbar { width: 100%; max-width: 600px; display: flex; justify-content: center; gap: 25px; padding: 20px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
-    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 0 20px 50px 20px; min-height: 100vh; }
     
-    .container { width: 100%; max-width: 600px; }
-    
-    .stat-card { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 30px; margin-bottom: 20px; }
-    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #111; }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-label { color: var(--muted); font-size: 0.9rem; }
-    .stat-value { font-weight: 800; font-size: 1.1rem; }
+    .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #222; margin-bottom: 40px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .navbar a:hover { color: var(--text); }
+    .navbar a.active { color: white; }
 
-    .total-highlight { background: linear-gradient(135deg, #1e1e1e, #333); border: 1px solid var(--blue); }
+    .container { width: 100%; max-width: 850px; }
     
-    .db-info { font-size: 0.7rem; color: #444; text-align: center; margin-top: 40px; text-transform: uppercase; letter-spacing: 1px; }
+    .section { background: var(--card); border: 1px solid #151515; padding: 35px; border-radius: 35px; margin-bottom: 30px; }
+    
+    h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
+    h2 { font-size: 1.6rem; margin: 0 0 5px 0; display: flex; align-items: center; gap: 12px; font-weight: 800; }
+    h3 { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; margin-top: 0; }
+    
+    .guide-list { display: flex; flex-direction: column; gap: 15px; }
+    .guide-item { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; border: 1px solid #1a1a1a; transition: 0.3s; border-left: 4px solid #333; }
+    .guide-item:hover { background: rgba(255,255,255,0.04); border-color: #333; }
+    
+    .item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .item-title { font-weight: 800; font-size: 1.1rem; color: #fff; }
+    .item-desc { font-size: 0.95rem; color: #aaa; line-height: 1.5; display: block; }
+
+    .tag { padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+    .tag-blue { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
+    .tag-yellow { background: rgba(255, 202, 40, 0.15); color: var(--yellow); }
+    .tag-green { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .tag-red { background: rgba(255, 51, 51, 0.15); color: var(--danger); }
+
+    /* Colori Specifici Sezioni */
+    .sec-home h2 { color: var(--blue); }
+    .sec-vinted h2 { color: var(--vinted); }
+    .sec-risparmi h2 { color: var(--success); }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -33,78 +56,77 @@
       <a href="index.html">Home</a>
       <a href="vinted.html">Vinted</a>
       <a href="risparmi.html">Risparmi</a>
-      <a href="info.html" style="color:white">Info</a>
+      <a href="info.html" class="active">Info</a>
   </nav>
 
   <div class="container">
-    <h2 style="font-weight: 800; margin-bottom: 20px;">Riepilogo Generale</h2>
-    
-    <div class="stat-card total-highlight">
-      <div class="stat-row">
-        <span class="stat-label" style="color:var(--blue)">PATRIMONIO TOTALE</span>
-        <span class="stat-value" id="grand-total" style="font-size: 1.8rem; color:var(--blue)">€ 0,00</span>
+    <h1>Guida Rapida</h1>
+    <p style="text-align: center; color: var(--muted); margin-bottom: 40px;">Scopri come gestire al meglio il tuo denaro</p>
+
+    <div class="section sec-home" style="border-color: rgba(59, 130, 246, 0.3);">
+      <h2>🏠 Patrimonio Home</h2>
+      <h3 style="color: var(--blue);">Gestione Contanti e Carta</h3>
+      <div class="guide-list">
+        <div class="guide-item" style="border-left-color: var(--blue);">
+          <div class="item-header">
+            <span class="tag tag-blue">Banconote 20/50</span>
+            <span class="item-title">Aggiunta Rapida</span>
+          </div>
+          <span class="item-desc">Clicca sulle banconote grafiche per aggiungere fondi. Puoi scegliere se versarli nel <b>Cash</b>, nella <b>Carta</b> o spostarli direttamente in un <b>Obiettivo</b>.</span>
+        </div>
+
+        <div class="guide-item" style="border-left-color: var(--danger);">
+          <div class="item-header">
+            <span class="tag tag-red">Togli 20/50</span>
+            <span class="item-title">Prelievo Veloce</span>
+          </div>
+          <span class="item-desc">Usa i tasti sotto le banconote per una spesa immediata. Si aprirà un menu per scalare i soldi dal saldo scelto e confermare il motivo.</span>
+        </div>
+
+        <div class="guide-item" style="border-left-color: var(--success);">
+          <div class="item-header">
+            <span class="tag tag-green">Extra</span>
+            <span class="item-title">Entrate e Uscite Libere</span>
+          </div>
+          <span class="item-desc">Usa i box in basso per cifre personalizzate. Permette anche di spostare soldi dal patrimonio ai salvadanai.</span>
+        </div>
+
+        <div class="guide-item" style="border-left-color: var(--yellow);">
+          <div class="item-header">
+            <span class="tag tag-yellow">Undo</span>
+            <span class="item-title">Annulla Errore</span>
+          </div>
+          <span class="item-desc">Se sbagli, hai <b>10 secondi</b> per cliccare "UNDO" in basso e annullare l'ultima operazione.</span>
+        </div>
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-row">
-        <span class="stat-label">Saldo Conto (Cash + Carta)</span>
-        <span class="stat-value" id="stat-wallet">€ 0,00</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">In sospeso su Vinted</span>
-        <span class="stat-value" id="stat-vinted">€ 0,00</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Totale nei Risparmi</span>
-        <span class="stat-value" id="stat-goals">€ 0,00</span>
+    <div class="section sec-vinted" style="border-color: rgba(0, 143, 149, 0.3);">
+      <h2>👗 Vinted</h2>
+      <h3 style="color: var(--vinted);">Saldo Interno App</h3>
+      <div class="guide-list">
+        <div class="guide-item" style="border-left-color: var(--vinted);">
+          <span class="item-title">Indipendenza</span>
+          <span class="item-desc">Il saldo Vinted è separato dal patrimonio reale. Gestisci qui i profitti delle vendite e gli acquisti fatti con il credito dell'app.</span>
+        </div>
       </div>
     </div>
 
-    <div class="db-info">
-      Cloud Database: Firebase Realtime<br>
-      Status: Sincronizzato <span style="color:var(--blue)">●</span><br>
-      Versione App: 3.0 (Cloud Edition)
+    <div class="section sec-risparmi" style="border-color: rgba(34, 197, 94, 0.3);">
+      <h2>🎯 Risparmi</h2>
+      <h3 style="color: var(--success);">Obiettivi e Salvadanai</h3>
+      <div class="guide-list">
+        <div class="guide-item" style="border-left-color: var(--success);">
+          <span class="item-title">Monitoraggio</span>
+          <span class="item-desc">Crea obiettivi con un budget. La barra ti mostra quanto manca al traguardo man mano che versi fondi dalla Home.</span>
+        </div>
+      </div>
     </div>
+
+    <footer>
+      Dan Finance Manager &bull; 2026 &bull; I dati sono salvati localmente sul browser.
+    </footer>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDTYlXWmpTqJDsbrww39Rk7r7ZFC40xqkw",
-      authDomain: "conto-corrente.firebaseapp.com",
-      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "conto-corrente",
-      storageBucket: "conto-corrente.appspot.com",
-      messagingSenderId: "138913358347",
-      appId: "1:138913358347:web:35a016a855be2597989d0e"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
-
-    onValue(ref(db), (snapshot) => {
-      const data = snapshot.val() || {};
-      
-      // Calcolo Wallet
-      const walletTotal = (data.wallet?.cash || 0) + (data.wallet?.card || 0);
-      
-      // Calcolo Vinted
-      const vintedTotal = (data.vinted || []).reduce((sum, item) => sum + parseFloat(item.price || 0), 0);
-      
-      // Calcolo Risparmi
-      const goalsTotal = (data.goals || []).reduce((sum, g) => sum + parseFloat(g.current || 0), 0);
-
-      // Aggiornamento UI
-      document.getElementById('stat-wallet').textContent = euro.format(walletTotal);
-      document.getElementById('stat-vinted').textContent = euro.format(vintedTotal);
-      document.getElementById('stat-goals').textContent = euro.format(goalsTotal);
-      document.getElementById('grand-total').textContent = euro.format(walletTotal + vintedTotal + goalsTotal);
-    });
-  </script>
 </body>
 </html>
