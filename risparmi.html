@@ -2,41 +2,79 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Risparmi - Dan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Risparmi - Obiettivi</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #000000; --card: #0a0a0a; --text: #ffffff; --muted: #888888; --success: #22c55e; }
-    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    :root { 
+      --bg: #000000; --card: #0a0a0a; --text: #ffffff; 
+      --muted: #888888; --blue: #3b82f6; --success: #22c55e; --danger: #ff3333;
+    }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
     
-    .navbar { width: 100%; max-width: 600px; display: flex; justify-content: center; gap: 25px; padding: 20px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
-    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
-    
-    .container { width: 100%; max-width: 600px; }
-    
-    .header-card { background: linear-gradient(135deg, #166534, #22c55e); padding: 30px; border-radius: 30px; text-align: center; margin-bottom: 25px; }
-    .header-card span { text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; opacity: 0.8; }
-    .header-card h1 { font-size: 3.5rem; margin: 10px 0; font-weight: 800; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
 
-    .input-box { background: var(--card); border: 1px solid #222; padding: 20px; border-radius: 25px; margin-bottom: 25px; }
-    input { width: 100%; background: #111; border: 1px solid #333; padding: 12px; border-radius: 12px; color: white; font-size: 1rem; margin-bottom: 10px; outline: none; }
+    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 0 20px 50px 20px; min-height: 100vh; }
     
-    .btn-add { width: 100%; background: var(--success); color: black; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1rem; }
+    .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .navbar a:hover { color: var(--text); }
+    .active { color: white !important; }
 
-    .goal-card { background: var(--card); border: 1px solid #222; padding: 20px; border-radius: 25px; margin-bottom: 15px; }
-    .goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .goal-header h2 { margin: 0; font-size: 1.2rem; }
+    .container { width: 100%; max-width: 900px; }
     
-    .progress-bg { background: #111; height: 12px; border-radius: 10px; overflow: hidden; margin-bottom: 10px; border: 1px solid #222; }
-    .progress-fill { background: var(--success); height: 100%; transition: 0.5s; }
+    .creator-box { 
+      background: linear-gradient(145deg, #0f0f0f, #050505); 
+      border: 2px solid #1a1a1a; 
+      padding: 40px; 
+      border-radius: 40px; 
+      margin-bottom: 40px; 
+      text-align: center;
+    }
+    .creator-box h2 { margin-top: 0; font-size: 2rem; font-weight: 800; margin-bottom: 25px; }
+    .input-group-big { display: flex; gap: 15px; max-width: 600px; margin: 0 auto; }
+    .input-group-big input { 
+      flex: 1; background: #111; border: 1px solid #333; padding: 20px; 
+      border-radius: 20px; color: white; outline: none; font-size: 1.2rem;
+    }
+    .btn-create { 
+      background: var(--blue); color: white; border: none; padding: 0 30px; 
+      border-radius: 20px; font-weight: 800; cursor: pointer; transition: 0.3s;
+    }
+    .btn-create:hover { transform: scale(1.05); }
+
+    .goals-grid { display: grid; grid-template-columns: 1fr; gap: 25px; }
+    .goal-card { 
+      background: var(--card); border: 1px solid #222; padding: 30px; 
+      border-radius: 35px; position: relative; display: grid;
+      grid-template-columns: 1fr 300px; gap: 20px;
+    }
     
-    .goal-footer { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); }
+    .goal-main h3 { margin: 0; font-size: 1.8rem; color: var(--blue); font-weight: 800; }
+    .goal-main .amount { font-size: 3rem; font-weight: 800; margin: 10px 0; }
     
-    .goal-actions { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px; }
-    .btn-small { padding: 10px; border-radius: 10px; border: 1px solid #333; background: #111; color: white; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
-    .btn-del { color: #ff3333; border-color: #300; }
+    .goal-controls { display: flex; gap: 10px; margin-top: 15px; }
+    .goal-controls input { 
+      width: 120px; background: #111; border: 1px solid #333; 
+      padding: 12px; border-radius: 15px; color: white; outline: none;
+    }
+    .btn-op { border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; cursor: pointer; }
+
+    .goal-history { 
+      background: #050505; border-radius: 20px; padding: 15px; 
+      font-size: 0.85rem; height: 180px; overflow-y: auto; border: 1px solid #111;
+    }
+    .hist-title { font-weight: 600; color: var(--muted); margin-bottom: 10px; display: block; font-size: 0.7rem; text-transform: uppercase; }
+    .hist-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #111; }
+    
+    .delete-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #222; cursor: pointer; font-size: 1.2rem; }
+    .delete-btn:hover { color: var(--danger); }
+
+    @media (max-width: 850px) { 
+      .goal-card { grid-template-columns: 1fr; } 
+      .input-group-big { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
@@ -44,107 +82,138 @@
   <nav class="navbar">
       <a href="index.html">Home</a>
       <a href="vinted.html">Vinted</a>
-      <a href="risparmi.html" style="color:var(--success)">Risparmi</a>
+      <a href="risparmi.html" class="active">Risparmi</a>
+      <a href="info.html">Info</a>
   </nav>
 
   <div class="container">
-    <div class="header-card">
-      <span>Totale Risparmi</span>
-      <h1 id="total-savings">€ 0,00</h1>
-    </div>
-
-    <div class="input-box">
-      <h3 style="margin-top:0; font-size:0.8rem; color:var(--muted); text-transform:uppercase">Nuovo Obiettivo</h3>
-      <input type="text" id="goal-name" placeholder="Esempio: Nuovo iPhone">
-      <input type="number" id="goal-target" placeholder="Cifra target (€)">
-      <button class="btn-add" onclick="addGoal()">CREA SALVADANAIO</button>
-    </div>
-
-    <div id="goals-list">
+    <div class="creator-box">
+      <h2>Nuovo Obiettivo</h2>
+      <div class="input-group-big">
+        <input type="text" id="goal-name" placeholder="Es. Telefono">
+        <button class="btn-create" onclick="createGoal()">CREA</button>
       </div>
+    </div>
+
+    <div class="goals-grid" id="goals-container"></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  <script>
+    // Caricamento sicuro: se la struttura non esiste, la inizializza correttamente
+    let rawData = localStorage.getItem('wallet_infinite_data');
+    let db = rawData ? JSON.parse(rawData) : { total: 0, logs: [], extra: 0, extraLogs: [], goals: [] };
+    
+    // Assicuriamoci che l'array goals esista sempre
+    if (!db.goals) db.goals = [];
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDTYlXWmpTqJDsbrww39Rk7r7ZFC40xqkw",
-      authDomain: "conto-corrente.firebaseapp.com",
-      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "conto-corrente",
-      storageBucket: "conto-corrente.appspot.com",
-      messagingSenderId: "138913358347",
-      appId: "1:138913358347:web:35a016a855be2597989d0e"
-    };
+    function createGoal() {
+      const nameInput = document.getElementById('goal-name');
+      const name = nameInput.value.trim();
+      
+      if (name === "") {
+        alert("Inserisci un nome per l'obiettivo!");
+        return;
+      }
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const goalsRef = ref(db, 'goals');
+      const newGoal = {
+        id: Date.now(),
+        name: name,
+        amount: 0,
+        history: []
+      };
 
-    let goals = [];
+      db.goals.push(newGoal);
+      nameInput.value = '';
+      saveAndRender();
+    }
 
-    onValue(goalsRef, (snapshot) => {
-      goals = snapshot.val() || [];
-      updateUI();
-    });
+    function updateGoal(id, type) {
+      const input = document.getElementById(`input-${id}`);
+      const val = parseFloat(input.value);
+      
+      if (isNaN(val) || val <= 0) {
+        alert("Inserisci un importo valido!");
+        return;
+      }
 
-    function updateUI() {
-      const listDiv = document.getElementById('goals-list');
-      const totalH1 = document.getElementById('total-savings');
-      let totalSaved = 0;
-      listDiv.innerHTML = '';
+      const goal = db.goals.find(g => g.id === id);
+      const ora = new Date();
+      const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+      
+      if (type === 'add') {
+        goal.amount += val;
+        goal.history.push({ val: `+${val.toFixed(2)}`, date: timeStr, color: 'var(--success)' });
+      } else {
+        if (goal.amount - val < 0) {
+          alert("Fondi insufficienti in questo salvadanaio!");
+          return;
+        }
+        goal.amount -= val;
+        goal.history.push({ val: `-${val.toFixed(2)}`, date: timeStr, color: 'var(--danger)' });
+      }
 
-      goals.forEach((g, i) => {
-        totalSaved += parseFloat(g.current);
-        const percent = Math.min((g.current / g.target) * 100, 100).toFixed(0);
-        
-        listDiv.innerHTML += `
+      input.value = '';
+      saveAndRender();
+    }
+
+    function deleteGoal(id) {
+      if (confirm("Vuoi davvero eliminare questo obiettivo?")) {
+        db.goals = db.goals.filter(g => g.id !== id);
+        saveAndRender();
+      }
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('wallet_infinite_data', JSON.stringify(db));
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById('goals-container');
+      container.innerHTML = '';
+      
+      if (db.goals.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--muted);">Nessun obiettivo attivo. Creane uno sopra!</p>';
+        return;
+      }
+
+      db.goals.forEach(goal => {
+        // Genera cronologia
+        let historyHTML = "";
+        if (goal.history && goal.history.length > 0) {
+          historyHTML = [...goal.history].reverse().map(h => `
+            <div class="hist-item">
+              <span style="color:${h.color}; font-weight:800">${h.val}€</span>
+              <span style="color:var(--muted)">${h.date}</span>
+            </div>
+          `).join('');
+        } else {
+          historyHTML = '<div style="color:#222; text-align:center; margin-top:20px;">Ancora nessun movimento</div>';
+        }
+
+        container.innerHTML += `
           <div class="goal-card">
-            <div class="goal-header">
-              <h2>${g.name}</h2>
-              <b style="color:var(--success)">${percent}%</b>
+            <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
+            <div class="goal-main">
+              <h3>${goal.name}</h3>
+              <div class="amount">€ ${goal.amount.toLocaleString('it-IT', {minimumFractionDigits: 2})}</div>
+              <div class="goal-controls">
+                <input type="number" id="input-${goal.id}" placeholder="€">
+                <button class="btn-op" style="background:var(--success); color:black" onclick="updateGoal(${goal.id}, 'add')">Aggiungi</button>
+                <button class="btn-op" style="background:var(--danger); color:white" onclick="updateGoal(${goal.id}, 'sub')">Togli</button>
+              </div>
             </div>
-            <div class="progress-bg"><div class="progress-fill" style="width:${percent}%"></div></div>
-            <div class="goal-footer">
-              <span>€${g.current} messi da parte</span>
-              <span>Target: €${g.target}</span>
-            </div>
-            <div class="goal-actions">
-              <button class="btn-small" onclick="modifyGoal(${i}, 10)">+10€</button>
-              <button class="btn-small" onclick="modifyGoal(${i}, 50)">+50€</button>
-              <button class="btn-small btn-del" onclick="deleteGoal(${i})">Elimina</button>
+            <div class="goal-history">
+              <span class="hist-title">Cronologia</span>
+              ${historyHTML}
             </div>
           </div>
         `;
       });
-
-      totalH1.textContent = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(totalSaved);
     }
 
-    window.addGoal = () => {
-      const name = document.getElementById('goal-name').value;
-      const target = document.getElementById('goal-target').value;
-      if(!name || !target) return;
-      goals.push({ name, target: parseFloat(target), current: 0 });
-      save();
-      document.getElementById('goal-name').value = '';
-      document.getElementById('goal-target').value = '';
-    };
-
-    window.modifyGoal = (i, amount) => {
-      goals[i].current += amount;
-      save();
-    };
-
-    window.deleteGoal = (i) => {
-      if(confirm("Eliminare questo salvadanaio?")) {
-        goals.splice(i, 1);
-        save();
-      }
-    };
-
-    function save() { set(goalsRef, goals); }
+    // Avvio iniziale
+    render();
   </script>
 </body>
 </html>
