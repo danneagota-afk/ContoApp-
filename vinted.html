@@ -2,26 +2,23 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vinted - Registro Attività</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vinted - Registro Cloud</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
     :root { 
       --bg: #000000; --card: #0a0a0a; --text: #ffffff; 
       --muted: #888888; --blue: #3b82f6; --danger: #ff3333; --success: #22c55e;
+      --vinted: #008f95;
     }
-    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
     
     input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
 
     body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 0 20px 30px 20px; min-height: 100vh; }
     
-    /* NAVBAR AGGIORNATA */
     .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
     .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
     .navbar a:hover { color: var(--text); }
@@ -43,16 +40,16 @@
 
     .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
     input { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #222; background: #111; color: white; outline: none; font-size: 1rem; }
-    input:focus { border-color: var(--blue); }
+    input:focus { border-color: var(--vinted); }
     
     .btn-add { padding: 12px 20px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
-    .btn-in { background: var(--blue); }
+    .btn-in { background: var(--vinted); }
     .btn-out { background: var(--danger); }
     .btn-add:hover { opacity: 0.8; transform: scale(1.02); }
 
     .list { height: 400px; overflow-y: auto; padding-right: 5px; }
-    .item { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 4px solid #333; display: flex; justify-content: space-between; align-items: center; animation: slideIn 0.3s ease-out; }
-    .item.in { border-left-color: var(--success); }
+    .item { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 4px solid #333; display: flex; justify-content: space-between; align-items: center; }
+    .item.in { border-left-color: var(--vinted); }
     .item.out { border-left-color: var(--danger); }
     
     .item-info b { display: block; font-size: 1.1rem; }
@@ -61,7 +58,6 @@
     .btn-reset { margin-top: 40px; background: none; border: 1px solid #222; color: #444; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
     .btn-reset:hover { border-color: var(--danger); color: var(--danger); }
 
-    @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
     @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -76,100 +72,108 @@
 
   <div class="container">
     <div class="box">
-      <h2>Entrate <span class="total-mini" id="tot-in">€0.00</span></h2>
+      <h2 style="color: var(--vinted);">Entrate <span class="total-mini" id="tot-in">€0.00</span></h2>
       <div class="input-group">
-        <input type="number" id="input-in" placeholder="Importo incassato €" step="0.01">
-        <button class="btn-add btn-in" onclick="aggiungi('in')">Aggiungi</button>
+        <input type="number" id="input-in" placeholder="Incasso €" step="0.01">
+        <button class="btn-add btn-in" id="add-in-btn">Aggiungi</button>
       </div>
       <div class="list" id="lista-in"></div>
     </div>
 
     <div class="box">
-      <h2>Uscite <span class="total-mini" id="tot-out">€0.00</span></h2>
+      <h2 style="color: var(--danger);">Uscite <span class="total-mini" id="tot-out">€0.00</span></h2>
       <div class="input-group">
-        <input type="number" id="input-out" placeholder="Importo speso €" step="0.01">
-        <button class="btn-add btn-out" onclick="aggiungi('out')">Aggiungi</button>
+        <input type="number" id="input-out" placeholder="Spesa €" step="0.01">
+        <button class="btn-add btn-out" id="add-out-btn">Aggiungi</button>
       </div>
       <div class="list" id="lista-out"></div>
     </div>
   </div>
 
-  <button class="btn-reset" onclick="resetVinted()">Svuota cronologia Vinted</button>
+  <button class="btn-reset" id="reset-btn">Svuota cronologia Vinted</button>
 
-  <script>
-    let datiVinted = JSON.parse(localStorage.getItem('vinted_logs')) || { entrate: [], uscite: [] };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYlXWmpTqJDsbrww39Rk7r7ZFC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.appspot.com",
+      messagingSenderId: "138913358347",
+      appId: "1:138913358347:web:35a016a855be2597989d0e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const dbFirebase = getDatabase(app);
+    const vintedRef = ref(dbFirebase, 'vinted_data');
+
+    let datiVinted = { entrate: [], uscite: [] };
+
+    // Ascolta i dati dal Database
+    onValue(vintedRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        datiVinted = data;
+        renderizzaListe();
+      }
+    });
 
     function aggiungi(tipo) {
       const input = document.getElementById(`input-${tipo}`);
       const valore = parseFloat(input.value);
       
-      if (isNaN(valore) || valore <= 0) {
-        alert("Inserisci un importo valido");
-        return;
-      }
+      if (isNaN(valore) || valore <= 0) return alert("Inserisci un importo valido");
 
-      // Controllo saldo solo per uscite
+      // Controllo saldo per uscite
       if (tipo === 'out') {
         const sommaIn = datiVinted.entrate.reduce((acc, t) => acc + t.valore, 0);
         const sommaOut = datiVinted.uscite.reduce((acc, t) => acc + t.valore, 0);
-        const saldoDisponibile = sommaIn - sommaOut;
-
-        if (valore > saldoDisponibile) {
-          alert("Operazione bloccata: non hai abbastanza fondi su Vinted!");
-          return;
-        }
+        if (valore > (sommaIn - sommaOut)) return alert("Fondi insufficienti su Vinted!");
       }
 
       const ora = new Date();
       const dataStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-      
       const nuovaTransazione = { valore, data: dataStr };
 
-      if (tipo === 'in') {
-        datiVinted.entrate.push(nuovaTransazione);
-      } else {
-        datiVinted.uscite.push(nuovaTransazione);
-      }
+      if (tipo === 'in') datiVinted.entrate.push(nuovaTransazione);
+      else datiVinted.uscite.push(nuovaTransazione);
 
       input.value = '';
-      salvaEAggiorna();
-    }
-
-    function salvaEAggiorna() {
-      localStorage.setItem('vinted_logs', JSON.stringify(datiVinted));
-      renderizzaListe();
+      set(vintedRef, datiVinted); // Salva su Cloud
     }
 
     function renderizzaListe() {
       const listaIn = document.getElementById('lista-in');
       const listaOut = document.getElementById('lista-out');
-      let totaleE = 0;
-      let totaleU = 0;
+      let tE = 0, tU = 0;
 
       listaIn.innerHTML = '';
       [...datiVinted.entrate].reverse().forEach(t => {
-        totaleE += t.valore;
+        tE += t.valore;
         listaIn.innerHTML += `<div class="item in"><div class="item-info"><b>+ €${t.valore.toFixed(2)}</b><span>${t.data}</span></div></div>`;
       });
 
       listaOut.innerHTML = '';
       [...datiVinted.uscite].reverse().forEach(t => {
-        totaleU += t.valore;
+        tU += t.valore;
         listaOut.innerHTML += `<div class="item out"><div class="item-info"><b>- €${t.valore.toFixed(2)}</b><span>${t.data}</span></div></div>`;
       });
 
-      document.getElementById('tot-in').textContent = `€${totaleE.toFixed(2)}`;
-      document.getElementById('tot-out').textContent = `€${totaleU.toFixed(2)}`;
+      document.getElementById('tot-in').textContent = `€${tE.toFixed(2)}`;
+      document.getElementById('tot-out').textContent = `€${tU.toFixed(2)}`;
     }
 
-    function resetVinted() {
-      if (confirm("Vuoi cancellare tutto lo storico di Vinted?")) {
-        datiVinted = { entrate: [], uscite: [] };
-        salvaEAggiorna();
+    // Event Listeners per i bottoni (necessari con type="module")
+    document.getElementById('add-in-btn').onclick = () => aggiungi('in');
+    document.getElementById('add-out-btn').onclick = () => aggiungi('out');
+    document.getElementById('reset-btn').onclick = () => {
+      if (confirm("Cancellare tutto lo storico Vinted dal Cloud?")) {
+        set(vintedRef, { entrate: [], uscite: [] });
       }
-    }
-
-    renderizzaListe();
+    };
   </script>
 </body>
 </html>
