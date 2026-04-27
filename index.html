@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Home - Conto Corrente Dan</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
@@ -69,7 +69,6 @@
     .side { background: var(--card); border-radius: 40px; padding: 25px; border: 1px solid #151515; height: calc(100vh - 150px); display: flex; flex-direction: column; position: sticky; top: 30px; }
     .history { flex: 1; overflow-y: auto; }
     
-    /* Stile per la riga log con tasto X */
     .log { 
       padding: 16px; border-radius: 18px; background: #111; margin-bottom: 12px; 
       border-left: 4px solid var(--blue); position: relative; 
@@ -100,7 +99,7 @@
 
   <div id="undo-toast">
     <span>Azione eseguita</span>
-    <button onclick="undo()" style="background:var(--danger); color:white; border:none; border-radius:8px; padding:5px 10px; cursor:pointer">UNDO</button>
+    <button id="undo-btn-action" style="background:var(--danger); color:white; border:none; border-radius:8px; padding:5px 10px; cursor:pointer">UNDO</button>
   </div>
 
   <div id="modal">
@@ -108,27 +107,27 @@
       <h2 style="margin-top:0">Operazione <span id="modal-val-display"></span>€</h2>
       <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px">Preleva da:</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
-        <button id="m-btn-cash" class="m-type-btn active" onclick="setModalType('Cash')">CASH</button>
-        <button id="m-btn-card" class="m-type-btn" onclick="setModalType('Carta')">CARTA</button>
+        <button id="m-btn-cash" class="m-type-btn active">CASH</button>
+        <button id="m-btn-card" class="m-type-btn">CARTA</button>
       </div>
       <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; margin-bottom: 15px;">
         <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase;">Entrata Semplice (Patrimonio)</div>
-        <button class="modal-btn" onclick="addMoney('Vinted')">Vinted</button>
-        <button class="modal-btn" onclick="addMoney('Lavoro')">Lavoro</button>
+        <button class="modal-btn" id="m-vinted-btn">Vinted</button>
+        <button class="modal-btn" id="m-lavoro-btn">Lavoro</button>
         <div id="other-input-area" style="display:none; margin-top:10px">
           <input type="text" id="m-other-reason" class="extra-input" style="width:100%; border-color:var(--blue)" placeholder="Motivo...">
-          <button class="modal-btn" style="background:var(--blue)" onclick="addMoney(document.getElementById('m-other-reason').value || 'Altro')">CONFERMA</button>
+          <button class="modal-btn" id="m-confirm-other" style="background:var(--blue)">CONFERMA</button>
         </div>
-        <button id="m-other-btn" class="modal-btn" onclick="showOtherInput()">Altro motivo...</button>
+        <button id="m-other-btn" class="modal-btn">Altro motivo...</button>
       </div>
       <div style="border: 2px solid var(--success); padding: 15px; border-radius: 20px;">
         <div style="color:var(--success); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase; font-weight:800">Sposta in Obiettivo</div>
         <select id="modal-goal-select" class="extra-select" style="width: 100%; margin-bottom: 10px; border-color: var(--success);">
           <option value="">-- Scegli Salvadanaio --</option>
         </select>
-        <button class="modal-btn" style="background:var(--success); color:black" onclick="addMoneyToGoalModal()">CONFERMA SPOSTAMENTO</button>
+        <button id="m-confirm-goal" class="modal-btn" style="background:var(--success); color:black">CONFERMA SPOSTAMENTO</button>
       </div>
-      <button class="modal-btn" style="background:var(--danger); margin-top:20px" onclick="closeModal()">Chiudi</button>
+      <button class="modal-btn" id="m-close-btn" style="background:var(--danger); margin-top:20px">Chiudi</button>
     </div>
   </div>
 
@@ -137,12 +136,12 @@
       <h2 style="margin-top:0; color: var(--danger);">Togli <span id="modal-sub-val-display"></span>€</h2>
       <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase;">Togli da:</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
-        <button id="ms-btn-cash" class="m-type-btn active" onclick="setSubModalType('Cash')">CASH</button>
-        <button id="ms-btn-card" class="m-type-btn" onclick="setSubModalType('Carta')">CARTA</button>
+        <button id="ms-btn-cash" class="m-type-btn active">CASH</button>
+        <button id="ms-btn-card" class="m-type-btn">CARTA</button>
       </div>
       <input type="text" id="ms-reason" class="extra-input" style="width:100%; border-color:var(--danger); margin-bottom:10px;" placeholder="Motivo prelievo...">
-      <button class="modal-btn" style="background:var(--danger)" onclick="confirmSub()">CONFERMA USCITA</button>
-      <button class="modal-btn" style="background:#111" onclick="closeSubModal()">Annulla</button>
+      <button id="ms-confirm-btn" class="modal-btn" style="background:var(--danger)">CONFERMA USCITA</button>
+      <button id="ms-cancel-btn" class="modal-btn" style="background:#111">Annulla</button>
     </div>
   </div>
 
@@ -158,8 +157,8 @@
       </div>
       
       <div class="grid">
-        <div class="col"><div class="note n20" onclick="openModal(20)">20€</div><button class="sub-bar" onclick="op(20)">− Togli 20</button></div>
-        <div class="col"><div class="note n50" onclick="openModal(50)">50€</div><button class="sub-bar" onclick="op(50)">− Togli 50</button></div>
+        <div class="col"><div class="note n20" id="note20">20€</div><button class="sub-bar" id="sub20">− Togli 20</button></div>
+        <div class="col"><div class="note n50" id="note50">50€</div><button class="sub-bar" id="sub50">− Togli 50</button></div>
       </div>
 
       <div class="extra-box" style="border-color: rgba(34, 197, 94, 0.2);">
@@ -171,13 +170,13 @@
               <div style="font-size:0.7rem; color:var(--muted); margin-bottom:5px">NUOVA ENTRATA</div>
               <input type="text" id="add-reason-input" class="extra-input" placeholder="Motivo..." style="margin-bottom:5px; font-size: 0.8rem;">
               <select id="add-type-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
-              <button class="extra-btn" style="width: 100%;" onclick="addCustom()">AGGIUNGI</button>
+              <button class="extra-btn" id="add-custom-btn" style="width: 100%;">AGGIUNGI</button>
             </div>
             <div style="background: rgba(34, 197, 94, 0.05); border: 1px solid #222; padding: 15px; border-radius: 20px;">
               <div style="font-size:0.7rem; color:var(--success); margin-bottom:5px">SPOSTA IN OBIETTIVO</div>
               <select id="quick-goal-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="">-- Scegli Obiettivo --</option></select>
               <select id="quick-source-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
-              <button class="extra-btn" style="background:var(--success); color:black; width: 100%;" onclick="addCustomGoal()">SPOSTA</button>
+              <button class="extra-btn" id="add-custom-goal-btn" style="background:var(--success); color:black; width: 100%;">SPOSTA</button>
             </div>
           </div>
         </div>
@@ -189,7 +188,7 @@
           <input type="number" id="sub-money-input" class="extra-input" placeholder="€">
           <input type="text" id="sub-reason-input" class="extra-input" placeholder="Motivo...">
           <select id="sub-type-select" class="extra-select"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
-          <button class="sub-btn" onclick="subCustom()">TOGLI</button>
+          <button class="sub-btn" id="sub-custom-btn">TOGLI</button>
         </div>
       </div>
 
@@ -198,11 +197,11 @@
         <div class="extra-input-group">
           <input type="number" id="extra-money-input" class="extra-input" placeholder="€">
           <input type="text" id="extra-reason-input" class="extra-input" placeholder="Motivo...">
-          <button class="extra-btn" onclick="addExtra()">AGGIUNGI</button>
+          <button class="extra-btn" id="add-extra-btn">AGGIUNGI</button>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
             <div class="extra-val" id="extra-display">€ 0,00</div>
-            <button class="reset" onclick="resetExtra()">Svuota Lista</button>
+            <button class="reset" id="reset-extra-btn">Svuota Lista</button>
         </div>
         <div id="extra-history"></div>
       </div>
@@ -211,11 +210,29 @@
     <aside class="side">
       <h2>Movimenti</h2>
       <div class="history" id="history"></div>
-      <button class="reset" onclick="resetAll()">RESET TUTTO</button>
+      <button class="reset" id="reset-all-btn">RESET TUTTO</button>
     </aside>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.firebasestorage.app",
+      messagingSenderId: "138913358347",
+      appId: "1:138913358347:web:35a016a855be2597989d0e",
+      measurementId: "G-RRNLFRELW0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const dbFirebase = getDatabase(app);
+    const walletRef = ref(dbFirebase, 'wallet_infinite_data');
+
     let db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] };
     let tempVal = 0;
     let tempType = 'Cash';
@@ -223,6 +240,22 @@
     let subTempType = 'Cash';
     let lastState = null;
     let undoTimeout = null;
+
+    // Sincronizzazione Cloud
+    onValue(walletRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        db = data;
+        if (!db.goals) db.goals = [];
+        if (!db.extraLogs) db.extraLogs = [];
+        if (!db.logs) db.logs = [];
+        updateUI();
+      }
+    });
+
+    function pushToCloud() {
+      set(walletRef, db);
+    }
 
     function saveState() {
       lastState = JSON.stringify(db);
@@ -232,23 +265,13 @@
       undoTimeout = setTimeout(() => { toast.style.display = 'none'; }, 10000);
     }
 
-    function undo() { 
+    window.undo = function() { 
       if (lastState) { 
         db = JSON.parse(lastState); 
         lastState = null; 
         document.getElementById('undo-toast').style.display = 'none'; 
-        updateUI(); 
+        pushToCloud(); 
       } 
-    }
-
-    function loadData() {
-        const saved = localStorage.getItem('wallet_infinite_data');
-        if (saved) {
-            db = JSON.parse(saved);
-            if (!db.goals) db.goals = [];
-            if (!db.extraLogs) db.extraLogs = [];
-        }
-        updateUI();
     }
 
     function refreshGoalDropdowns() {
@@ -268,7 +291,9 @@
       document.getElementById('m-other-btn').style.display = 'block';
       refreshGoalDropdowns();
     }
+    
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    
     function setModalType(type) {
       tempType = type;
       document.getElementById('m-btn-cash').classList.toggle('active', type === 'Cash');
@@ -281,12 +306,15 @@
       document.getElementById('ms-reason').value = "";
       document.getElementById('modal-sub').style.display = 'flex';
     }
+    
     function closeSubModal() { document.getElementById('modal-sub').style.display = 'none'; }
+    
     function setSubModalType(type) {
       subTempType = type;
       document.getElementById('ms-btn-cash').classList.toggle('active', type === 'Cash');
       document.getElementById('ms-btn-card').classList.toggle('active', type === 'Carta');
     }
+
     function confirmSub() {
       const motivo = document.getElementById('ms-reason').value || "Altro";
       if (subTempType === 'Cash' && db.cash < subTempVal) return alert("Cash insufficiente!");
@@ -295,6 +323,7 @@
       if (subTempType === 'Cash') db.cash -= subTempVal; else db.card -= subTempVal;
       saveLog(subTempVal, 'sub', `${motivo} (${subTempType})`);
       closeSubModal();
+      pushToCloud();
     }
 
     function addMoney(source) {
@@ -302,6 +331,7 @@
       if (tempType === 'Cash') db.cash += tempVal; else db.card += tempVal;
       saveLog(tempVal, 'add', `${source} (${tempType})`);
       closeModal();
+      pushToCloud();
     }
 
     function addMoneyToGoalModal() {
@@ -315,9 +345,11 @@
       const ora = new Date();
       const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
       goal.amount += tempVal;
+      if(!goal.history) goal.history = [];
       goal.history.push({ val: `+${tempVal.toFixed(2)}`, date: timeStr, color: 'var(--success)' });
       saveLog(tempVal, 'sub', `Spostato in ${goal.name} (${tempType})`);
       closeModal();
+      pushToCloud();
     }
 
     function addCustomGoal() {
@@ -334,9 +366,11 @@
       const ora = new Date();
       const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
       goal.amount += val;
+      if(!goal.history) goal.history = [];
       goal.history.push({ val: `+${val.toFixed(2)}`, date: timeStr, color: 'var(--success)' });
       saveLog(val, 'sub', `Spostato in ${goal.name} (${source})`);
       v.value = "";
+      pushToCloud();
     }
 
     function addCustom() {
@@ -349,6 +383,7 @@
       if (t === 'Cash') db.cash += val; else db.card += val;
       saveLog(val, 'add', `${r.value || "Entrata"} (${t})`);
       v.value = ""; r.value = "";
+      pushToCloud();
     }
 
     function subCustom() {
@@ -362,6 +397,7 @@
       if (t === 'Cash') db.cash -= val; else db.card -= val;
       saveLog(val, 'sub', `${r.value || "Spesa"} (${t})`);
       v.value = ""; r.value = "";
+      pushToCloud();
     }
 
     function saveLog(val, type, source) {
@@ -371,11 +407,10 @@
       updateUI();
     }
 
-    // ELIMINA SOLO IL LOG (non tocca i soldi)
-    function deleteLog(index) {
+    window.deleteLog = function(index) {
       saveState();
       db.logs.splice(index, 1);
-      updateUI();
+      pushToCloud();
     }
 
     function updateUI() {
@@ -389,8 +424,6 @@
       document.getElementById('extra-display').textContent = Euro.format(db.extra);
       
       const hist = document.getElementById('history'); hist.innerHTML = '';
-      
-      // Costruzione dei log con X per eliminare riga
       for (let i = db.logs.length - 1; i >= 0; i--) {
         const l = db.logs[i];
         hist.innerHTML += `
@@ -408,16 +441,36 @@
           eHist.innerHTML += `<div class="extra-log-item"><div style="display:flex; align-items:center"><button class="del-log" onclick="deleteExtraLog(${l.id})">×</button>
             <span>${l.reason} <small style="color:#555">(${l.date})</small></span></div><b style="color:var(--success)">+${l.val}€</b></div>`;
       });
-      localStorage.setItem('wallet_infinite_data', JSON.stringify(db));
       refreshGoalDropdowns();
     }
 
-    function showOtherInput() {
+    window.deleteExtraLog = function(id) { saveState(); db.extraLogs = db.extraLogs.filter(item => item.id !== id); pushToCloud(); }
+    
+    // Event Listeners
+    document.getElementById('undo-btn-action').onclick = () => window.undo();
+    document.getElementById('note20').onclick = () => openModal(20);
+    document.getElementById('note50').onclick = () => openModal(50);
+    document.getElementById('sub20').onclick = () => op(20);
+    document.getElementById('sub50').onclick = () => op(50);
+    document.getElementById('m-btn-cash').onclick = () => setModalType('Cash');
+    document.getElementById('m-btn-card').onclick = () => setModalType('Carta');
+    document.getElementById('m-vinted-btn').onclick = () => addMoney('Vinted');
+    document.getElementById('m-lavoro-btn').onclick = () => addMoney('Lavoro');
+    document.getElementById('m-confirm-other').onclick = () => addMoney(document.getElementById('m-other-reason').value || 'Altro');
+    document.getElementById('m-other-btn').onclick = () => {
       document.getElementById('other-input-area').style.display = 'block';
       document.getElementById('m-other-btn').style.display = 'none';
-    }
-
-    function addExtra() {
+    };
+    document.getElementById('m-confirm-goal').onclick = () => addMoneyToGoalModal();
+    document.getElementById('m-close-btn').onclick = () => closeModal();
+    document.getElementById('ms-btn-cash').onclick = () => setSubModalType('Cash');
+    document.getElementById('ms-btn-card').onclick = () => setSubModalType('Carta');
+    document.getElementById('ms-confirm-btn').onclick = () => confirmSub();
+    document.getElementById('ms-cancel-btn').onclick = () => closeSubModal();
+    document.getElementById('add-custom-btn').onclick = () => addCustom();
+    document.getElementById('add-custom-goal-btn').onclick = () => addCustomGoal();
+    document.getElementById('sub-custom-btn').onclick = () => subCustom();
+    document.getElementById('add-extra-btn').onclick = () => {
       const v = document.getElementById('extra-money-input');
       const r = document.getElementById('extra-reason-input');
       const val = parseFloat(v.value);
@@ -425,13 +478,11 @@
       saveState();
       db.extraLogs.push({ id: Date.now(), val: val, reason: r.value || "Risparmio", date: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) });
       v.value = ""; r.value = "";
-      updateUI();
-    }
-    function deleteExtraLog(id) { saveState(); db.extraLogs = db.extraLogs.filter(item => item.id !== id); updateUI(); }
-    function resetExtra() { if(confirm("Svuotare lista?")) { saveState(); db.extraLogs = []; updateUI(); } }
-    function resetAll() { if (confirm('Vuoi resettare tutto?')) { db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] }; updateUI(); } }
-    
-    loadData();
+      pushToCloud();
+    };
+    document.getElementById('reset-extra-btn').onclick = () => { if(confirm("Svuotare lista?")) { saveState(); db.extraLogs = []; pushToCloud(); } };
+    document.getElementById('reset-all-btn').onclick = () => { if (confirm('Vuoi resettare tutto?')) { db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] }; pushToCloud(); } };
+
   </script>
 </body>
 </html>
