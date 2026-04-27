@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Info - Guida all'uso</title>
+  <title>Info - Guida e Statistiche</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
     :root { 
@@ -22,6 +22,14 @@
 
     .container { width: 100%; max-width: 850px; }
     
+    /* Dashboard Stats */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 40px; }
+    .stat-card { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 30px; text-align: center; }
+    .stat-card.full { grid-column: span 2; border-color: var(--blue); background: linear-gradient(145deg, #0a0a0a, #111); }
+    .stat-card small { display: block; color: var(--muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 5px; }
+    .stat-card b { font-size: 1.8rem; font-weight: 800; }
+    .stat-card.full b { font-size: 3rem; color: var(--blue); }
+
     .section { background: var(--card); border: 1px solid #151515; padding: 35px; border-radius: 35px; margin-bottom: 30px; }
     
     h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
@@ -42,7 +50,6 @@
     .tag-green { background: rgba(34, 197, 94, 0.15); color: var(--success); }
     .tag-red { background: rgba(255, 51, 51, 0.15); color: var(--danger); }
 
-    /* Colori Specifici Sezioni */
     .sec-home h2 { color: var(--blue); }
     .sec-vinted h2 { color: var(--vinted); }
     .sec-risparmi h2 { color: var(--success); }
@@ -60,6 +67,23 @@
   </nav>
 
   <div class="container">
+    <h1>Statistiche Cloud</h1>
+    
+    <div class="stats-grid">
+      <div class="stat-card full">
+        <small>Patrimonio Totale</small>
+        <b id="stat-total">€ 0,00</b>
+      </div>
+      <div class="stat-card">
+        <small>Saldo Vinted</small>
+        <b id="stat-vinted" style="color: var(--vinted);">€ 0,00</b>
+      </div>
+      <div class="stat-card">
+        <small>Salvadanaio Totale</small>
+        <b id="stat-goals" style="color: var(--success);">€ 0,00</b>
+      </div>
+    </div>
+
     <h1>Guida Rapida</h1>
     <p style="text-align: center; color: var(--muted); margin-bottom: 40px;">Scopri come gestire al meglio il tuo denaro</p>
 
@@ -124,9 +148,49 @@
     </div>
 
     <footer>
-      Dan Finance Manager &bull; 2026 &bull; I dati sono salvati localmente sul browser.
+      Dan Finance Manager &bull; 2026 &bull; Dati sincronizzati su Firebase Cloud.
     </footer>
   </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.firebasestorage.app",
+      messagingSenderId: "138913358347",
+      appId: "1:138913358347:web:35a016a855be2597989d0e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const fmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+
+    // Legge tutti i dati per le statistiche
+    onValue(ref(db), (snap) => {
+      const data = snap.val() || {};
+      
+      // Calcolo Home (Cash + Carta)
+      const home = (data.wallet_infinite_data?.cash || 0) + (data.wallet_infinite_data?.card || 0);
+      
+      // Calcolo Vinted
+      const vData = data.vinted_data || { entrate: [], uscite: [] };
+      const vIn = (vData.entrate || []).reduce((s, x) => s + x.valore, 0);
+      const vOut = (vData.uscite || []).reduce((s, x) => s + x.valore, 0);
+      const vinted = vIn - vOut;
+
+      // Calcolo Salvadanai (Goals)
+      const goals = (data.wallet_infinite_data?.goals || []).reduce((s, g) => s + (g.amount || 0), 0);
+
+      // Update UI
+      document.getElementById('stat-total').innerText = fmt.format(home + vinted + goals);
+      document.getElementById('stat-vinted').innerText = fmt.format(vinted);
+      document.getElementById('stat-goals').innerText = fmt.format(goals);
+    });
+  </script>
 </body>
 </html>
