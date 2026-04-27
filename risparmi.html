@@ -71,7 +71,6 @@
     .delete-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #222; cursor: pointer; font-size: 1.2rem; }
     .delete-btn:hover { color: var(--danger); }
 
-    /* --- STILE UNDO IDENTICO ALLA INDEX --- */
     #undo-toast { 
       position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
       background: #ffffff; color: #000000; padding: 12px 25px; border-radius: 50px; 
@@ -100,7 +99,7 @@
 
   <div id="undo-toast">
     <span>Azione eseguita</span>
-    <button class="undo-btn-style" onclick="undo()">UNDO</button>
+    <button class="undo-btn-style" id="undo-btn">UNDO</button>
   </div>
 
   <div class="container">
@@ -108,50 +107,58 @@
       <h2>Nuovo Obiettivo</h2>
       <div class="input-group-big">
         <input type="text" id="goal-name" placeholder="Es. Telefono">
-        <button class="btn-create" onclick="createGoal()">CREA</button>
+        <button class="btn-create" id="btn-create-goal">CREA</button>
       </div>
     </div>
 
-    <div class="goals-grid" id="goals-container"></div>
+    <div class="goals-grid" id="goals-container">
+        <p style="text-align:center; color:var(--muted);">Caricamento obiettivi...</p>
+    </div>
   </div>
 
-  <script>
-    let rawData = localStorage.getItem('wallet_infinite_data');
-    let db = rawData ? JSON.parse(rawData) : { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] };
-    
-    if (!db.goals) db.goals = [];
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Variabili per Undo
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.firebasestorage.app",
+      messagingSenderId: "138913358347",
+      appId: "1:138913358347:web:35a016a855be2597989d0e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const dbRef = getDatabase(app);
+    
+    let currentData = { goals: [] };
     let lastState = null;
     let undoTimeout = null;
 
-    function saveState() {
-      lastState = JSON.stringify(db);
-      const toast = document.getElementById('undo-toast');
-      toast.style.display = 'flex';
-      if(undoTimeout) clearTimeout(undoTimeout);
-      undoTimeout = setTimeout(() => { toast.style.display = 'none'; }, 10000);
+    // --- LOGICA SINCRONIZZAZIONE ---
+    onValue(ref(dbRef, 'wallet_infinite_data'), (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        currentData = data;
+        if (!currentData.goals) currentData.goals = [];
+        render();
+      }
+    });
+
+    function saveToFirebase(dataToSave) {
+      set(ref(dbRef, 'wallet_infinite_data'), dataToSave);
     }
 
-    function undo() {
-            if (lastState) { 
-        db = JSON.parse(lastState); 
-        lastState = null; 
-        document.getElementById('undo-toast').style.display = 'none'; 
-        saveAndRender(); 
-      } 
-    }
-
-    function createGoal() {
+    // --- FUNZIONI CORE ---
+    window.createGoal = function() {
       const nameInput = document.getElementById('goal-name');
       const name = nameInput.value.trim();
       
-      if (name === "") {
-        alert("Inserisci un nome per l'obiettivo!");
-        return;
-      }
+      if (!name) return alert("Inserisci un nome!");
 
-      saveState(); // Rende annullabile la creazione
+      showUndo();
       const newGoal = {
         id: Date.now(),
         name: name,
@@ -159,99 +166,104 @@
         history: []
       };
 
-      db.goals.push(newGoal);
+      currentData.goals.push(newGoal);
       nameInput.value = '';
-      saveAndRender();
+      saveToFirebase(currentData);
     }
 
-    function updateGoal(id, type) {
+    window.updateGoal = function(id, type) {
       const input = document.getElementById(`input-${id}`);
       const val = parseFloat(input.value);
       
-      if (isNaN(val) || val <= 0) {
-        alert("Inserisci un importo valido!");
-        return;
-      }
+      if (isNaN(val) || val <= 0) return alert("Importo non valido!");
 
-      saveState(); // Salva lo stato prima di modificare i soldi
-      const goal = db.goals.find(g => g.id === id);
-      const ora = new Date();
-      const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
-      
+      showUndo();
+      const goal = currentData.goals.find(g => g.id === id);
+      const timeStr = new Date().toLocaleString('it-IT', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+
       if (type === 'add') {
         goal.amount += val;
+        if(!goal.history) goal.history = [];
         goal.history.push({ val: `+${val.toFixed(2)}`, date: timeStr, color: 'var(--success)' });
       } else {
-        if (goal.amount - val < 0) {
-          alert("Fondi insufficienti in questo salvadanaio!");
-          document.getElementById('undo-toast').style.display = 'none'; // Nascondi l'undo se fallisce
-          return;
-        }
+        if (goal.amount < val) return alert("Fondi insufficienti!");
         goal.amount -= val;
+        if(!goal.history) goal.history = [];
         goal.history.push({ val: `-${val.toFixed(2)}`, date: timeStr, color: 'var(--danger)' });
       }
 
       input.value = '';
-      saveAndRender();
+      saveToFirebase(currentData);
     }
 
-    function deleteGoal(id) {
-      if (confirm("Vuoi davvero eliminare questo obiettivo?")) {
-        saveState(); // Rende annullabile l'eliminazione
-        db.goals = db.goals.filter(g => g.id !== id);
-        saveAndRender();
+    window.deleteGoal = function(id) {
+      if (confirm("Eliminare definitivamente questo obiettivo?")) {
+        showUndo();
+        currentData.goals = currentData.goals.filter(g => g.id !== id);
+        saveToFirebase(currentData);
       }
     }
 
-    function saveAndRender() {
-      localStorage.setItem('wallet_infinite_data', JSON.stringify(db));
-      render();
+    // --- UNDO SYSTEM ---
+    function showUndo() {
+      lastState = JSON.parse(JSON.stringify(currentData));
+      const toast = document.getElementById('undo-toast');
+      toast.style.display = 'flex';
+      if(undoTimeout) clearTimeout(undoTimeout);
+      undoTimeout = setTimeout(() => { toast.style.display = 'none'; }, 10000);
     }
 
+    document.getElementById('undo-btn').onclick = () => {
+      if (lastState) {
+        currentData = lastState;
+        lastState = null;
+        document.getElementById('undo-toast').style.display = 'none';
+        saveToFirebase(currentData);
+      }
+    };
+
+    // --- RENDER ---
     function render() {
       const container = document.getElementById('goals-container');
       container.innerHTML = '';
       
-      if (db.goals.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--muted);">Nessun obiettivo attivo. Creane uno sopra!</p>';
+      if (currentData.goals.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--muted);">Nessun obiettivo attivo.</p>';
         return;
       }
 
-      db.goals.forEach(goal => {
-        let historyHTML = "";
-        if (goal.history && goal.history.length > 0) {
-          historyHTML = [...goal.history].reverse().map(h => `
-            <div class="hist-item">
-              <span style="color:${h.color}; font-weight:800">${h.val}€</span>
-              <span style="color:var(--muted)">${h.date}</span>
-            </div>
-          `).join('');
-        } else {
-          historyHTML = '<div style="color:#222; text-align:center; margin-top:20px;">Ancora nessun movimento</div>';
-        }
+      currentData.goals.forEach(goal => {
+        const historyHTML = (goal.history || []).slice().reverse().map(h => `
+          <div class="hist-item">
+            <span style="color:${h.color}; font-weight:800">${h.val}€</span>
+            <span style="color:var(--muted)">${h.date}</span>
+          </div>
+        `).join('') || '<div style="color:#222; text-align:center; margin-top:20px;">Nessun movimento</div>';
 
-        container.innerHTML += `
-          <div class="goal-card">
-            <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
-            <div class="goal-main">
-              <h3>${goal.name}</h3>
-              <div class="amount">€ ${goal.amount.toLocaleString('it-IT', {minimumFractionDigits: 2})}</div>
-              <div class="goal-controls">
-                <input type="number" id="input-${goal.id}" placeholder="€">
-                <button class="btn-op" style="background:var(--success); color:black" onclick="updateGoal(${goal.id}, 'add')">Aggiungi</button>
-                <button class="btn-op" style="background:var(--danger); color:white" onclick="updateGoal(${goal.id}, 'sub')">Togli</button>
-              </div>
-            </div>
-            <div class="goal-history">
-              <span class="hist-title">Cronologia</span>
-              ${historyHTML}
+        const card = document.createElement('div');
+        card.className = 'goal-card';
+        card.innerHTML = `
+          <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
+          <div class="goal-main">
+            <h3>${goal.name}</h3>
+            <div class="amount">€ ${goal.amount.toLocaleString('it-IT', {minimumFractionDigits: 2})}</div>
+            <div class="goal-controls">
+              <input type="number" id="input-${goal.id}" placeholder="€">
+              <button class="btn-op" style="background:var(--success); color:black" onclick="updateGoal(${goal.id}, 'add')">Aggiungi</button>
+              <button class="btn-op" style="background:var(--danger); color:white" onclick="updateGoal(${goal.id}, 'sub')">Togli</button>
             </div>
           </div>
+          <div class="goal-history">
+            <span class="hist-title">Cronologia</span>
+            ${historyHTML}
+          </div>
         `;
+        container.appendChild(card);
       });
     }
 
-    render();
+    // Attach to window for HTML onclicks
+    document.getElementById('btn-create-goal').onclick = window.createGoal;
   </script>
 </body>
 </html>
