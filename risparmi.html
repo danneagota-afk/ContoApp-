@@ -27,22 +27,21 @@
     .creator-box { 
       background: linear-gradient(145deg, #0f0f0f, #050505); 
       border: 2px solid #1a1a1a; 
-      padding: 40px; 
+      padding: 30px; 
       border-radius: 40px; 
       margin-bottom: 40px; 
       text-align: center;
     }
-    .creator-box h2 { margin-top: 0; font-size: 2rem; font-weight: 800; margin-bottom: 25px; }
-    .input-group-big { display: flex; gap: 15px; max-width: 600px; margin: 0 auto; }
+    .creator-box h2 { margin-top: 0; font-size: 1.8rem; font-weight: 800; margin-bottom: 20px; }
+    .input-group-big { display: flex; gap: 10px; max-width: 700px; margin: 0 auto; }
     .input-group-big input { 
-      flex: 1; background: #111; border: 1px solid #333; padding: 20px; 
-      border-radius: 20px; color: white; outline: none; font-size: 1.2rem;
+      flex: 1; background: #111; border: 1px solid #333; padding: 15px; 
+      border-radius: 15px; color: white; outline: none; font-size: 1rem;
     }
     .btn-create { 
-      background: var(--blue); color: white; border: none; padding: 0 30px; 
-      border-radius: 20px; font-weight: 800; cursor: pointer; transition: 0.3s;
+      background: var(--blue); color: white; border: none; padding: 0 25px; 
+      border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s;
     }
-    .btn-create:hover { transform: scale(1.05); }
 
     .goals-grid { display: grid; grid-template-columns: 1fr; gap: 25px; }
     .goal-card { 
@@ -51,15 +50,21 @@
       grid-template-columns: 1fr 300px; gap: 20px;
     }
     
-    .goal-main h3 { margin: 0; font-size: 1.8rem; color: var(--blue); font-weight: 800; }
-    .goal-main .amount { font-size: 3rem; font-weight: 800; margin: 10px 0; }
+    .goal-main h3 { margin: 0; font-size: 1.5rem; color: var(--blue); font-weight: 800; }
+    .amount-display { margin: 10px 0; }
+    .current-amount { font-size: 2.5rem; font-weight: 800; }
+    .target-amount { font-size: 1.2rem; color: var(--muted); cursor: pointer; border-bottom: 1px dashed #444; }
     
+    /* Progress Bar */
+    .progress-container { width: 100%; height: 8px; background: #111; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--blue); transition: width 0.5s ease; box-shadow: 0 0 10px var(--blue); }
+
     .goal-controls { display: flex; gap: 10px; margin-top: 15px; }
     .goal-controls input { 
-      width: 120px; background: #111; border: 1px solid #333; 
+      width: 100px; background: #111; border: 1px solid #333; 
       padding: 12px; border-radius: 15px; color: white; outline: none;
     }
-    .btn-op { border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; cursor: pointer; }
+    .btn-op { border: none; padding: 12px 15px; border-radius: 15px; font-weight: 800; cursor: pointer; }
 
     .goal-history { 
       background: #050505; border-radius: 20px; padding: 15px; 
@@ -69,18 +74,14 @@
     .hist-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #111; }
     
     .delete-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #222; cursor: pointer; font-size: 1.2rem; }
-    .delete-btn:hover { color: var(--danger); }
 
     #undo-toast { 
       position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
       background: #ffffff; color: #000000; padding: 12px 25px; border-radius: 50px; 
       display: none; align-items: center; gap: 15px; font-weight: 800; z-index: 1000; 
-      border: 2px solid var(--blue); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 2px solid var(--blue);
     }
-    .undo-btn-style {
-      background: var(--danger); color: white; border: none; border-radius: 8px; 
-      padding: 5px 10px; cursor: pointer; font-weight: 800; text-transform: uppercase;
-    }
+    .undo-btn-style { background: var(--danger); color: white; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-weight: 800; }
 
     @media (max-width: 850px) { 
       .goal-card { grid-template-columns: 1fr; } 
@@ -104,9 +105,10 @@
 
   <div class="container">
     <div class="creator-box">
-      <h2>Nuovo Obiettivo</h2>
+      <h2>🎯 Nuovo Traguardo</h2>
       <div class="input-group-big">
-        <input type="text" id="goal-name" placeholder="Es. Telefono">
+        <input type="text" id="goal-name" placeholder="Cosa vuoi comprare?">
+        <input type="number" id="goal-target" placeholder="Quanto serve? €">
         <button class="btn-create" id="btn-create-goal">CREA</button>
       </div>
     </div>
@@ -132,12 +134,10 @@
 
     const app = initializeApp(firebaseConfig);
     const dbRef = getDatabase(app);
-    
     let currentData = { goals: [] };
     let lastState = null;
     let undoTimeout = null;
 
-    // --- LOGICA SINCRONIZZAZIONE ---
     onValue(ref(dbRef, 'wallet_infinite_data'), (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -151,30 +151,41 @@
       set(ref(dbRef, 'wallet_infinite_data'), dataToSave);
     }
 
-    // --- FUNZIONI CORE ---
     window.createGoal = function() {
       const nameInput = document.getElementById('goal-name');
+      const targetInput = document.getElementById('goal-target');
       const name = nameInput.value.trim();
+      const target = parseFloat(targetInput.value);
       
-      if (!name) return alert("Inserisci un nome!");
+      if (!name || isNaN(target) || target <= 0) return alert("Inserisci nome e importo traguardo!");
 
       showUndo();
-      const newGoal = {
+      currentData.goals.push({
         id: Date.now(),
         name: name,
         amount: 0,
+        target: target,
         history: []
-      };
+      });
 
-      currentData.goals.push(newGoal);
       nameInput.value = '';
+      targetInput.value = '';
       saveToFirebase(currentData);
+    }
+
+    window.editTarget = function(id) {
+        const goal = currentData.goals.find(g => g.id === id);
+        const newTarget = prompt(`Modifica obiettivo per "${goal.name}":`, goal.target);
+        if (newTarget !== null && !isNaN(parseFloat(newTarget)) && parseFloat(newTarget) > 0) {
+            showUndo();
+            goal.target = parseFloat(newTarget);
+            saveToFirebase(currentData);
+        }
     }
 
     window.updateGoal = function(id, type) {
       const input = document.getElementById(`input-${id}`);
       const val = parseFloat(input.value);
-      
       if (isNaN(val) || val <= 0) return alert("Importo non valido!");
 
       showUndo();
@@ -197,14 +208,13 @@
     }
 
     window.deleteGoal = function(id) {
-      if (confirm("Eliminare definitivamente questo obiettivo?")) {
+      if (confirm("Eliminare questo obiettivo?")) {
         showUndo();
         currentData.goals = currentData.goals.filter(g => g.id !== id);
         saveToFirebase(currentData);
       }
     }
 
-    // --- UNDO SYSTEM ---
     function showUndo() {
       lastState = JSON.parse(JSON.stringify(currentData));
       const toast = document.getElementById('undo-toast');
@@ -222,7 +232,6 @@
       }
     };
 
-    // --- RENDER ---
     function render() {
       const container = document.getElementById('goals-container');
       container.innerHTML = '';
@@ -233,6 +242,7 @@
       }
 
       currentData.goals.forEach(goal => {
+        const perc = Math.min((goal.amount / goal.target) * 100, 100).toFixed(0);
         const historyHTML = (goal.history || []).slice().reverse().map(h => `
           <div class="hist-item">
             <span style="color:${h.color}; font-weight:800">${h.val}€</span>
@@ -246,7 +256,16 @@
           <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
           <div class="goal-main">
             <h3>${goal.name}</h3>
-            <div class="amount">€ ${goal.amount.toLocaleString('it-IT', {minimumFractionDigits: 2})}</div>
+            <div class="amount-display">
+              <span class="current-amount">€ ${goal.amount.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
+              <span class="target-amount" onclick="editTarget(${goal.id})">/ € ${goal.target.toLocaleString('it-IT')}</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" style="width: ${perc}%"></div>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--muted); margin-top:-10px">${perc}% Completato</div>
+
             <div class="goal-controls">
               <input type="number" id="input-${goal.id}" placeholder="€">
               <button class="btn-op" style="background:var(--success); color:black" onclick="updateGoal(${goal.id}, 'add')">Aggiungi</button>
@@ -262,7 +281,6 @@
       });
     }
 
-    // Attach to window for HTML onclicks
     document.getElementById('btn-create-goal').onclick = window.createGoal;
   </script>
 </body>
