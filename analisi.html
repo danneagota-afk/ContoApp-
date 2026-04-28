@@ -1,46 +1,167 @@
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analitica - Conto Corrente Dan</title>
+  
+  <link rel="icon" type="image/png" href="logo.png?v=2">
+  <link rel="apple-touch-icon" href="logo.png?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="app">
-  <main class="main">
-    <h2>Analitica Mensile</h2>
+  <style>
+    :root { 
+      --bg: #000000; --card: #0a0a0a; --text: #ffffff; 
+      --muted: #888888; --blue: #3b82f6; --danger: #ff3333; --success: #22c55e;
+    }
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 0 20px 50px 20px; min-height: 100vh; }
     
-    <div class="extra-box">
-      <h3>Distribuzione Entrate/Uscite (%)</h3>
+    .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .navbar a:hover { color: var(--text); }
+
+    .container { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .chart-box { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 30px; display: flex; flex-direction: column; align-items: center; }
+    .full-width { grid-column: span 2; }
+    
+    h2 { margin-bottom: 5px; font-weight: 800; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; width: 100%; margin-bottom: 20px; }
+    .stat-card { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #222; text-align: center; }
+    .stat-card div { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+    .stat-card h3 { margin: 5px 0 0 0; font-size: 1.8rem; }
+
+    canvas { max-width: 100% !important; }
+
+    @media (max-width: 800px) { .container { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+      <a href="index.html">Home</a>
+      <a href="vinted.html">Vinted</a>
+      <a href="risparmi.html">Risparmi</a>
+      <a href="analisi.html" style="color:white">Analitica</a>
+  </nav>
+
+  <div class="container">
+    <div class="full-width">
+        <h1 style="text-align: center; font-size: 2.5rem;">Dashboard Analitica</h1>
+        <div class="stats-grid">
+            <div class="stat-card"><div>Entrate Totali</div><h3 id="total-in" style="color:var(--success)">€ 0</h3></div>
+            <div class="stat-card"><div>Uscite Totali</div><h3 id="total-out" style="color:var(--danger)">€ 0</h3></div>
+            <div class="stat-card"><div>Prospettiva 12 mesi</div><h3 id="future-estimate" style="color:var(--blue)">€ 0</h3></div>
+        </div>
+    </div>
+
+    <div class="chart-box">
+      <h3>Rapporto Entrate/Uscite (%)</h3>
       <canvas id="pieChart"></canvas>
     </div>
 
-    <div class="extra-box">
-      <h3>Andamento Settimanale</h3>
-      <canvas id="barChart"></canvas>
+    <div class="chart-box">
+      <h3>Andamento Patrimonio</h3>
+      <canvas id="lineChart"></canvas>
     </div>
+  </div>
 
-    <div class="extra-box">
-      <h3>Prospettiva Risparmio</h3>
-      <p id="prediction-text">Calcolo in corso...</p>
-    </div>
-  </main>
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<script type="module">
-  // Qui dovrai importare la logica Firebase che già usi
-  // E aggiungere questa funzione per i grafici:
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw",
+      authDomain: "conto-corrente.firebaseapp.com",
+      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "conto-corrente",
+      storageBucket: "conto-corrente.firebasestorage.app",
+      appId: "1:138913358347:web:35a016a855be2597989d0e"
+    };
 
-  function renderCharts(logs) {
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    
-    // Esempio di logica: filtra i log per tipo
-    const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + l.val, 0);
-    const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + l.val, 0);
+    const app = initializeApp(firebaseConfig);
+    const dbFirebase = getDatabase(app);
+    const walletRef = ref(dbFirebase, 'wallet_infinite_data');
 
-    new Chart(ctxPie, {
-      type: 'doughnut',
-      data: {
-        labels: ['Entrate', 'Uscite'],
-        datasets: [{
-          data: [entrate, uscite],
-          backgroundColor: ['#22c55e', '#ff3333']
-        }]
+    let pieChart, lineChart;
+
+    onValue(walletRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.logs) {
+        updateAnalytics(data.logs, data.total);
       }
     });
-  }
-</script>
+
+    function updateAnalytics(logs, currentTotal) {
+      const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + l.val, 0);
+      const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + l.val, 0);
+
+      document.getElementById('total-in').textContent = `€ ${entrate.toFixed(2)}`;
+      document.getElementById('total-out').textContent = `€ ${uscite.toFixed(2)}`;
+
+      // Calcolo Prospettiva (Molto semplificato: media mensile stimata)
+      const stimaAnnuale = currentTotal + (entrate - uscite);
+      document.getElementById('future-estimate').textContent = `€ ${stimaAnnuale.toFixed(2)}`;
+
+      renderPie(entrate, uscite);
+      renderLine(logs);
+    }
+
+    function renderPie(inVal, outVal) {
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      if (pieChart) pieChart.destroy();
+      pieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Entrate', 'Uscite'],
+          datasets: [{
+            data: [inVal, outVal],
+            backgroundColor: ['#22c55e', '#ff3333'],
+            borderWidth: 0
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#fff' } } } }
+      });
+    }
+
+    function renderLine(logs) {
+      const ctx = document.getElementById('lineChart').getContext('2d');
+      if (lineChart) lineChart.destroy();
+
+      // Prendiamo gli ultimi 10 movimenti per il grafico
+      const lastLogs = logs.slice(-10);
+      const labels = lastLogs.map(l => l.date.split(',')[0]); // Solo la data senza ora
+      
+      let runningTotal = 0;
+      const dataPoints = lastLogs.map(l => {
+          runningTotal += (l.type === 'add' ? l.val : -l.val);
+          return runningTotal;
+      });
+
+      lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Patrimonio',
+            data: dataPoints,
+            borderColor: '#3b82f6',
+            tension: 0.4,
+            fill: true,
+            backgroundColor: 'rgba(59, 130, 246, 0.1)'
+          }]
+        },
+        options: {
+          scales: {
+            y: { grid: { color: '#222' }, ticks: { color: '#888' } },
+            x: { grid: { display: false }, ticks: { color: '#888' } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
