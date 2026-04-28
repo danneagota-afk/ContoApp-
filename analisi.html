@@ -1,0 +1,46 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="app">
+  <main class="main">
+    <h2>Analitica Mensile</h2>
+    
+    <div class="extra-box">
+      <h3>Distribuzione Entrate/Uscite (%)</h3>
+      <canvas id="pieChart"></canvas>
+    </div>
+
+    <div class="extra-box">
+      <h3>Andamento Settimanale</h3>
+      <canvas id="barChart"></canvas>
+    </div>
+
+    <div class="extra-box">
+      <h3>Prospettiva Risparmio</h3>
+      <p id="prediction-text">Calcolo in corso...</p>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  // Qui dovrai importare la logica Firebase che già usi
+  // E aggiungere questa funzione per i grafici:
+
+  function renderCharts(logs) {
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    
+    // Esempio di logica: filtra i log per tipo
+    const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + l.val, 0);
+    const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + l.val, 0);
+
+    new Chart(ctxPie, {
+      type: 'doughnut',
+      data: {
+        labels: ['Entrate', 'Uscite'],
+        datasets: [{
+          data: [entrate, uscite],
+          backgroundColor: ['#22c55e', '#ff3333']
+        }]
+      }
+    });
+  }
+</script>
