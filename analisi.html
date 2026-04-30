@@ -3,39 +3,104 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analitica - Conto Corrente Dan</title>
+  <title>Analitica Pro - Dan Finance</title>
   
-  <link rel="icon" type="image/png" href="logo.png?v=2">
-  <link rel="apple-touch-icon" href="logo.png?v=2">
+  <link rel="icon" type="image/png" href="logo.png?v=3">
+  <link rel="apple-touch-icon" href="logo.png?v=3">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root { 
-      --bg: #000000; --card: #0a0a0a; --text: #ffffff; 
-      --muted: #888888; --blue: #3b82f6; --danger: #ff3333; --success: #22c55e;
+      --bg: #000000; 
+      --card: rgba(15, 15, 15, 0.95); 
+      --text: #ffffff; 
+      --muted: #a0a0a0; 
+      --blue: #007aff; 
+      --blue-glow: rgba(0, 122, 255, 0.4);
+      --danger: #ff453a; 
+      --success: #32d74b;
+      --border: #1c1c1e;
     }
-    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 0 20px 50px 20px; min-height: 100vh; }
+
+    * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
     
-    .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
-    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
+    body { 
+      margin: 0; 
+      background-color: var(--bg); 
+      color: var(--text); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      padding: 0 15px 60px 15px; 
+      min-height: 100vh;
+      background-image: radial-gradient(circle at top right, #001d3d, transparent);
+    }
+    
+    /* NAVBAR PREMIUM */
+    .navbar { 
+      width: 100%; 
+      max-width: 1000px; 
+      display: flex; 
+      justify-content: center; 
+      gap: 25px; 
+      padding: 25px 0; 
+      border-bottom: 1px solid var(--border); 
+      margin-bottom: 30px; 
+      backdrop-filter: blur(10px);
+    }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.3s; font-size: 0.9rem; letter-spacing: 1px; }
     .navbar a:hover { color: var(--text); }
+    .navbar a.active { color: var(--text); border-bottom: 2px solid var(--blue); padding-bottom: 5px; }
 
-    .container { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .chart-box { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 30px; display: flex; flex-direction: column; align-items: center; }
-    .full-width { grid-column: span 2; }
+    .container { 
+      width: 100%; 
+      max-width: 1000px; 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 15px; 
+    }
+
+    .full-width { grid-column: span 4; text-align: center; margin-bottom: 10px; }
     
-    h2 { margin-bottom: 5px; font-weight: 800; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; width: 100%; margin-bottom: 20px; }
-    .stat-card { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #222; text-align: center; }
-    .stat-card div { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
-    .stat-card h3 { margin: 5px 0 0 0; font-size: 1.8rem; }
+    /* BENTO CARDS */
+    .card { 
+      background: var(--card); 
+      border: 1px solid var(--border); 
+      padding: 20px; 
+      border-radius: 24px; 
+      transition: 0.3s ease;
+    }
+    .card:hover { border-color: var(--blue); transform: translateY(-3px); }
 
-    canvas { max-width: 100% !important; }
+    .stat-box { grid-column: span 1; text-align: center; }
+    .stat-box small { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
+    .stat-box h2 { margin: 10px 0 0 0; font-size: 1.4rem; font-weight: 800; }
 
-    @media (max-width: 800px) { .container { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    .chart-box { grid-column: span 2; display: flex; flex-direction: column; align-items: center; }
+    .large-chart { grid-column: span 4; }
+
+    h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--muted); font-weight: 600; }
+
+    /* INSIGHT BOX */
+    .insight-card { 
+      grid-column: span 4; 
+      background: linear-gradient(90deg, rgba(0,122,255,0.1), transparent);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 25px;
+    }
+    .insight-card i { color: var(--blue); font-size: 1.2rem; }
+    .insight-card p { margin: 0; font-size: 0.85rem; color: var(--text); }
+
+    @media (max-width: 768px) { 
+      .container { grid-template-columns: repeat(2, 1fr); }
+      .stat-box { grid-column: span 1; }
+      .chart-box, .large-chart, .insight-card { grid-column: span 2; }
+    }
   </style>
 </head>
 <body>
@@ -44,29 +109,56 @@
       <a href="index.html">Home</a>
       <a href="vinted.html">Vinted</a>
       <a href="risparmi.html">Risparmi</a>
-      <a href="analisi.html" style="color:white">Analitica</a>
+      <a href="analisi.html" class="active">Analitica</a>
       <a href="info.html">Info</a>
-     
   </nav>
 
   <div class="container">
     <div class="full-width">
-        <h1 style="text-align: center; font-size: 2.5rem;">Dashboard Analitica</h1>
-        <div class="stats-grid">
-            <div class="stat-card"><div>Entrate Totali</div><h3 id="total-in" style="color:var(--success)">€ 0</h3></div>
-            <div class="stat-card"><div>Uscite Totali</div><h3 id="total-out" style="color:var(--danger)">€ 0</h3></div>
-            <div class="stat-card"><div>Prospettiva 12 mesi</div><h3 id="future-estimate" style="color:var(--blue)">€ 0</h3></div>
-        </div>
+        <h1 style="margin: 0; font-size: 2.2rem; font-weight: 800;">Analytics Pro</h1>
+        <p style="color: var(--muted); margin-top: 5px;">Monitoraggio finanziario avanzato</p>
     </div>
 
-    <div class="chart-box">
-      <h3>Rapporto Entrate/Uscite (%)</h3>
-      <canvas id="pieChart"></canvas>
+    <div class="card stat-box">
+        <small>Entrate</small>
+        <h2 id="total-in" style="color:var(--success)">€ 0</h2>
+    </div>
+    <div class="card stat-box">
+        <small>Uscite</small>
+        <h2 id="total-out" style="color:var(--danger)">€ 0</h2>
+    </div>
+    <div class="card stat-box">
+        <small>Risparmio Netto</small>
+        <h2 id="net-savings">€ 0</h2>
+    </div>
+    <div class="card stat-box">
+        <small>Saving Rate</small>
+        <h2 id="saving-rate" style="color:var(--blue)">0%</h2>
     </div>
 
-    <div class="chart-box">
-      <h3>Andamento Patrimonio</h3>
-      <canvas id="lineChart"></canvas>
+    <div class="card insight-card">
+        <i class="fa-solid fa-lightbulb"></i>
+        <p id="insight-text">Analisi del portafoglio in corso...</p>
+    </div>
+
+    <div class="card chart-box large-chart">
+      <h3>Andamento Totale Patrimonio</h3>
+      <div style="height: 250px; width: 100%;">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-box">
+      <h3>Distribuzione (%)</h3>
+      <div style="height: 200px; width: 100%;">
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-box" style="justify-content: center;">
+      <small style="color: var(--muted); text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px;">Prospettiva 12 Mesi</small>
+      <h1 id="future-estimate" style="color: var(--blue); font-size: 2rem; margin: 15px 0;">€ 0</h1>
+      <p style="font-size: 0.7rem; color: var(--muted); text-align: center;">Basato sulla tua capacità di risparmio attuale stimata.</p>
     </div>
   </div>
 
@@ -91,24 +183,37 @@
 
     onValue(walletRef, (snapshot) => {
       const data = snapshot.val();
-      if (data && data.logs) {
-        updateAnalytics(data.logs, data.total);
+      if (data) {
+        // Usiamo il saldo totale reale (Contanti + Carta)
+        const currentTotal = (data.cash || 0) + (data.card || 0);
+        updateAnalytics(data.logs || [], currentTotal);
       }
     });
 
     function updateAnalytics(logs, currentTotal) {
       const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + l.val, 0);
       const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + l.val, 0);
+      const netto = entrate - uscite;
+      const savingRate = entrate > 0 ? ((netto / entrate) * 100).toFixed(0) : 0;
 
-      document.getElementById('total-in').textContent = `€ ${entrate.toFixed(2)}`;
-      document.getElementById('total-out').textContent = `€ ${uscite.toFixed(2)}`;
+      document.getElementById('total-in').textContent = `€ ${entrate.toLocaleString()}`;
+      document.getElementById('total-out').textContent = `€ ${uscite.toLocaleString()}`;
+      document.getElementById('net-savings').textContent = `€ ${netto.toLocaleString()}`;
+      document.getElementById('net-savings').style.color = netto >= 0 ? 'var(--success)' : 'var(--danger)';
+      document.getElementById('saving-rate').textContent = `${savingRate}%`;
 
-      // Calcolo Prospettiva (Molto semplificato: media mensile stimata)
-      const stimaAnnuale = currentTotal + (entrate - uscite);
-      document.getElementById('future-estimate').textContent = `€ ${stimaAnnuale.toFixed(2)}`;
+      // Prospettiva reale (Basata sulla media)
+      const stimaAnnuale = currentTotal + (netto * 12 / (logs.length > 0 ? 1 : 1)); // Semplificato
+      document.getElementById('future-estimate').textContent = `€ ${Math.round(stimaAnnuale).toLocaleString()}`;
+
+      // Insight Text
+      const insight = document.getElementById('insight-text');
+      if(savingRate > 20) insight.innerText = "Ottimo! Stai risparmiando il " + savingRate + "% delle entrate. Continua così.";
+      else if(savingRate > 0) insight.innerText = "Il tuo risparmio è stabile, ma cerca di ridurre le uscite extra.";
+      else insight.innerText = "Attenzione: le uscite superano le entrate. Rivedi i log di questo mese.";
 
       renderPie(entrate, uscite);
-      renderLine(logs);
+      renderLine(logs, currentTotal);
     }
 
     function renderPie(inVal, outVal) {
@@ -120,45 +225,58 @@
           labels: ['Entrate', 'Uscite'],
           datasets: [{
             data: [inVal, outVal],
-            backgroundColor: ['#22c55e', '#ff3333'],
-            borderWidth: 0
+            backgroundColor: ['#32d74b', '#ff453a'],
+            borderWidth: 0,
+            hoverOffset: 10
           }]
         },
-        options: { plugins: { legend: { labels: { color: '#fff' } } } }
+        options: { 
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: { legend: { position: 'bottom', labels: { color: '#888', font: { size: 10 }, usePointStyle: true } } } 
+        }
       });
     }
 
-    function renderLine(logs) {
+    function renderLine(logs, currentBalance) {
       const ctx = document.getElementById('lineChart').getContext('2d');
       if (lineChart) lineChart.destroy();
 
-      // Prendiamo gli ultimi 10 movimenti per il grafico
-      const lastLogs = logs.slice(-10);
-      const labels = lastLogs.map(l => l.date.split(',')[0]); // Solo la data senza ora
+      const lastLogs = logs.slice(-12);
+      const labels = lastLogs.map(l => l.date.split(',')[0]); 
       
-      let runningTotal = 0;
-      const dataPoints = lastLogs.map(l => {
-          runningTotal += (l.type === 'add' ? l.val : -l.val);
-          return runningTotal;
-      });
+      // Calcolo cumulativo inverso per mostrare l'andamento del saldo
+      let tempBalance = currentBalance;
+      const dataPoints = [];
+      for (let i = lastLogs.length - 1; i >= 0; i--) {
+          dataPoints.unshift(tempBalance);
+          tempBalance -= (lastLogs[i].type === 'add' ? lastLogs[i].val : -lastLogs[i].val);
+      }
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, 'rgba(0, 122, 255, 0.3)');
+      gradient.addColorStop(1, 'transparent');
 
       lineChart = new Chart(ctx, {
         type: 'line',
         data: {
           labels: labels,
           datasets: [{
-            label: 'Patrimonio',
             data: dataPoints,
-            borderColor: '#3b82f6',
+            borderColor: '#007aff',
+            borderWidth: 3,
+            pointBackgroundColor: '#007aff',
+            pointRadius: 4,
             tension: 0.4,
             fill: true,
-            backgroundColor: 'rgba(59, 130, 246, 0.1)'
+            backgroundColor: gradient
           }]
         },
         options: {
+          maintainAspectRatio: false,
           scales: {
-            y: { grid: { color: '#222' }, ticks: { color: '#888' } },
-            x: { grid: { display: false }, ticks: { color: '#888' } }
+            y: { grid: { color: '#1c1c1e' }, ticks: { color: '#555', font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { color: '#555', font: { size: 10 } } }
           },
           plugins: { legend: { display: false } }
         }
