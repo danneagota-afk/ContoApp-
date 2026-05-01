@@ -6,10 +6,10 @@
   <title>Conto Corrente Dan</title>
 
   <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-<link rel="icon" type="image/png" sizes="192x192" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
 
-<meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#0a0a0a">
 
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
   <style>
@@ -22,7 +22,17 @@
     input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number], select, input[type=text] { -moz-appearance: textfield; }
 
-    body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 0 20px 30px 20px; min-height: 100vh; }
+    body { 
+      margin: 0; 
+      background-color: var(--bg); 
+      background-image: radial-gradient(circle at top right, #001d3d, transparent); /* Sfondo come Analitica */
+      color: var(--text); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      padding: 0 20px 30px 20px; 
+      min-height: 100vh; 
+    }
     
     .navbar { width: 100%; max-width: 1100px; display: flex; justify-content: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
     .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
@@ -31,19 +41,30 @@
     .app { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
     .main { display: flex; flex-direction: column; gap: 30px; }
     
+    /* EFFETTO CONTORNO BLU ANIMATO */
+    .balance-box, .extra-box, .side, .note, .total-card-wrap {
+      transition: all 0.3s ease;
+      border: 1px solid #222;
+    }
+    .balance-box:hover, .extra-box:hover, .side:hover, .note:hover {
+      border-color: var(--blue);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+    }
+
     .total-card { padding: 20px 0; text-align: center; }
     .total-card span { color: var(--muted); letter-spacing: 3px; font-size: 0.8rem; text-transform: uppercase; }
     .total-card h1 { font-size: 5rem; margin: 10px 0; font-weight: 800; }
     
     .split-balances { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 10px; }
-    .balance-box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid #222; text-align: center; }
+    .balance-box { background: var(--card); padding: 20px; border-radius: 25px; text-align: center; }
     .balance-box div { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
     .balance-box h2 { margin: 0; font-size: 2.2rem; font-weight: 800; }
     .cash-text { color: var(--yellow); }
     .card-text { color: var(--blue); }
 
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .note { height: 200px; border-radius: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 800; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+    .note { height: 200px; border-radius: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 800; transition: all 0.2s; }
     .note:active { transform: scale(0.96); }
     .n20 { background: linear-gradient(135deg, #1e40af, #3b82f6); }
     .n50 { background: linear-gradient(135deg, #92400e, #fbbf24); }
@@ -51,8 +72,18 @@
     .sub-bar { width: 100%; background: #111; border: 1px solid #222; padding: 16px; margin-top: 12px; border-radius: 20px; color: var(--danger); font-weight: 600; cursor: pointer; transition: 0.2s; }
     .sub-bar:hover { background: #1a1a1a; border-color: var(--danger); }
     
-    .extra-box { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 30px; margin-top: 10px; }
-    .extra-box h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .extra-box { background: var(--card); padding: 25px; border-radius: 30px; margin-top: 10px; }
+    
+    /* SOTTOLINEA ANIMATA SOTTO ANALITICA (E TITOLI) */
+    .extra-box h3 { 
+      margin: 0 0 15px 0; font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; 
+      position: relative; display: inline-block;
+    }
+    .extra-box h3::after {
+      content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--blue);
+      transition: width 0.4s ease;
+    }
+    .extra-box:hover h3::after { width: 100%; }
     
     .extra-input-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; }
     .extra-input, .extra-select { flex: 1; background: #111; border: 1px solid #333; padding: 12px; border-radius: 15px; color: white; font-size: 1.1rem; outline: none; min-width: 100px; }
@@ -73,7 +104,7 @@
     .m-type-btn { padding: 10px; border-radius: 12px; border: 1px solid #333; background: #111; color: var(--muted); cursor: pointer; font-weight: bold; }
     .m-type-btn.active { border-color: var(--blue); color: white; background: #1a1a1a; }
 
-    .side { background: var(--card); border-radius: 40px; padding: 25px; border: 1px solid #151515; height: calc(100vh - 150px); display: flex; flex-direction: column; position: sticky; top: 30px; }
+    .side { background: var(--card); border-radius: 40px; padding: 25px; height: calc(100vh - 150px); display: flex; flex-direction: column; position: sticky; top: 30px; }
     .history { flex: 1; overflow-y: auto; }
     
     .log { 
@@ -101,7 +132,7 @@
       <a href="index.html" style="color:white">Home</a>
       <a href="vinted.html">Vinted</a>
       <a href="risparmi.html">Risparmi</a>
-      <a href="analisi">Analitica</a>
+      <a href="analisi.html">Analitica</a>
       <a href="info.html">Info</a>
   </nav>
 
@@ -249,7 +280,6 @@
     let lastState = null;
     let undoTimeout = null;
 
-    // Sincronizzazione Cloud
     onValue(walletRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -261,9 +291,7 @@
       }
     });
 
-    function pushToCloud() {
-      set(walletRef, db);
-    }
+    function pushToCloud() { set(walletRef, db); }
 
     function saveState() {
       lastState = JSON.stringify(db);
@@ -301,7 +329,6 @@
     }
     
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
-    
     function setModalType(type) {
       tempType = type;
       document.getElementById('m-btn-cash').classList.toggle('active', type === 'Cash');
@@ -316,7 +343,6 @@
     }
     
     function closeSubModal() { document.getElementById('modal-sub').style.display = 'none'; }
-    
     function setSubModalType(type) {
       subTempType = type;
       document.getElementById('ms-btn-cash').classList.toggle('active', type === 'Cash');
@@ -454,7 +480,6 @@
 
     window.deleteExtraLog = function(id) { saveState(); db.extraLogs = db.extraLogs.filter(item => item.id !== id); pushToCloud(); }
     
-    // Event Listeners
     document.getElementById('undo-btn-action').onclick = () => window.undo();
     document.getElementById('note20').onclick = () => openModal(20);
     document.getElementById('note50').onclick = () => openModal(50);
@@ -465,10 +490,7 @@
     document.getElementById('m-vinted-btn').onclick = () => addMoney('Vinted');
     document.getElementById('m-lavoro-btn').onclick = () => addMoney('Lavoro');
     document.getElementById('m-confirm-other').onclick = () => addMoney(document.getElementById('m-other-reason').value || 'Altro');
-    document.getElementById('m-other-btn').onclick = () => {
-      document.getElementById('other-input-area').style.display = 'block';
-      document.getElementById('m-other-btn').style.display = 'none';
-    };
+    document.getElementById('m-other-btn').onclick = () => { document.getElementById('other-input-area').style.display = 'block'; document.getElementById('m-other-btn').style.display = 'none'; };
     document.getElementById('m-confirm-goal').onclick = () => addMoneyToGoalModal();
     document.getElementById('m-close-btn').onclick = () => closeModal();
     document.getElementById('ms-btn-cash').onclick = () => setSubModalType('Cash');
@@ -490,7 +512,6 @@
     };
     document.getElementById('reset-extra-btn').onclick = () => { if(confirm("Svuotare lista?")) { saveState(); db.extraLogs = []; pushToCloud(); } };
     document.getElementById('reset-all-btn').onclick = () => { if (confirm('Vuoi resettare tutto?')) { db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] }; pushToCloud(); } };
-
   </script>
 </body>
 </html>
