@@ -19,7 +19,6 @@
       --text: #ffffff; 
       --muted: #a0a0a0; 
       --blue: #007aff; 
-      --blue-glow: rgba(0, 122, 255, 0.4);
       --danger: #ff453a; 
       --success: #32d74b;
       --border: #1c1c1e;
@@ -39,7 +38,6 @@
       background-image: radial-gradient(circle at top right, #001d3d, transparent);
     }
     
-    /* NAVBAR PREMIUM */
     .navbar { 
       width: 100%; 
       max-width: 1000px; 
@@ -65,40 +63,61 @@
 
     .full-width { grid-column: span 4; text-align: center; margin-bottom: 10px; }
     
-    /* BENTO CARDS */
+    /* CONTROLLI GRAFICO */
+    .chart-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .btn-filter {
+      background: #111;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: 0.3s;
+    }
+    .btn-filter.active { background: var(--blue); color: white; border-color: var(--blue); }
+    
+    .month-select {
+      background: #111;
+      border: 1px solid var(--border);
+      color: white;
+      padding: 8px;
+      border-radius: 12px;
+      outline: none;
+      display: none; /* Appare solo se il filtro è "mese" */
+    }
+
     .card { 
       background: var(--card); 
       border: 1px solid var(--border); 
       padding: 20px; 
       border-radius: 24px; 
-      transition: 0.3s ease;
     }
-    .card:hover { border-color: var(--blue); transform: translateY(-3px); }
 
     .stat-box { grid-column: span 1; text-align: center; }
     .stat-box small { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
     .stat-box h2 { margin: 10px 0 0 0; font-size: 1.4rem; font-weight: 800; }
 
-    .chart-box { grid-column: span 2; display: flex; flex-direction: column; align-items: center; }
+    .chart-box { grid-column: span 2; display: flex; flex-direction: column; }
     .large-chart { grid-column: span 4; }
 
-    h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--muted); font-weight: 600; }
+    h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--muted); font-weight: 600; text-align: center; }
 
-    /* INSIGHT BOX */
     .insight-card { 
       grid-column: span 4; 
       background: linear-gradient(90deg, rgba(0,122,255,0.1), transparent);
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 15px 25px;
+      display: flex; align-items: center; gap: 15px; padding: 15px 25px;
     }
-    .insight-card i { color: var(--blue); font-size: 1.2rem; }
-    .insight-card p { margin: 0; font-size: 0.85rem; color: var(--text); }
 
     @media (max-width: 768px) { 
       .container { grid-template-columns: repeat(2, 1fr); }
-      .stat-box { grid-column: span 1; }
       .chart-box, .large-chart, .insight-card { grid-column: span 2; }
     }
   </style>
@@ -116,7 +135,7 @@
   <div class="container">
     <div class="full-width">
         <h1 style="margin: 0; font-size: 2.2rem; font-weight: 800;">Analytics Pro</h1>
-        <p style="color: var(--muted); margin-top: 5px;">Monitoraggio finanziario avanzato</p>
+        <p style="color: var(--muted); margin-top: 5px;">Visualizzazione Temporale Avanzata</p>
     </div>
 
     <div class="card stat-box">
@@ -138,27 +157,33 @@
 
     <div class="card insight-card">
         <i class="fa-solid fa-lightbulb"></i>
-        <p id="insight-text">Analisi del portafoglio in corso...</p>
+        <p id="insight-text">Seleziona un intervallo per l'analisi...</p>
     </div>
 
     <div class="card chart-box large-chart">
-      <h3>Andamento Totale Patrimonio</h3>
-      <div style="height: 250px; width: 100%;">
+      <div class="chart-controls">
+        <button class="btn-filter" data-view="week">Settimana</button>
+        <button class="btn-filter active" data-view="month">Mese</button>
+        <button class="btn-filter" data-view="year">Anno</button>
+        <select id="monthPicker" class="month-select"></select>
+      </div>
+      <h3 id="chartTitle">Andamento Mensile</h3>
+      <div style="height: 300px; width: 100%;">
         <canvas id="lineChart"></canvas>
       </div>
     </div>
 
     <div class="card chart-box">
-      <h3>Distribuzione (%)</h3>
+      <h3>Distribuzione Periodo</h3>
       <div style="height: 200px; width: 100%;">
         <canvas id="pieChart"></canvas>
       </div>
     </div>
 
-    <div class="card chart-box" style="justify-content: center;">
-      <small style="color: var(--muted); text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px;">Prospettiva 12 Mesi</small>
-      <h1 id="future-estimate" style="color: var(--blue); font-size: 2rem; margin: 15px 0;">€ 0</h1>
-      <p style="font-size: 0.7rem; color: var(--muted); text-align: center;">Basato sulla tua capacità di risparmio attuale stimata.</p>
+    <div class="card chart-box" style="justify-content: center; text-align: center;">
+      <small style="color: var(--muted); text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px;">Media Giornaliera</small>
+      <h1 id="daily-avg" style="color: var(--blue); font-size: 2rem; margin: 15px 0;">€ 0</h1>
+      <p style="font-size: 0.7rem; color: var(--muted);">Spesa media calcolata sul periodo selezionato.</p>
     </div>
   </div>
 
@@ -180,40 +205,179 @@
     const walletRef = ref(dbFirebase, 'wallet_infinite_data');
 
     let pieChart, lineChart;
+    let rawLogs = [];
+    let currentView = 'month';
+    let currentTotalSnapshot = 0;
+
+    const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+
+    // Inizializza Selettore Mese
+    const monthPicker = document.getElementById('monthPicker');
+    const now = new Date();
+    for(let i=0; i<12; i++) {
+      let opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = monthNames[i];
+      if(i === now.getMonth()) opt.selected = true;
+      monthPicker.appendChild(opt);
+    }
 
     onValue(walletRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        // Usiamo il saldo totale reale (Contanti + Carta)
-        const currentTotal = (data.cash || 0) + (data.card || 0);
-        updateAnalytics(data.logs || [], currentTotal);
+        rawLogs = data.logs || [];
+        currentTotalSnapshot = (data.cash || 0) + (data.card || 0);
+        processData();
       }
     });
 
-    function updateAnalytics(logs, currentTotal) {
+    // Listener Filtri
+    document.querySelectorAll('.btn-filter').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentView = btn.dataset.view;
+        monthPicker.style.display = currentView === 'month' ? 'block' : 'none';
+        processData();
+      };
+    });
+
+    monthPicker.onchange = processData;
+
+    function parseCustomDate(dateStr) {
+      // Formato atteso: "DD/MM/YYYY, HH:MM" o "DD mmm, HH:MM"
+      // Per sicurezza cerchiamo di estrarre giorno e mese
+      const parts = dateStr.split(',')[0].trim().split(' '); 
+      const day = parseInt(parts[0]);
+      let month;
+
+      if(parts[1] && isNaN(parts[1])) { // Se è tipo "mag"
+        const monthsShort = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+        month = monthsShort.indexOf(parts[1].toLowerCase());
+      } else {
+        const fullDate = dateStr.split(',')[0].split('/');
+        day = parseInt(fullDate[0]);
+        month = parseInt(fullDate[1]) - 1;
+      }
+      
+      let d = new Date();
+      d.setDate(day);
+      d.setMonth(month);
+      return d;
+    }
+
+    function processData() {
+      const now = new Date();
+      let filtered = [];
+      let labels = [];
+      let dataSet = [];
+      let title = "";
+
+      if (currentView === 'week') {
+        title = "Ultimi 7 Giorni";
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(now.getDate() - 7);
+        filtered = rawLogs.filter(l => parseCustomDate(l.date) >= oneWeekAgo);
+        // Genera labels giorni
+        for(let i=6; i>=0; i--) {
+          let d = new Date(); d.setDate(now.getDate() - i);
+          labels.push(d.toLocaleDateString('it-IT', {weekday: 'short'}));
+        }
+      } 
+      else if (currentView === 'month') {
+        const selMonth = parseInt(monthPicker.value);
+        title = `Andamento: ${monthNames[selMonth]}`;
+        filtered = rawLogs.filter(l => parseCustomDate(l.date).getMonth() === selMonth);
+        // Labels giorni del mese (1, 5, 10...)
+        labels = Array.from({length: 31}, (_, i) => i + 1);
+      } 
+      else if (currentView === 'year') {
+        title = "Andamento Annuale " + now.getFullYear();
+        filtered = rawLogs.filter(l => parseCustomDate(l.date).getFullYear() === now.getFullYear());
+        labels = monthNames.map(m => m.substring(0,3));
+      }
+
+      updateUI(filtered, title);
+      renderCharts(filtered, labels, currentView);
+    }
+
+    function updateUI(logs, title) {
+      document.getElementById('chartTitle').textContent = title;
       const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + l.val, 0);
       const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + l.val, 0);
       const netto = entrate - uscite;
-      const savingRate = entrate > 0 ? ((netto / entrate) * 100).toFixed(0) : 0;
-
-      document.getElementById('total-in').textContent = `€ ${entrate.toLocaleString()}`;
-      document.getElementById('total-out').textContent = `€ ${uscite.toLocaleString()}`;
-      document.getElementById('net-savings').textContent = `€ ${netto.toLocaleString()}`;
+      
+      document.getElementById('total-in').textContent = `€ ${entrate.toFixed(0)}`;
+      document.getElementById('total-out').textContent = `€ ${uscite.toFixed(0)}`;
+      document.getElementById('net-savings').textContent = `€ ${netto.toFixed(0)}`;
       document.getElementById('net-savings').style.color = netto >= 0 ? 'var(--success)' : 'var(--danger)';
-      document.getElementById('saving-rate').textContent = `${savingRate}%`;
+      
+      const rate = entrate > 0 ? ((netto / entrate) * 100).toFixed(0) : 0;
+      document.getElementById('saving-rate').textContent = `${rate}%`;
 
-      // Prospettiva reale (Basata sulla media)
-      const stimaAnnuale = currentTotal + (netto * 12 / (logs.length > 0 ? 1 : 1)); // Semplificato
-      document.getElementById('future-estimate').textContent = `€ ${Math.round(stimaAnnuale).toLocaleString()}`;
-
-      // Insight Text
-      const insight = document.getElementById('insight-text');
-      if(savingRate > 20) insight.innerText = "Ottimo! Stai risparmiando il " + savingRate + "% delle entrate. Continua così.";
-      else if(savingRate > 0) insight.innerText = "Il tuo risparmio è stabile, ma cerca di ridurre le uscite extra.";
-      else insight.innerText = "Attenzione: le uscite superano le entrate. Rivedi i log di questo mese.";
+      const days = currentView === 'week' ? 7 : 30;
+      document.getElementById('daily-avg').textContent = `€ ${(uscite / days).toFixed(2)}`;
 
       renderPie(entrate, uscite);
-      renderLine(logs, currentTotal);
+    }
+
+    function renderCharts(logs, labels, view) {
+      const ctx = document.getElementById('lineChart').getContext('2d');
+      if (lineChart) lineChart.destroy();
+
+      let points = new Array(labels.length).fill(0);
+      
+      // Aggregazione dati per il grafico a linee
+      logs.forEach(l => {
+        const d = parseCustomDate(l.date);
+        let index;
+        if(view === 'week') {
+           const diff = Math.floor((new Date() - d) / (1000 * 60 * 60 * 24));
+           index = 6 - diff;
+        } else if(view === 'month') {
+           index = d.getDate() - 1;
+        } else {
+           index = d.getMonth();
+        }
+        if(index >= 0 && index < points.length) {
+          points[index] += (l.type === 'add' ? l.val : -l.val);
+        }
+      });
+
+      // Calcolo andamento cumulativo
+      let cumulative = 0;
+      const dataPoints = points.map(v => {
+        cumulative += v;
+        return cumulative;
+      });
+
+      const grad = ctx.createLinearGradient(0, 0, 0, 300);
+      grad.addColorStop(0, 'rgba(0, 122, 255, 0.4)');
+      grad.addColorStop(1, 'transparent');
+
+      lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataPoints,
+            borderColor: '#007aff',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: grad,
+            pointRadius: view === 'year' ? 5 : 2
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#555' } },
+            y: { grid: { color: '#1a1a1a' }, ticks: { color: '#555' } }
+          }
+        }
+      });
     }
 
     function renderPie(inVal, outVal) {
@@ -224,62 +388,12 @@
         data: {
           labels: ['Entrate', 'Uscite'],
           datasets: [{
-            data: [inVal, outVal],
+            data: [inVal, outVal || 0.1],
             backgroundColor: ['#32d74b', '#ff453a'],
-            borderWidth: 0,
-            hoverOffset: 10
+            borderWidth: 0
           }]
         },
-        options: { 
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: { legend: { position: 'bottom', labels: { color: '#888', font: { size: 10 }, usePointStyle: true } } } 
-        }
-      });
-    }
-
-    function renderLine(logs, currentBalance) {
-      const ctx = document.getElementById('lineChart').getContext('2d');
-      if (lineChart) lineChart.destroy();
-
-      const lastLogs = logs.slice(-12);
-      const labels = lastLogs.map(l => l.date.split(',')[0]); 
-      
-      // Calcolo cumulativo inverso per mostrare l'andamento del saldo
-      let tempBalance = currentBalance;
-      const dataPoints = [];
-      for (let i = lastLogs.length - 1; i >= 0; i--) {
-          dataPoints.unshift(tempBalance);
-          tempBalance -= (lastLogs[i].type === 'add' ? lastLogs[i].val : -lastLogs[i].val);
-      }
-
-      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-      gradient.addColorStop(0, 'rgba(0, 122, 255, 0.3)');
-      gradient.addColorStop(1, 'transparent');
-
-      lineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            data: dataPoints,
-            borderColor: '#007aff',
-            borderWidth: 3,
-            pointBackgroundColor: '#007aff',
-            pointRadius: 4,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: gradient
-          }]
-        },
-        options: {
-          maintainAspectRatio: false,
-          scales: {
-            y: { grid: { color: '#1c1c1e' }, ticks: { color: '#555', font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: '#555', font: { size: 10 } } }
-          },
-          plugins: { legend: { display: false } }
-        }
+        options: { maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
       });
     }
   </script>
