@@ -15,13 +15,13 @@
   <style>
     :root { 
       --bg: #000000; 
-      --card: rgba(15, 15, 15, 0.95); 
+      --card: #0a0a0a; 
       --text: #ffffff; 
-      --muted: #a0a0a0; 
-      --blue: #007aff; 
-      --danger: #ff453a; 
-      --success: #32d74b;
-      --border: #1c1c1e;
+      --muted: #888888; 
+      --blue: #3b82f6; 
+      --danger: #ff3333; 
+      --success: #22c55e;
+      --border: #1a1a1a;
     }
 
     * { box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -33,32 +33,31 @@
       display: flex; 
       flex-direction: column; 
       align-items: center; 
-      padding: 0 15px 60px 15px; 
-      min-height: 100vh;
-      background-image: radial-gradient(circle at top right, #001d3d, transparent);
+      padding: 0 20px 60px 20px; 
+      min-height: 100vh; 
     }
     
+    /* NAVBAR UGUALE ALLA HOME */
     .navbar { 
       width: 100%; 
-      max-width: 1000px; 
+      max-width: 1100px; 
       display: flex; 
       justify-content: center; 
-      gap: 25px; 
-      padding: 25px 0; 
-      border-bottom: 1px solid var(--border); 
-      margin-bottom: 30px; 
-      backdrop-filter: blur(10px);
+      gap: 30px; 
+      padding: 30px 0; 
+      border-bottom: 1px solid #222; 
+      margin-bottom: 40px; 
     }
-    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.3s; font-size: 0.9rem; letter-spacing: 1px; }
+    .navbar a { color: var(--muted); text-decoration: none; font-weight: 600; transition: 0.2s; }
     .navbar a:hover { color: var(--text); }
-    .navbar a.active { color: var(--text); border-bottom: 2px solid var(--blue); padding-bottom: 5px; }
+    .navbar a.active { color: white; border-bottom: 2px solid var(--blue); padding-bottom: 5px; }
 
     .container { 
       width: 100%; 
       max-width: 1000px; 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
-      gap: 15px; 
+      gap: 20px; 
     }
 
     .full-width { grid-column: span 4; text-align: center; margin-bottom: 10px; }
@@ -68,18 +67,18 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
     .btn-filter {
       background: #111;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 8px 16px;
-      border-radius: 12px;
+      padding: 10px 18px;
+      border-radius: 15px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       transition: 0.3s;
     }
     .btn-filter.active { background: var(--blue); color: white; border-color: var(--blue); }
@@ -88,36 +87,40 @@
       background: #111;
       border: 1px solid var(--border);
       color: white;
-      padding: 8px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 15px;
       outline: none;
-      display: none; /* Appare solo se il filtro è "mese" */
     }
 
     .card { 
       background: var(--card); 
       border: 1px solid var(--border); 
-      padding: 20px; 
-      border-radius: 24px; 
+      padding: 25px; 
+      border-radius: 30px; 
+      transition: 0.3s ease;
     }
+    .card:hover { border-color: var(--blue); }
 
     .stat-box { grid-column: span 1; text-align: center; }
-    .stat-box small { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
-    .stat-box h2 { margin: 10px 0 0 0; font-size: 1.4rem; font-weight: 800; }
+    .stat-box small { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
+    .stat-box h2 { margin: 10px 0 0 0; font-size: 1.6rem; font-weight: 800; }
 
     .chart-box { grid-column: span 2; display: flex; flex-direction: column; }
     .large-chart { grid-column: span 4; }
 
-    h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--muted); font-weight: 600; text-align: center; }
+    h3 { margin: 0 0 20px 0; font-size: 1rem; color: var(--muted); font-weight: 600; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
 
     .insight-card { 
       grid-column: span 4; 
-      background: linear-gradient(90deg, rgba(0,122,255,0.1), transparent);
-      display: flex; align-items: center; gap: 15px; padding: 15px 25px;
+      background: #0a0a0a;
+      border-left: 4px solid var(--blue);
+      display: flex; align-items: center; gap: 15px; padding: 20px 25px;
+      border-radius: 20px;
     }
 
     @media (max-width: 768px) { 
       .container { grid-template-columns: repeat(2, 1fr); }
+      .stat-box { grid-column: span 1; }
       .chart-box, .large-chart, .insight-card { grid-column: span 2; }
     }
   </style>
@@ -134,8 +137,8 @@
 
   <div class="container">
     <div class="full-width">
-        <h1 style="margin: 0; font-size: 2.2rem; font-weight: 800;">Analytics Pro</h1>
-        <p style="color: var(--muted); margin-top: 5px;">Visualizzazione Temporale Avanzata</p>
+        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 800;">Analytics Pro</h1>
+        <p style="color: var(--muted); margin-top: 5px;">Monitoraggio dati sincronizzato</p>
     </div>
 
     <div class="card stat-box">
@@ -156,8 +159,8 @@
     </div>
 
     <div class="card insight-card">
-        <i class="fa-solid fa-lightbulb"></i>
-        <p id="insight-text">Seleziona un intervallo per l'analisi...</p>
+        <i class="fa-solid fa-lightbulb" style="color: var(--blue)"></i>
+        <p id="insight-text" style="margin:0; font-size: 0.9rem;">Analisi dei movimenti in tempo reale...</p>
     </div>
 
     <div class="card chart-box large-chart">
@@ -174,16 +177,16 @@
     </div>
 
     <div class="card chart-box">
-      <h3>Distribuzione Periodo</h3>
+      <h3>Distribuzione (%)</h3>
       <div style="height: 200px; width: 100%;">
         <canvas id="pieChart"></canvas>
       </div>
     </div>
 
     <div class="card chart-box" style="justify-content: center; text-align: center;">
-      <small style="color: var(--muted); text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px;">Media Giornaliera</small>
-      <h1 id="daily-avg" style="color: var(--blue); font-size: 2rem; margin: 15px 0;">€ 0</h1>
-      <p style="font-size: 0.7rem; color: var(--muted);">Spesa media calcolata sul periodo selezionato.</p>
+      <small style="color: var(--muted); text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px;">Media Uscite Periodo</small>
+      <h1 id="daily-avg" style="color: var(--danger); font-size: 2.2rem; margin: 15px 0;">€ 0</h1>
+      <p style="font-size: 0.75rem; color: var(--muted); padding: 0 10px;">Basato sulle uscite totali nel periodo selezionato.</p>
     </div>
   </div>
 
@@ -207,11 +210,9 @@
     let pieChart, lineChart;
     let rawLogs = [];
     let currentView = 'month';
-    let currentTotalSnapshot = 0;
 
     const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
 
-    // Inizializza Selettore Mese
     const monthPicker = document.getElementById('monthPicker');
     const now = new Date();
     for(let i=0; i<12; i++) {
@@ -226,12 +227,10 @@
       const data = snapshot.val();
       if (data) {
         rawLogs = data.logs || [];
-        currentTotalSnapshot = (data.cash || 0) + (data.card || 0);
         processData();
       }
     });
 
-    // Listener Filtri
     document.querySelectorAll('.btn-filter').forEach(btn => {
       btn.onclick = () => {
         document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
@@ -245,13 +244,10 @@
     monthPicker.onchange = processData;
 
     function parseCustomDate(dateStr) {
-      // Formato atteso: "DD/MM/YYYY, HH:MM" o "DD mmm, HH:MM"
-      // Per sicurezza cerchiamo di estrarre giorno e mese
       const parts = dateStr.split(',')[0].trim().split(' '); 
       const day = parseInt(parts[0]);
       let month;
-
-      if(parts[1] && isNaN(parts[1])) { // Se è tipo "mag"
+      if(parts[1] && isNaN(parts[1])) {
         const monthsShort = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
         month = monthsShort.indexOf(parts[1].toLowerCase());
       } else {
@@ -259,10 +255,7 @@
         day = parseInt(fullDate[0]);
         month = parseInt(fullDate[1]) - 1;
       }
-      
-      let d = new Date();
-      d.setDate(day);
-      d.setMonth(month);
+      let d = new Date(); d.setDate(day); d.setMonth(month);
       return d;
     }
 
@@ -270,15 +263,13 @@
       const now = new Date();
       let filtered = [];
       let labels = [];
-      let dataSet = [];
       let title = "";
 
       if (currentView === 'week') {
-        title = "Ultimi 7 Giorni";
+        title = "Grafico Settimanale";
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(now.getDate() - 7);
         filtered = rawLogs.filter(l => parseCustomDate(l.date) >= oneWeekAgo);
-        // Genera labels giorni
         for(let i=6; i>=0; i--) {
           let d = new Date(); d.setDate(now.getDate() - i);
           labels.push(d.toLocaleDateString('it-IT', {weekday: 'short'}));
@@ -286,13 +277,12 @@
       } 
       else if (currentView === 'month') {
         const selMonth = parseInt(monthPicker.value);
-        title = `Andamento: ${monthNames[selMonth]}`;
+        title = `Grafico: ${monthNames[selMonth]}`;
         filtered = rawLogs.filter(l => parseCustomDate(l.date).getMonth() === selMonth);
-        // Labels giorni del mese (1, 5, 10...)
         labels = Array.from({length: 31}, (_, i) => i + 1);
       } 
       else if (currentView === 'year') {
-        title = "Andamento Annuale " + now.getFullYear();
+        title = "Grafico Annuale " + now.getFullYear();
         filtered = rawLogs.filter(l => parseCustomDate(l.date).getFullYear() === now.getFullYear());
         labels = monthNames.map(m => m.substring(0,3));
       }
@@ -307,16 +297,17 @@
       const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + l.val, 0);
       const netto = entrate - uscite;
       
-      document.getElementById('total-in').textContent = `€ ${entrate.toFixed(0)}`;
-      document.getElementById('total-out').textContent = `€ ${uscite.toFixed(0)}`;
-      document.getElementById('net-savings').textContent = `€ ${netto.toFixed(0)}`;
+      const fmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+      document.getElementById('total-in').textContent = fmt.format(entrate);
+      document.getElementById('total-out').textContent = fmt.format(uscite);
+      document.getElementById('net-savings').textContent = fmt.format(netto);
       document.getElementById('net-savings').style.color = netto >= 0 ? 'var(--success)' : 'var(--danger)';
       
       const rate = entrate > 0 ? ((netto / entrate) * 100).toFixed(0) : 0;
       document.getElementById('saving-rate').textContent = `${rate}%`;
 
       const days = currentView === 'week' ? 7 : 30;
-      document.getElementById('daily-avg').textContent = `€ ${(uscite / days).toFixed(2)}`;
+      document.getElementById('daily-avg').textContent = fmt.format(uscite / (logs.length > 0 ? days : 1));
 
       renderPie(entrate, uscite);
     }
@@ -326,8 +317,6 @@
       if (lineChart) lineChart.destroy();
 
       let points = new Array(labels.length).fill(0);
-      
-      // Aggregazione dati per il grafico a linee
       logs.forEach(l => {
         const d = parseCustomDate(l.date);
         let index;
@@ -344,16 +333,11 @@
         }
       });
 
-      // Calcolo andamento cumulativo
       let cumulative = 0;
       const dataPoints = points.map(v => {
         cumulative += v;
         return cumulative;
       });
-
-      const grad = ctx.createLinearGradient(0, 0, 0, 300);
-      grad.addColorStop(0, 'rgba(0, 122, 255, 0.4)');
-      grad.addColorStop(1, 'transparent');
 
       lineChart = new Chart(ctx, {
         type: 'line',
@@ -361,12 +345,12 @@
           labels: labels,
           datasets: [{
             data: dataPoints,
-            borderColor: '#007aff',
+            borderColor: '#3b82f6',
             borderWidth: 3,
             tension: 0.4,
-            fill: true,
-            backgroundColor: grad,
-            pointRadius: view === 'year' ? 5 : 2
+            fill: false,
+            pointBackgroundColor: '#3b82f6',
+            pointRadius: view === 'year' ? 4 : 1
           }]
         },
         options: {
@@ -388,8 +372,8 @@
         data: {
           labels: ['Entrate', 'Uscite'],
           datasets: [{
-            data: [inVal, outVal || 0.1],
-            backgroundColor: ['#32d74b', '#ff453a'],
+            data: [inVal || 1, outVal || 0],
+            backgroundColor: ['#22c55e', '#ff3333'],
             borderWidth: 0
           }]
         },
