@@ -151,7 +151,7 @@
 
   <div class="sub-section-nav">
     <button class="sub-nav-btn active" id="btn-view-portafoglio" onclick="switchHomeView('portafoglio')">💼 Portafoglio (Home)</button>
-    <button class="sub-nav-btn" id="btn-view-lavoro" onclick="switchHomeView('lavoro')">⏱️ Calcolo Ore & Lavoro</button>
+    <button class="sub-nav-btn" id="btn-view-lavoro" onclick="switchHomeView('lavoro')">⏱ whitespace Calcolo Ore & Lavoro</button>
   </div>
 
   <div id="undo-toast">
@@ -302,7 +302,11 @@
           <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <div>
               <div style="font-size:0.7rem; color:var(--muted); margin-bottom:5px; text-transform:uppercase;">Invia accredito a:</div>
-              <select id="work-deposit-type" class="work-select" style="width:100%;"><option value="Carta">Carta</option><option value="Cash">Cash</option></select>
+              <select id="work-deposit-type" class="work-select" style="width:100%;">
+                <option value="Carta">Carta</option>
+                <option value="Cash">Cash</option>
+                <option value="Extra">Risparmi Generali (Extra)</option>
+              </select>
             </div>
             <div style="display:flex; align-items:flex-end;">
               <button class="work-btn" id="save-work-btn" style="width: 100%; height: 48px; background:var(--success); color:black;">SALVA E ACCREDITA</button>
@@ -339,7 +343,6 @@
     const dbFirebase = getDatabase(app);
     const walletRef = ref(dbFirebase, 'wallet_infinite_data');
 
-    // Struttura del database estesa con la gestione lavoro
     let db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [], workLogs: [] };
     let tempVal = 0;
     let tempType = 'Cash';
@@ -379,7 +382,6 @@
       } 
     }
 
-    // Gestione dei Tab della Home
     window.switchHomeView = function(view) {
       document.getElementById('view-portafoglio').classList.toggle('active', view === 'portafoglio');
       document.getElementById('view-lavoro').classList.toggle('active', view === 'lavoro');
@@ -387,7 +389,6 @@
       document.getElementById('btn-view-lavoro').classList.toggle('active', view === 'lavoro');
     }
 
-    // Calcolo real-time del guadagno ore
     window.liveWorkCalc = function() {
       const hours = parseFloat(document.getElementById('work-hours').value) || 0;
       const rate = parseFloat(document.getElementById('work-rate').value) || 0;
@@ -545,16 +546,28 @@
       const totalEarnings = hours * rate;
       const ora = new Date();
       const dateStr = ora.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) + ', ' + ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+      const dateShortStr = ora.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
 
       saveState();
 
-      // 1. Aggiungi al saldo reale
-      if (depositType === 'Cash') db.cash += totalEarnings; else db.card += totalEarnings;
+      // LOGICA ACCREDITO SEPARATA SE SI SELEZIONANO I RISPARMI (EXTRA)
+      if (depositType === 'Extra') {
+        // 1. Accreditiamo all'interno della lista extra (risparmi) così non tocca il patrimonio reale
+        db.extraLogs.push({
+          id: Date.now(),
+          val: totalEarnings,
+          reason: `Lavoro: ${hours}h`,
+          date: dateShortStr
+        });
+      } else {
+        // 1. Accreditiamo normalmente sul portafoglio principale reale
+        if (depositType === 'Cash') db.cash += totalEarnings; else db.card += totalEarnings;
 
-      // 2. Crea il log nei movimenti generali
-      db.logs.push({ val: totalEarnings, type: 'add', source: `Lavoro: ${hours}h (${depositType})`, date: dateStr });
+        // 2. Crea il log nei movimenti generali (solo se va nel conto reale)
+        db.logs.push({ val: totalEarnings, type: 'add', source: `Lavoro: ${hours}h (${depositType})`, date: dateStr });
+      }
 
-      // 3. Crea il log separato nello storico del lavoro
+      // 3. Registra sempre e in ogni caso la giornata nello storico separato del Lavoro
       db.workLogs.push({ id: Date.now(), hours, rate, earnings: totalEarnings, date: dateStr, depositType });
 
       // Reset campi input lavoro
@@ -601,16 +614,16 @@
             <span>${l.reason} <small style="color:#555">(${l.date})</small></span></div><b style="color:var(--success)">+${l.val}€</b></div>`;
       });
 
-      // Render dello storico del lavoro nell'aside dedicato
       const wHist = document.getElementById('work-history-list'); wHist.innerHTML = '';
       for (let i = db.workLogs.length - 1; i >= 0; i--) {
         const w = db.workLogs[i];
+        const destLabel = w.depositType === 'Extra' ? 'Risparmi' : w.depositType;
         wHist.innerHTML += `
           <div class="log" style="border-left-color:var(--success)">
             <div style="flex: 1;">
               <b style="color:var(--success)">+ ${w.earnings.toFixed(2)}€</b>
               <span class="meta-info">Turno: ${w.hours}h x ${w.rate}€/h</span>
-              <span class="meta-info" style="font-size:0.75rem; opacity:0.6">${w.date} • Versato in ${w.depositType}</span>
+              <span class="meta-info" style="font-size:0.75rem; opacity:0.6">${w.date} • Versato in ${destLabel}</span>
             </div>
             <button class="del-history-item" onclick="deleteWorkLog(${w.id})">✕</button>
           </div>`;
