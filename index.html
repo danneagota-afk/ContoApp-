@@ -150,8 +150,8 @@
   </nav>
 
   <div class="sub-section-nav">
-    <button class="sub-nav-btn active" id="btn-view-portafoglio" onclick="switchHomeView('portafoglio')">Portafoglio</button>
-    <button class="sub-nav-btn" id="btn-view-lavoro" onclick="switchHomeView('lavoro')">Calcolo Ore & Lavoro</button>
+    <button class="sub-nav-btn active" id="btn-view-portafoglio" onclick="switchHomeView('portafoglio')">💼 Portafoglio (Home)</button>
+    <button class="sub-nav-btn" id="btn-view-lavoro" onclick="switchHomeView('lavoro')">⏱️ Calcolo Ore & Lavoro</button>
   </div>
 
   <div id="undo-toast">
@@ -295,7 +295,7 @@
           </div>
 
           <div style="width: 100%; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; text-align: center; border: 1px dashed #333; margin: 10px 0;">
-            <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Stima Turno Odierno</div>
+            <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Stima Turno Odierno (Banconote 20/50)</div>
             <h2 id="work-live-display" style="margin: 8px 0 0 0; font-size: 2.5rem; font-weight: 800; color: var(--success);">€ 0,00</h2>
           </div>
 
@@ -389,11 +389,41 @@
       document.getElementById('btn-view-lavoro').classList.toggle('active', view === 'lavoro');
     }
 
+    // FUNZIONE DI ARROTONDAMENTO STRATEGICO PER BANCONOTE DA 20 E 50
+    function getValidCashTarget(amount) {
+      let target = Math.ceil(amount);
+      if (target <= 0) return 0;
+      if (target < 20) return 20;
+      
+      // Cicla verso l'alto finché non trova una cifra combinabile con pezzi da 20 e 50
+      while (true) {
+        let remainder = target;
+        // Sottrae il massimo di pezzi da 50 possibili purché il resto sia pari o combinabile
+        let max50 = Math.floor(remainder / 50);
+        let found = false;
+        
+        for (let num50 = max50; num50 >= 0; num50--) {
+          let left = remainder - (num50 * 50);
+          if (left % 20 === 0) {
+            found = true;
+            break;
+          }
+        }
+        
+        if (found) {
+          return target;
+        }
+        target++; // Se non è combinabile, prova il numero intero successivo per eccesso
+      }
+    }
+
     window.liveWorkCalc = function() {
       const hours = parseFloat(document.getElementById('work-hours').value) || 0;
       const rate = parseFloat(document.getElementById('work-rate').value) || 0;
-      const res = hours * rate;
-      document.getElementById('work-live-display').textContent = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(res);
+      const rawEarnings = hours * rate;
+      const roundedEarnings = getValidCashTarget(rawEarnings);
+      
+      document.getElementById('work-live-display').textContent = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(roundedEarnings);
     }
 
     function refreshGoalDropdowns() {
@@ -533,7 +563,6 @@
       pushToCloud();
     }
 
-    // Gestione salvataggio giornata lavorativa
     function saveWorkTurn() {
       const hours = parseFloat(document.getElementById('work-hours').value);
       const rate = parseFloat(document.getElementById('work-rate').value);
@@ -543,16 +572,17 @@
         return alert("Inserisci ore e paga oraria valide!");
       }
 
-      const totalEarnings = hours * rate;
+      // APPLICA L'ARROTONDAMENTO PER ECCESSO AL GUADAGNO
+      const rawEarnings = hours * rate;
+      const totalEarnings = getValidCashTarget(rawEarnings);
+
       const ora = new Date();
       const dateStr = ora.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) + ', ' + ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
       const dateShortStr = ora.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
 
       saveState();
 
-      // LOGICA ACCREDITO SEPARATA SE SI SELEZIONANO I RISPARMI (EXTRA)
       if (depositType === 'Extra') {
-        // 1. Accreditiamo all'interno della lista extra (risparmi) così non tocca il patrimonio reale
         db.extraLogs.push({
           id: Date.now(),
           val: totalEarnings,
@@ -560,17 +590,12 @@
           date: dateShortStr
         });
       } else {
-        // 1. Accreditiamo normalmente sul portafoglio principale reale
         if (depositType === 'Cash') db.cash += totalEarnings; else db.card += totalEarnings;
-
-        // 2. Crea il log nei movimenti generali (solo se va nel conto reale)
         db.logs.push({ val: totalEarnings, type: 'add', source: `Lavoro: ${hours}h (${depositType})`, date: dateStr });
       }
 
-      // 3. Registra sempre e in ogni caso la giornata nello storico separato del Lavoro
       db.workLogs.push({ id: Date.now(), hours, rate, earnings: totalEarnings, date: dateStr, depositType });
 
-      // Reset campi input lavoro
       document.getElementById('work-hours').value = "";
       document.getElementById('work-live-display').textContent = "€ 0,00";
 
