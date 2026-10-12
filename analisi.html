@@ -127,23 +127,31 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="stylesheet" href="theme.css?v=20261013-dark-finance-1">
+  <script defer src="ui.js?v=20261013-dark-finance-1"></script>
 </head>
-<body>
+<body class="page-analisi">
 
-  <nav class="navbar">
-      <a href="index.html">Home</a>
-      <a href="vinted.html">Vinted</a>
-      <a href="risparmi.html">Risparmi</a>
-      <a href="revolut.html">Revolut</a>
-      <a href="analisi.html" class="active">Analitica</a>
-      <a href="info.html">Info</a>
+  <nav class="navbar" aria-label="Navigazione principale">
+    <a class="app-brand" href="index.html" aria-label="ContoApp, torna alla Home"><span class="app-brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="app-brand-name">Conto<span>App</span></span></a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html"><span>Home</span></a>
+      <a class="nav-link" href="vinted.html"><span>Vinted</span></a>
+      <a class="nav-link" href="risparmi.html"><span>Risparmi</span></a>
+      <a class="nav-link active" href="analisi.html" aria-current="page"><span>Analisi</span></a>
+      <a class="nav-link" href="revolut.html"><span>Revolut</span></a>
+      <a class="nav-link" href="info.html"><span>Info</span></a>
+    </div>
+    <a class="mobile-info" href="info.html">Info</a>
+    <button type="button" class="privacy-toggle" aria-pressed="false" aria-label="Nascondi gli importi">◎ Nascondi importi</button>
   </nav>
+<header class="page-header">
+    <div class="eyebrow">DATI E ANDAMENTI</div>
+    <h1>Un quadro chiaro <span>delle tue finanze.</span></h1>
+    <p>Entrate, uscite e andamento della tua contabilità manuale, senza sovrapporre i dati bancari.</p>
+  </header>
 
   <div class="container">
-    <div class="full-width">
-        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 800;">Analytics Pro</h1>
-        <p style="color: var(--muted); margin-top: 5px;">Monitoraggio dati sincronizzato</p>
-    </div>
 
     <div class="card stat-box">
         <small>Entrate</small>

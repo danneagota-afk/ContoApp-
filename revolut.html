@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="icon" href="logo.png">
-  <meta name="theme-color" content="#080a10">
+  <meta name="theme-color" content="#060c17">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <style>
@@ -40,17 +40,26 @@
     .foot{color:#8e9cae;font-size:12px;line-height:1.6;margin-top:25px}
     [hidden]{display:none!important}
   </style>
+  <link rel="stylesheet" href="theme.css?v=20261013-dark-finance-1">
+  <script defer src="ui.js?v=20261013-dark-finance-1"></script>
 </head>
-<body>
+<body class="page-revolut">
 <main>
-  <nav class="navbar">
-    <a href="index.html">Home</a>
-    <a href="vinted.html">Vinted</a>
-    <a href="risparmi.html">Risparmi</a>
-    <a href="analisi.html">Analitica</a>
-    <a class="current" href="revolut.html">Revolut</a>
+  <nav class="navbar" aria-label="Navigazione principale">
+    <a class="app-brand" href="index.html" aria-label="ContoApp, torna alla Home"><span class="app-brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="app-brand-name">Conto<span>App</span></span></a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html"><span>Home</span></a>
+      <a class="nav-link" href="vinted.html"><span>Vinted</span></a>
+      <a class="nav-link" href="risparmi.html"><span>Risparmi</span></a>
+      <a class="nav-link" href="analisi.html"><span>Analisi</span></a>
+      <a class="nav-link active" href="revolut.html" aria-current="page"><span>Revolut</span></a>
+      <a class="nav-link" href="info.html"><span>Info</span></a>
+    </div>
+    <a class="mobile-info" href="info.html">Info</a>
+    <button type="button" class="privacy-toggle" aria-pressed="false" aria-label="Nascondi gli importi">◎ Nascondi importi</button>
   </nav>
   <header>
+    <div class="eyebrow" style="color:#8fb5e5;font-size:11px;letter-spacing:.12em;font-weight:800">BANCA COLLEGATA · SOLA LETTURA</div>
     <h1>Revolut <span aria-hidden="true">↗</span></h1>
     <div class="sub">Saldo e movimenti sincronizzati tramite Enable Banking, con accesso in sola lettura.</div>
   </header>
@@ -73,7 +82,7 @@
     <h2>Movimenti recenti (ultimi 30 giorni)</h2>
     <div id="transactions"></div>
   </section>
-  <p class="foot">Il saldo Revolut è mostrato separatamente dal saldo “Carta” inserito manualmente in ContoApp: per evitare doppi conteggi non modifichiamo automaticamente il patrimonio Firebase. Per operazioni bancarie e saldo ufficiale fa fede l'app Revolut. L'aggiornamento avviene quando apri questa pagina e periodicamente mentre resta aperta, nei limiti del servizio bancario.</p>
+  <p class="foot">Il saldo Revolut è la cifra comunicata dalla banca tramite Enable Banking. La “Carta” in Home resta un registro manuale separato, per evitare doppi conteggi e conservare lo storico. Per operazioni bancarie e saldo ufficiale fa fede l'app Revolut. L'aggiornamento avviene quando apri questa pagina e periodicamente mentre resta aperta, nei limiti del servizio bancario.</p>
 </main>
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
