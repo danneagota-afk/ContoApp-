@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Revolut | ContoApp</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" href="logo.png">
+  <meta name="theme-color" content="#080a10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#080b11;color:#f1f5fa;font-family:system-ui,-apple-system,Segoe UI,sans-serif;padding:18px 16px 50px}
+    main{max-width:870px;margin:0 auto}
+    nav{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:10px 0 32px;font-size:14px}
+    nav a{color:#9dacbe;text-decoration:none;padding:8px 6px}
+    nav a.current{color:#fff;border-bottom:2px solid #498dff}
+    h1{font-size:32px;margin:8px 0}
+    h2{font-size:18px;margin:0 0 15px}
+    .sub{color:#9caabe;font-size:14px;line-height:1.6}
+    .panel{background:#111824;border:1px solid #263548;border-radius:18px;padding:22px;margin:20px 0}
+    .top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+    .buttons{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+    button{border:0;border-radius:11px;padding:12px 16px;color:#fff;background:#3479f3;font-weight:700;font-size:14px;cursor:pointer}
+    button.alt{background:#253046}
+    button.danger{background:#3b1e2a;color:#ffadbb}
+    button:disabled{opacity:.45;cursor:wait}
+    .amount{font-size:29px;font-weight:800;margin:8px 0}
+    .account{border:1px solid #2a384c;border-radius:14px;padding:17px;margin-top:16px}
+    .status{border-radius:10px;padding:12px;background:#182539;color:#b6d2ff;margin:16px 0;line-height:1.5}
+    .status.error{background:#331b20;color:#ffb6c2}
+    .tx{border-bottom:1px solid #273347;padding:13px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .tx:last-child{border:0}
+    .txinfo{min-width:0}
+    .txname{font-weight:650;overflow-wrap:anywhere}
+    .txdate{font-size:12px;color:#91a0b5;margin-top:6px}
+    .plus{color:#61dc9f}.minus{color:#f39e9e}
+    .foot{color:#8e9cae;font-size:12px;line-height:1.6;margin-top:25px}
+    [hidden]{display:none!important}
+  </style>
+</head>
+<body>
+<main>
+  <nav class="navbar">
+    <a href="index.html">Home</a>
+    <a href="vinted.html">Vinted</a>
+    <a href="risparmi.html">Risparmi</a>
+    <a href="analisi.html">Analitica</a>
+    <a class="current" href="revolut.html">Revolut</a>
+  </nav>
+  <header>
+    <h1>Revolut <span aria-hidden="true">↗</span></h1>
+    <div class="sub">Saldo e movimenti sincronizzati tramite Enable Banking, con accesso in sola lettura.</div>
+  </header>
+  <section class="panel" id="connection-panel">
+    <div class="top"><h2>Collegamento bancario</h2><span class="sub" id="connection-label">Controllo in corso...</span></div>
+    <p class="sub" id="connection-description">Ti chiediamo di autorizzare Revolut soltanto la prima volta o quando il consenso scade.</p>
+    <div class="buttons">
+      <button id="connect-btn" hidden>Collega / Rinnova Revolut</button>
+      <button id="refresh-btn" class="alt" hidden>Aggiorna</button>
+      <button id="disconnect-btn" class="danger" hidden>Disconnetti</button>
+    </div>
+  </section>
+  <div id="message" role="status" aria-live="polite" class="status" hidden></div>
+  <section class="panel" id="financial-panel" hidden>
+    <h2>I tuoi conti</h2>
+    <div class="sub" id="updated-at"></div>
+    <div id="accounts"></div>
+  </section>
+  <section class="panel" id="transactions-panel" hidden>
+    <h2>Movimenti recenti (ultimi 30 giorni)</h2>
+    <div id="transactions"></div>
+  </section>
+  <p class="foot">Il saldo Revolut è mostrato separatamente dal saldo “Carta” inserito manualmente in ContoApp: per evitare doppi conteggi non modifichiamo automaticamente il patrimonio Firebase. Per operazioni bancarie e saldo ufficiale fa fede l'app Revolut. L'aggiornamento avviene quando apri questa pagina e periodicamente mentre resta aperta, nei limiti del servizio bancario.</p>
+</main>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, getIdToken } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+  import { requireAuth } from './auth-guard.js';
+  const firebaseConfig = {
+    apiKey:'AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw',
+    authDomain:'conto-corrente.firebaseapp.com',
+    databaseURL:'https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app',
+    projectId:'conto-corrente',appId:'1:138913358347:web:35a016a855be2597989d0e'
+  };
+  const API='https://contoapp-revolut.dan-neagota.workers.dev';
+  const app=initializeApp(firebaseConfig);
+  const gate=await requireAuth(app);
+  gate.ready();
+  const auth=getAuth(app);
+  const $=id=>document.getElementById(id);
+  const money=(amount,currency)=>new Intl.NumberFormat('it-IT',{style:'currency',currency:currency||'EUR'}).format(amount);
+  let connected=false,busy=false;
+  function showMessage(str,isError=false){const el=$('message');el.hidden=!str;el.className='status'+(isError?' error':'');el.textContent=str||'';}
+  function setBusy(b){busy=b;for(const id of ['connect-btn','refresh-btn','disconnect-btn']) $(id).disabled=b;}
+  async function call(path,method='GET'){
+    if(!auth.currentUser)throw new Error('Accedi prima con il tuo account ContoApp.');
+    const token=await getIdToken(auth.currentUser);
+    const response=await fetch(API+path,{method,headers:{Authorization:'Bearer '+token},cache:'no-store'});
+    let data;try{data=await response.json();}catch{throw new Error('Risposta non valida dal server Cloudflare.');}
+    if(!response.ok)throw new Error(data.error||'Errore del server Cloudflare.');
+    return data;
+  }
+  function tag(name,txt,className){const el=document.createElement(name);el.textContent=txt;if(className)el.className=className;return el;}
+  function renderData(d){
+    $('financial-panel').hidden=false;$('transactions-panel').hidden=false;
+    $('updated-at').textContent='Ultimo aggiornamento: '+new Date(d.updated_at).toLocaleString('it-IT')+(d.cached?' (dati recenti in memoria)':'');
+    $('accounts').replaceChildren();$('transactions').replaceChildren();
+    let count=0;
+    for(const entry of d.accounts||[]){
+      const section=tag('div','', 'account');
+      section.append(tag('strong',(entry.account.name||'Conto Revolut')+' · '+entry.account.identifier+' · '+entry.account.currency));
+      const balances=entry.balances||[];
+      const preferred=balances.find(b=>b.type==='CLAV')||balances.find(b=>b.type==='ITAV')||balances[0];
+      if(preferred){section.append(tag('div',money(preferred.amount,preferred.currency),'amount'));section.append(tag('div',preferred.name||preferred.type,'sub'));}
+      else section.append(tag('p','Saldo non disponibile per questo conto.','sub'));
+      $('accounts').append(section);
+      for(const t of entry.transactions||[]){
+        count++;
+        const line=tag('div','', 'tx');const info=tag('div','','txinfo');
+        info.append(tag('div',t.description||'Movimento','txname'));
+        info.append(tag('div',(t.date||'Data non disponibile')+' · '+entry.account.name+' · '+t.status,'txdate'));
+        line.append(info,tag('strong',money(t.amount,t.currency),t.amount>=0?'plus':'minus'));
+        $('transactions').append(line);
+      }
+      if(entry.more_transactions) $('transactions').append(tag('p','Altri movimenti disponibili in banca: questa prima versione mostra soltanto i risultati iniziali.','sub'));
+    }
+    if(!count)$('transactions').append(tag('p','Nessun movimento trovato negli ultimi 30 giorni.','sub'));
+  }
+  async function refresh(){
+    setBusy(true);showMessage('Aggiornamento automatico da Revolut in corso...');
+    try{const d=await call('/api/revolut/data');renderData(d);showMessage('Dati Revolut aggiornati.');}
+    catch(e){showMessage(e.message,true);}
+    finally{setBusy(false);}
+  }
+  async function loadStatus(){
+    setBusy(true);showMessage('Verifica della connessione Revolut...');
+    try{
+      const s=await call('/api/revolut/status');connected=!!s.connected;
+      $('connection-label').textContent=connected?'Collegato':'Non collegato';
+      $('connect-btn').hidden=false;
+      $('refresh-btn').hidden=!connected;$('disconnect-btn').hidden=!connected;
+      $('connection-description').textContent=connected?
+        ('Autorizzazione valida fino al '+new Date(s.expires).toLocaleString('it-IT')+'. Per aggiornarla usa “Collega / Rinnova”.'):
+        'Collega il tuo conto personale e autorizza la consultazione dei dati tramite Revolut.';
+      if(connected){setBusy(false);await refresh();}
+      else{showMessage('Revolut non è ancora collegato a questa versione di ContoApp.');$('financial-panel').hidden=true;$('transactions-panel').hidden=true;}
+    }catch(e){showMessage(e.message,true);$('connection-label').textContent='Errore di connessione';}
+    finally{setBusy(false);}
+  }
+  $('connect-btn').addEventListener('click',async()=>{
+    setBusy(true);showMessage('Preparazione autorizzazione sicura...');
+    try{const result=await call('/api/revolut/start','POST');location.assign(result.url);}
+    catch(e){showMessage(e.message,true);setBusy(false);}
+  });
+  $('refresh-btn').addEventListener('click',refresh);
+  $('disconnect-btn').addEventListener('click',async()=>{
+    if(!confirm('Vuoi revocare il collegamento Revolut? I tuoi dati manuali Firebase resteranno invariati.'))return;
+    setBusy(true);
+    try{await call('/api/revolut/disconnect','POST');showMessage('Connessione Revolut rimossa.');await loadStatus();}
+    catch(e){showMessage(e.message,true);}finally{setBusy(false);}
+  });
+  const connection=new URLSearchParams(location.search).get('connection');
+  if(connection)history.replaceState(null,'',location.pathname);
+  await loadStatus();
+  if(connection==='failed')showMessage('Revolut non ha completato il collegamento. Riprova.',true);
+  if(connection==='denied')showMessage('Autorizzazione Revolut annullata.',true);
+  if(connection==='expired')showMessage('Il collegamento è scaduto durante l’autorizzazione. Riprova.',true);
+  if(connection==='ok' && connected)showMessage('Revolut collegato correttamente!');
+  setInterval(()=>{if(connected&&!busy&&document.visibilityState==='visible')refresh();},20*60*1000);
+</script>
+<script>if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
+</body>
+</html>

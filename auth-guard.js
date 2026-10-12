@@ -46,7 +46,7 @@ export async function requireAuth(app) {
 
   if (!user) {
     const name = location.pathname.split('/').pop() || 'index.html';
-    const safeName = ['index.html', 'analisi.html', 'risparmi.html', 'vinted.html'].includes(name)
+    const safeName = ['index.html', 'analisi.html', 'risparmi.html', 'vinted.html', 'revolut.html'].includes(name)
       ? name : 'index.html';
     location.replace('./login.html?next=' + encodeURIComponent(safeName));
     return new Promise(() => {});
