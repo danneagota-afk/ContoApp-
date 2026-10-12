@@ -124,6 +124,9 @@
       .chart-box, .large-chart, .insight-card { grid-column: span 2; }
     }
   </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 <body>
 
@@ -191,6 +194,7 @@
   </div>
 
   <script type="module">
+    import { requireAuth } from "./auth-guard.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -204,6 +208,7 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const accessGate = await requireAuth(app);
     const dbFirebase = getDatabase(app);
     const walletRef = ref(dbFirebase, 'wallet_infinite_data');
 
@@ -225,11 +230,12 @@
 
     onValue(walletRef, (snapshot) => {
       const data = snapshot.val();
+      accessGate.ready();
       if (data) {
         rawLogs = data.logs || [];
         processData();
       }
-    });
+    }, (error) => accessGate.error(error));
 
     document.querySelectorAll('.btn-filter').forEach(btn => {
       btn.onclick = () => {
@@ -379,6 +385,11 @@
         },
         options: { maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
       });
+    }
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
     }
   </script>
 </body>

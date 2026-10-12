@@ -67,6 +67,9 @@
     @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
     @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
   </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 <body>
 
@@ -101,6 +104,7 @@
   <button class="btn-reset" id="btn-reset">Svuota cronologia Vinted</button>
 
   <script type="module">
+    import { requireAuth } from "./auth-guard.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -115,6 +119,7 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const accessGate = await requireAuth(app);
     const db = getDatabase(app);
     const vintedRef = ref(db, 'vinted_data');
 
@@ -123,6 +128,7 @@
     // --- CARICAMENTO DATI ---
     onValue(vintedRef, (snapshot) => {
       const data = snapshot.val();
+      accessGate.ready();
       if (data) {
         datiVinted = {
             entrate: data.entrate || [],
@@ -132,7 +138,7 @@
         datiVinted = { entrate: [], uscite: [] };
       }
       renderizzaListe();
-    });
+    }, (error) => accessGate.error(error));
 
     // --- FUNZIONE AGGIUNGI ---
     window.aggiungi = function(tipo) {
@@ -205,6 +211,11 @@
     document.getElementById('btn-add-out').onclick = () => window.aggiungi('out');
     document.getElementById('btn-reset').onclick = () => window.resetVinted();
 
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
   </script>
 </body>
 </html>

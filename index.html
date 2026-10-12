@@ -138,6 +138,9 @@
       .side { height: auto; position: static; } 
     }
   </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 <body>
 
@@ -325,6 +328,7 @@
 
 
   <script type="module">
+    import { requireAuth } from "./auth-guard.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -340,6 +344,7 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const accessGate = await requireAuth(app);
     const dbFirebase = getDatabase(app);
     const walletRef = ref(dbFirebase, 'wallet_infinite_data');
 
@@ -353,6 +358,7 @@
 
     onValue(walletRef, (snapshot) => {
       const data = snapshot.val();
+      accessGate.ready();
       if (data) {
         db = data;
         if (!db.goals) db.goals = [];
@@ -361,7 +367,7 @@
         if (!db.workLogs) db.workLogs = [];
         updateUI();
       }
-    });
+    }, (error) => accessGate.error(error));
 
     function pushToCloud() { set(walletRef, db); }
 
@@ -695,6 +701,11 @@
     document.getElementById('reset-extra-btn').onclick = () => { if(confirm("Svuotare lista?")) { saveState(); db.extraLogs = []; pushToCloud(); } };
     document.getElementById('reset-work-btn').onclick = () => { if(confirm("Vuoi svuotare il registro delle giornate?")) { saveState(); db.workLogs = []; pushToCloud(); } };
     document.getElementById('reset-all-btn').onclick = () => { if (confirm('Vuoi resettare tutto?')) { db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] }; pushToCloud(); } };
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
   </script>
 </body>
 </html>

@@ -95,6 +95,9 @@
       .input-group-big { flex-direction: column; }
     }
   </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 <body>
 
@@ -127,6 +130,7 @@
   </div>
 
   <script type="module">
+    import { requireAuth } from "./auth-guard.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -141,6 +145,7 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const accessGate = await requireAuth(app);
     const dbRef = getDatabase(app);
     let currentData = { goals: [] };
     let lastState = null;
@@ -148,12 +153,13 @@
 
     onValue(ref(dbRef, 'wallet_infinite_data'), (snapshot) => {
       const data = snapshot.val();
+      accessGate.ready();
       if (data) {
         currentData = data;
         if (!currentData.goals) currentData.goals = [];
         render();
       }
-    });
+    }, (error) => accessGate.error(error));
 
     function saveToFirebase(dataToSave) {
       set(ref(dbRef, 'wallet_infinite_data'), dataToSave);
@@ -290,6 +296,11 @@
     }
 
     document.getElementById('btn-create-goal').onclick = window.createGoal;
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
   </script>
 </body>
 </html>
