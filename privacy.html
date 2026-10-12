@@ -1,20 +1,237 @@
+
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informativa sulla privacy | ContoApp</title><meta name="description" content="Come ContoApp gestisce i dati personali e il collegamento bancario facoltativo"><style>
-:root{color-scheme:dark}body{margin:0;background:#0f1117;color:#ebedf3;font:16px/1.68 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{max-width:800px;margin:42px auto;padding:0 22px 44px}header{margin-bottom:32px}h1{font-size:2.2rem;line-height:1.15;margin:.1em 0}h2{font-size:1.15rem;margin:1.9em 0 .3em;color:#b6d4ff}p{margin:.7em 0}a{color:#8dbcff}small,.hint{color:#adb4c1}nav{margin-bottom:32px}.warning{border:1px solid #a16e28;border-radius:10px;padding:16px;background:#35280d;color:#ffe0a1}footer{margin-top:44px;padding-top:16px;border-top:1px solid #3b4250}code{background:#232a38;padding:2px 5px;border-radius:4px}strong{color:#fff}
-</style></head><body><main><nav><a href="index.html">← Torna a ContoApp</a></nav><header><small>ContoApp · utilizzo personale</small><h1>Informativa sulla privacy</h1><p class="hint">Ultimo aggiornamento: 11 ottobre 2026</p></header>
-<div class="warning"><strong>Da completare prima della pubblicazione:</strong> sostituisci il testo <code>[dan.neagota@gmail.com]</code> con un indirizzo email che vuoi rendere pubblico. Prima del collegamento bancario occorre anche verificare e mettere in sicurezza gli accessi al database Firebase.</div>
-<h2>1. A cosa serve ContoApp</h2>
-<p>ContoApp è un'applicazione personale per visualizzare e gestire manualmente patrimonio, contanti, saldi di carte, risparmi e movimenti. Il titolare dell'applicazione è raggiungibile all'indirizzo: <strong>[EMAIL DI CONTATTO]</strong>.</p>
-<h2>2. Dati gestiti e finalità</h2>
-<p>Le informazioni finanziarie inserite manualmente dall'utilizzatore sono usate per le funzionalità di bilancio e analisi del patrimonio. Queste informazioni sono conservate tramite Firebase Realtime Database (Google), secondo le configurazioni e le regole di accesso impostate per il progetto.</p>
-<p>Il sito è pubblicato su GitHub Pages. Le infrastrutture di hosting possono trattare dati tecnici di accesso, secondo le rispettive informative.</p>
-<h2>3. Collegamento bancario facoltativo</h2>
-<p>È in preparazione una connessione facoltativa in sola lettura al conto Revolut personale tramite Enable Banking e un backend su Cloudflare Workers. L'accesso alle informazioni bancarie richiederà un'autorizzazione esplicita attraverso il processo del fornitore e della banca. ContoApp non richiede l'inserimento delle credenziali bancarie nella propria interfaccia.</p>
-<p>Quando l'integrazione sarà attiva, potrà mostrare i saldi e i movimenti resi disponibili dalla banca. Dati tecnici necessari alla sessione autorizzata potranno essere conservati nei servizi Cloudflare. La specifica conservazione e cancellazione dei dati della connessione verrà aggiornata qui prima dell'attivazione.</p>
-<h2>4. Fornitori coinvolti</h2>
-<p>I servizi coinvolti nel funzionamento previsto sono GitHub Pages, Google Firebase, Cloudflare e Enable Banking. Ogni fornitore applica le proprie condizioni e informative ai trattamenti che effettua.</p>
-<h2>5. Durata, controllo e richieste</h2>
-<p>La conservazione delle informazioni manuali dipende dalle impostazioni del database e dagli interventi di cancellazione effettuati dal gestore. L'accesso bancario è limitato nel tempo e revocabile secondo le procedure messe a disposizione dalla banca e da Enable Banking. Per domande e richieste relative ai dati gestiti da ContoApp: <strong>[EMAIL DI CONTATTO]</strong>.</p>
-<h2>6. Protezione dei dati</h2>
-<p>Prima di abilitare il collegamento bancario, il gestore deve verificare la sicurezza delle regole Firebase, proteggere il backend e limitare l'accesso alle sole persone autorizzate. Questa informativa non sostituisce le verifiche tecniche necessarie.</p>
-<footer><a href="privacy.html">Informativa privacy</a> · <a href="terms.html">Condizioni d’uso</a></footer></main></body></html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Informativa sulla privacy | ContoApp</title>
+
+  <meta name="description" content="Informativa sulla privacy di ContoApp e sul collegamento bancario facoltativo con Revolut.">
+
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      background: #0f1117;
+      color: #ebedf3;
+      font: 16px/1.68 system-ui, -apple-system,
+            Segoe UI, Roboto, sans-serif;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 42px auto;
+      padding: 0 22px 44px;
+    }
+
+    header {
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      line-height: 1.15;
+      margin: .1em 0;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 1.9em 0 .3em;
+      color: #b6d4ff;
+    }
+
+    p {
+      margin: .7em 0;
+    }
+
+    a {
+      color: #8dbcff;
+    }
+
+    small, .hint {
+      color: #adb4c1;
+    }
+
+    nav {
+      margin-bottom: 32px;
+    }
+
+    footer {
+      margin-top: 44px;
+      padding-top: 16px;
+      border-top: 1px solid #3b4250;
+    }
+
+    strong {
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+<main>
+
+  <nav>
+    <a href="index.html">← Torna a ContoApp</a>
+  </nav>
+
+  <header>
+    <small>ContoApp · Utilizzo personale</small>
+    <h1>Informativa sulla privacy</h1>
+    <p class="hint">Ultimo aggiornamento: 12 ottobre 2026</p>
+  </header>
+
+  <h2>1. A cosa serve ContoApp</h2>
+
+  <p>
+    ContoApp è un'applicazione personale per visualizzare
+    e gestire il patrimonio, i contanti, i saldi delle carte,
+    i risparmi e i movimenti finanziari.
+  </p>
+
+  <p>
+    Per informazioni relative all'applicazione e al
+    trattamento dei dati è possibile scrivere a:
+    <strong>
+      <a href="mailto:dan.neagota@gmail.com">
+        dan.neagota@gmail.com
+      </a>
+    </strong>.
+  </p>
+
+  <h2>2. Dati gestiti e finalità</h2>
+
+  <p>
+    I dati finanziari inseriti manualmente dall'utilizzatore
+    vengono utilizzati per la gestione del patrimonio,
+    il monitoraggio delle entrate e delle uscite e
+    l'analisi delle informazioni economiche personali.
+  </p>
+
+  <p>
+    Le informazioni sono conservate tramite
+    Google Firebase Realtime Database, in base
+    alle configurazioni e alle regole di accesso
+    impostate per il progetto.
+  </p>
+
+  <p>
+    Il sito viene pubblicato attraverso GitHub Pages.
+    Il fornitore di hosting può trattare dati tecnici
+    di accesso secondo la propria informativa.
+  </p>
+
+  <h2>3. Collegamento bancario con Revolut</h2>
+
+  <p>
+    ContoApp sta predisponendo una connessione facoltativa
+    in sola lettura al conto Revolut personale tramite
+    Enable Banking e Cloudflare Workers.
+  </p>
+
+  <p>
+    Il collegamento richiederà l'autorizzazione esplicita
+    dell'intestatario del conto attraverso il processo
+    di autenticazione della banca.
+  </p>
+
+  <p>
+    ContoApp non richiederà di inserire direttamente
+    le credenziali bancarie nella propria interfaccia.
+  </p>
+
+  <p>
+    Quando la connessione sarà operativa, l'applicazione
+    potrà visualizzare i saldi e i movimenti bancari
+    resi disponibili attraverso Enable Banking.
+  </p>
+
+  <p>
+    Le informazioni tecniche necessarie al mantenimento
+    della sessione bancaria potranno essere conservate
+    attraverso i servizi Cloudflare.
+    I dettagli relativi ai dati effettivamente memorizzati,
+    alla durata della conservazione e alla cancellazione
+    saranno aggiornati prima dell'attivazione.
+  </p>
+
+  <h2>4. Servizi utilizzati</h2>
+
+  <p>
+    Per il funzionamento attuale e per le integrazioni
+    previste, ContoApp utilizza o prevede di utilizzare:
+  </p>
+
+  <ul>
+    <li>GitHub Pages per la pubblicazione del sito.</li>
+    <li>Google Firebase per la conservazione dei dati.</li>
+    <li>Cloudflare Workers per il backend bancario.</li>
+    <li>Cloudflare D1 per i dati tecnici della connessione.</li>
+    <li>Enable Banking per l'accesso Open Banking.</li>
+    <li>Revolut come istituto bancario collegato.</li>
+  </ul>
+
+  <p>
+    Ciascun fornitore applica le proprie condizioni
+    e informative in materia di protezione dei dati.
+  </p>
+
+  <h2>5. Conservazione e controllo dei dati</h2>
+
+  <p>
+    Le informazioni inserite manualmente in ContoApp
+    sono conservate secondo le impostazioni del database
+    e le operazioni di modifica o cancellazione
+    effettuate dal gestore.
+  </p>
+
+  <p>
+    L'accesso bancario, una volta attivo, sarà soggetto
+    a un'autorizzazione limitata nel tempo, rinnovabile
+    o revocabile secondo le procedure della banca
+    e del fornitore Open Banking.
+  </p>
+
+  <p>
+    Per richieste riguardanti i dati gestiti
+    dall'applicazione è possibile contattare:
+    <a href="mailto:dan.neagota@gmail.com">
+      dan.neagota@gmail.com
+    </a>.
+  </p>
+
+  <h2>6. Sicurezza delle informazioni</h2>
+
+  <p>
+    La protezione delle informazioni finanziarie
+    costituisce un requisito fondamentale
+    dell'integrazione bancaria prevista.
+  </p>
+
+  <p>
+    Prima dell'attivazione del collegamento Revolut,
+    dovranno essere verificate le regole di accesso
+    Firebase, la protezione del backend Cloudflare,
+    la conservazione sicura delle credenziali tecniche
+    e le autorizzazioni di accesso ai dati.
+  </p>
+
+  <p>
+    La pubblicazione della presente informativa
+    non costituisce una certificazione della sicurezza
+    dell'applicazione.
+  </p>
+
+  <footer>
+    <a href="privacy.html">Informativa privacy</a>
+    ·
+    <a href="terms.html">Condizioni d'uso</a>
+  </footer>
+
+</main>
+</body>
+</html>
