@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<script>
+  // Preferenza solo visiva, locale al dispositivo. Nessun saldo viene salvato qui.
+  try {
+    if (localStorage.getItem('contoapp.hideAmounts.v1') === '1') {
+      document.documentElement.classList.add('mask-values');
+    }
+  } catch (_) { /* Browser con archiviazione privata non disponibile. */ }
+</script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vinted - Registro Attività</title>
@@ -70,8 +79,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261013-viaggi-analisi-2">
-  <script defer src="ui.js?v=20261013-dark-finance-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261013-global-privacy-1">
+  <script defer src="ui.js?v=20261013-global-privacy-1"></script>
 </head>
 <body class="page-vinted">
 

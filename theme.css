@@ -242,7 +242,7 @@ body.page-login .password-visibility input{width:18px;height:18px;min-height:0;a
 .info-card h2{font-size:19px;margin:0 0 10px}.info-card p{color:#b6c6da;font-size:14px;margin:8px 0 0;line-height:1.65}
 .info-card a{color:#7cc3ff}.info-note{color:#bed0e4;font-size:13px;line-height:1.7;max-width:850px;margin-top:22px}
 /* Mask only visible values. Not an authentication or screenshot-prevention mechanism. */
-body.mask-values :is(#total,#cash-display,#card-display,#extra-display,#work-total,#work-live-display,#daily-avg,#total-in,#total-out,#net-savings,#tot-in,#tot-out,#saving-rate,.bank-preview-value,.amount,.tx strong,.item-info b,.history b,.extra-val,.goal-amount,.goal-saved,.current-amount,.target-amount){filter:blur(9px);user-select:none}
+html.mask-values :is(#total,#cash-display,#card-display,#extra-display,#work-total,#work-live-display,#daily-avg,#total-in,#total-out,#net-savings,#tot-in,#tot-out,#saving-rate,.bank-preview-value,.amount,.tx strong,.item-info b,.history b,.extra-val,.goal-amount,.goal-saved,.current-amount,.target-amount){filter:blur(9px);user-select:none}
 /* Small utility link only on mobile where the bottom bar holds five priority pages. */
 .mobile-info{display:none;color:#a9d8ff;text-decoration:none;font-size:12px;font-weight:700;border:1px solid #315c84;background:#0c1b30;border-radius:9px;padding:8px}
 /* Tablet and phone */
@@ -417,7 +417,7 @@ body.page-analisi #monthPicker[hidden]{display:none!important}
 .travel-help,.travel-limits p{font-size:12px;color:#aec3dd;line-height:1.8;margin:0 0 17px}.travel-limits p:last-child{margin-bottom:0}.travel-limits h2{font-size:17px;margin:0 0 8px}.travel-empty{color:#a9bfd6;font-size:13px;line-height:1.6;margin:12px 0}.travel-suggestions{display:grid;gap:10px}.travel-suggestion{display:flex;align-items:center;gap:13px;padding:11px 13px;border-radius:12px;background:#101f33;border:1px solid #315474;font-size:13px}.travel-suggestion>div{flex:1}.travel-suggestion button{background:#1c4272;border:1px solid #407fbe;color:#d8eaff;padding:9px 12px;border-radius:9px;cursor:pointer}
 .trip-dialog{padding:0;border:1px solid #4271ad;border-radius:20px;background:#0b1a2e;color:#f2f7ff;width:min(94vw,535px);max-height:92dvh;overflow:auto;box-shadow:0 25px 100px #000c}.trip-dialog::backdrop{background:rgba(0,4,15,.8);backdrop-filter:blur(6px)}.trip-dialog form{padding:25px;display:flex;flex-direction:column;gap:14px}.trip-dialog-header{display:flex;justify-content:space-between;align-items:center}.trip-dialog-header h2{margin:4px 0 2px;font-size:25px}.trip-dialog-header>button{background:#19345a;color:white;border:1px solid #3b6492;border-radius:10px;padding:9px 12px;cursor:pointer}
 .trip-dialog label{font-size:13px;color:#ccdef4;font-weight:680;display:flex;flex-direction:column;gap:6px}.trip-dialog input,.trip-dialog select,.trip-dialog textarea{min-height:45px;border-radius:9px;background:#101f32!important;border:1px solid #356196!important;color:#f1f7ff!important;padding:10px!important}.trip-dialog textarea{resize:vertical}.trip-form-dates{display:grid;grid-template-columns:1fr 1fr;gap:12px}.trip-dialog-hint{color:#97b7d8;font-size:12px;line-height:1.6;margin:0}.trip-dialog-actions{display:flex;gap:12px}.trip-dialog-actions button{flex:1;min-height:46px;border-radius:10px;border:1px solid #335577;background:#162e4c;color:#d8e8fc;cursor:pointer}.trip-dialog-actions .travel-primary{background:#126dec;border-color:#5ba9ff;color:white}#trip-error{color:#ff94a7;font-size:12px;margin:0}
-body.mask-values :is(#a-cash,#a-bank,#a-total,#travel-total,.travel-trip-spend strong,.travel-extra-note){filter:blur(7px);user-select:none}
+html.mask-values :is(#a-cash,#a-bank,#a-total,#travel-total,.travel-trip-spend strong,.travel-extra-note){filter:blur(7px);user-select:none}
 @media(max-width:760px){.analytics-bankline,.travel-stat-grid{grid-template-columns:1fr 1fr}.analytics-bankline .featured,.travel-stat-grid .travel-stat:last-child{grid-column:1/-1}.analytics-toolbar{align-items:stretch}.analytics-source-controls{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}.source-button{padding:8px 4px;font-size:11px}.analytics-period-controls{width:100%}.travel-hero{padding:23px 19px}.travel-globe{height:100px;min-width:100px;max-width:100px}.globe-core{font-size:44px}.travel-hero h2{font-size:29px}.travel-journeys{grid-template-columns:1fr}.travel-section{padding:17px}.travel-section-head{align-items:flex-start;flex-direction:column}.travel-journey-head{flex-wrap:wrap}.travel-journey-actions{margin-left:auto}}
 @media(max-width:400px){.travel-globe{display:none}.travel-stat-grid{grid-template-columns:1fr 1fr}.travel-stat strong{font-size:22px}.trip-form-dates{grid-template-columns:1fr}.travel-journey-actions{width:100%;justify-content:flex-end}.analytics-balance{padding:13px 12px}}
 .travel-import #travel-csv-input{display:block;margin:12px 0;max-width:100%;color:#a8cee9;font-size:12px;padding:10px;border:1px solid #315c86;border-radius:10px;background:#0b213b!important}
@@ -430,3 +430,23 @@ body.mask-values :is(#a-cash,#a-bank,#a-total,#travel-total,.travel-trip-spend s
  .nav-links .nav-link{font-size:10px!important;padding:9px 1px!important;min-width:0!important}
  .mobile-info{display:none!important}
 }
+
+/* ContoApp privacy globale v1: una sola preferenza per tutti i percorsi.
+   Valori generati dinamicamente ereditano il filtro: non serve alterare i dati. */
+html.mask-values :is(
+  #modal-val-display,#modal-sub-val-display,
+  #work-rate,#work-live-display,#work-total,
+  #history .log b,#work-history-list .log b,
+  #work-history-list .meta-info:first-of-type,
+  .extra-log-item b,.hist-item span:first-child,
+  .travel-money,.travel-extra-note,
+  .travel-trip-spend strong,
+  .analytics-chart-height canvas,
+  .goal-card .amount-display,.goal-card .progress-bar,
+  #a-cash,#a-bank,#a-total,#travel-total,
+  #add-money-input,#sub-money-input,#extra-money-input,
+  #input-in,#input-out,#trip-extra,
+  .goal-controls input[type="number"]
+){filter:blur(10px) !important;user-select:none !important}
+/* Evita che il canvas Chart.js sveli i numeri quando il flag e attivo. */
+html.mask-values canvas{filter:blur(12px) !important}
