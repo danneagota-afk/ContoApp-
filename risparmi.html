@@ -184,7 +184,7 @@
       const name = nameInput.value.trim();
       const target = parseFloat(targetInput.value);
       
-      if (!name || isNaN(target) || target <= 0) return alert("Inserisci nome e importo traguardo!");
+      if (!name || !Number.isFinite(target) || target <= 0) return alert("Inserisci nome e importo traguardo!");
 
       showUndo();
       currentData.goals.push({
@@ -213,7 +213,7 @@
     window.updateGoal = function(id, type) {
       const input = document.getElementById(`input-${id}`);
       const val = parseFloat(input.value);
-      if (isNaN(val) || val <= 0) return alert("Importo non valido!");
+      if (!Number.isFinite(val) || val <= 0) return alert("Importo non valido!");
 
       showUndo();
       const goal = currentData.goals.find(g => g.id === id);

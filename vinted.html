@@ -158,7 +158,7 @@
       const input = document.getElementById(`input-${tipo}`);
       const valore = parseFloat(input.value);
       
-      if (isNaN(valore) || valore <= 0) {
+      if (!Number.isFinite(valore) || valore <= 0) {
         alert("Inserisci un importo valido");
         return;
       }
@@ -199,13 +199,13 @@
       listaIn.innerHTML = '';
       [...datiVinted.entrate].reverse().forEach(t => {
         totaleE += t.valore;
-        listaIn.innerHTML += `<div class="item in"><div class="item-info"><b>+ €${t.valore.toFixed(2)}</b><span>${t.data}</span></div></div>`;
+        listaIn.innerHTML += `<div class="item in"><div class="item-info"><b>+ €${t.valore.toFixed(2)}</b><span>${String(t.data||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}</span></div></div>`;
       });
 
       listaOut.innerHTML = '';
       [...datiVinted.uscite].reverse().forEach(t => {
         totaleU += t.valore;
-        listaOut.innerHTML += `<div class="item out"><div class="item-info"><b>- €${t.valore.toFixed(2)}</b><span>${t.data}</span></div></div>`;
+        listaOut.innerHTML += `<div class="item out"><div class="item-info"><b>- €${t.valore.toFixed(2)}</b><span>${String(t.data||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}</span></div></div>`;
       });
 
       document.getElementById('tot-in').textContent = `€ ${totaleE.toFixed(2)}`;

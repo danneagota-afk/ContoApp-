@@ -82,7 +82,7 @@
     <h2>Movimenti recenti (ultimi 30 giorni)</h2>
     <div id="transactions"></div>
   </section>
-  <p class="foot">Il saldo Revolut è la cifra comunicata dalla banca tramite Enable Banking. La “Carta” in Home resta un registro manuale separato, per evitare doppi conteggi e conservare lo storico. Per operazioni bancarie e saldo ufficiale fa fede l'app Revolut. L'aggiornamento avviene quando apri questa pagina e periodicamente mentre resta aperta, nei limiti del servizio bancario.</p>
+  <p class="foot">Il saldo Revolut è la cifra comunicata dalla banca tramite Enable Banking. La sezione “Carta” della Home visualizza ora il saldo disponibile EUR da Revolut. Il vecchio registro Carta manuale resta conservato su Firebase, ma non contribuisce più al totale mostrato. Per operazioni bancarie e saldo ufficiale fa fede l'app Revolut. L'aggiornamento avviene quando apri questa pagina e periodicamente mentre resta aperta, nei limiti del servizio bancario.</p>
 </main>
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -178,7 +178,8 @@
   if(connection==='denied')showMessage('Autorizzazione Revolut annullata.',true);
   if(connection==='expired')showMessage('Il collegamento è scaduto durante l’autorizzazione. Riprova.',true);
   if(connection==='ok' && connected)showMessage('Revolut collegato correttamente!');
-  setInterval(()=>{if(connected&&!busy&&document.visibilityState==='visible')refresh();},20*60*1000);
+  setInterval(()=>{if(connected&&!busy&&document.visibilityState==='visible')refresh();},5*60*1000);
+  document.addEventListener('visibilitychange',()=>{if(connected&&!busy&&document.visibilityState==='visible')refresh();});
 </script>
 <script>if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
 </body>

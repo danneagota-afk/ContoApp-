@@ -181,7 +181,7 @@
       <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px">Preleva da:</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
         <button id="m-btn-cash" class="m-type-btn active">CASH</button>
-        <button id="m-btn-card" class="m-type-btn">CARTA</button>
+        <button id="m-btn-card" class="m-type-btn" type="button" disabled title="Carta aggiornata automaticamente da Revolut">CARTA · AUTOMATICA</button>
       </div>
       <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; margin-bottom: 15px;">
         <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase;">Entrata Semplice (Patrimonio)</div>
@@ -210,7 +210,7 @@
       <div style="color:var(--muted); font-size:0.7rem; margin-bottom:10px; text-transform:uppercase;">Togli da:</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
         <button id="ms-btn-cash" class="m-type-btn active">CASH</button>
-        <button id="ms-btn-card" class="m-type-btn">CARTA</button>
+        <button id="ms-btn-card" class="m-type-btn" type="button" disabled title="Le spese carta arrivano direttamente da Revolut">CARTA · AUTOMATICA</button>
       </div>
       <input type="text" id="ms-reason" class="extra-input" style="width:100%; border-color:var(--danger); margin-bottom:10px;" placeholder="Motivo prelievo...">
       <button id="ms-confirm-btn" class="modal-btn" style="background:var(--danger)">CONFERMA USCITA</button>
@@ -224,12 +224,12 @@
       <div class="total-card">
         <div class="hero-main">
           <div class="hero-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="18" cy="12" rx="10" ry="4"/><path d="M8 12v8c0 2 4 4 10 4 2 0 3 0 5-.5M8 20v7c0 2 4 4 10 4"/><ellipse cx="31" cy="28" rx="10" ry="4"/><path d="M21 28v7c0 2 4 4 10 4s10-2 10-4v-7M21 35v5c0 2 4 4 10 4s10-2 10-4v-5"/></svg></div>
-          <div class="hero-amount"><span class="hero-amount-label">Patrimonio totale</span><h1 id="total">€ 0</h1></div>
+          <div class="hero-amount"><span class="hero-amount-label">Patrimonio totale</span><h1 id="total" aria-live="polite">—</h1><small class="portfolio-total-context" id="total-context">Contanti + saldo EUR Revolut · in attesa dati</small></div>
           <p class="hero-caption">Il tuo denaro,<br>i tuoi obiettivi,<br>tutto in ordine.</p>
         </div>
         <div class="split-balances">
-          <div class="balance-box balance-cash"><div class="balance-label">CONTANTI</div><h2 id="cash-display" class="cash-text">€ 0</h2><span class="balance-icon" aria-hidden="true">›</span></div>
-          <div class="balance-box balance-card"><div class="balance-label">CARTA MANUALE</div><h2 id="card-display" class="card-text">€ 0</h2><span class="balance-icon" aria-hidden="true">›</span></div>
+          <button type="button" class="balance-box balance-cash balance-action" id="cash-overview-btn" aria-label="Vai all'aggiunta di contanti"><span class="balance-label">CONTANTI</span><h2 id="cash-display" class="cash-text">€ 0,00</h2><span class="balance-icon" aria-hidden="true">›</span></button>
+          <a class="balance-box balance-card balance-action" href="revolut.html" aria-label="Apri i dettagli della carta collegata a Revolut"><span class="balance-label">CARTA · REVOLUT <span class="bank-dot" id="card-bank-dot" aria-hidden="true"></span></span><h2 id="card-display" class="card-text" aria-live="polite">Caricamento…</h2><small class="bank-status-text" id="card-sync-state" role="status">Lettura saldo bancario…</small><small class="bank-update-text" id="card-last-sync"></small><span class="balance-icon" aria-hidden="true">›</span></a>
         </div>
       </div>
 
@@ -238,11 +238,7 @@
         <div class="col"><div class="note n50" id="note50" role="button" tabindex="0" aria-label="Operazione rapida da 50 euro"><span class="note-plus" aria-hidden="true">+</span><span class="note-words"><strong>50€</strong><small>Operazione rapida da 50€</small></span><span class="note-arrow" aria-hidden="true">›</span></div><button class="sub-bar" id="sub50">− Togli 50</button></div>
       </div>
 
-        <section class="bank-preview" aria-label="Saldo Revolut in sola lettura">
-          <div class="bank-preview-head"><strong>● Revolut · saldo bancario</strong><a href="revolut.html">Apri movimenti ↗</a></div>
-          <div class="bank-preview-value" id="revolut-home-value" aria-live="polite">Verifica saldo...</div>
-          <div class="bank-preview-meta" id="revolut-home-note">Separato dal saldo Carta manuale: nessun dato viene sovrascritto.</div>
-        </section>
+
 
       <div class="extra-box" style="border-color: rgba(34, 197, 94, 0.2);">
         <h3>⚡ AGGIUNTA RAPIDA</h3>
@@ -252,13 +248,13 @@
             <div class="quick-panel">
               <div class="quick-panel-title">↑ NUOVA ENTRATA</div>
               <input type="text" id="add-reason-input" class="extra-input" placeholder="Motivo..." style="margin-bottom:5px; font-size: 0.8rem;">
-              <select id="add-type-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
+              <select id="add-type-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta" disabled>Carta (Revolut: automatica)</option></select>
               <button class="extra-btn" id="add-custom-btn" style="width: 100%;">AGGIUNGI</button>
             </div>
             <div class="quick-panel move-goal">
               <div class="quick-panel-title">◉ SPOSTA IN OBIETTIVO</div>
               <select id="quick-goal-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="">-- Scegli Obiettivo --</option></select>
-              <select id="quick-source-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
+              <select id="quick-source-select" class="extra-select" style="margin-bottom:5px; font-size: 0.8rem;"><option value="Cash">Cash</option><option value="Carta" disabled>Carta (Revolut: automatica)</option></select>
               <button class="extra-btn" id="add-custom-goal-btn" style="background:var(--success); color:black; width: 100%;">SPOSTA</button>
             </div>
           </div>
@@ -270,7 +266,7 @@
         <div class="extra-input-group">
           <input type="number" id="sub-money-input" class="extra-input" placeholder="€">
           <input type="text" id="sub-reason-input" class="extra-input" placeholder="Motivo...">
-          <select id="sub-type-select" class="extra-select"><option value="Cash">Cash</option><option value="Carta">Carta</option></select>
+          <select id="sub-type-select" class="extra-select"><option value="Cash">Cash</option><option value="Carta" disabled>Carta (Revolut: automatica)</option></select>
           <button class="sub-btn" id="sub-custom-btn">TOGLI</button>
         </div>
       </div>
@@ -291,8 +287,13 @@
     </main>
 
     <aside class="side">
-      <h2>Movimenti</h2>
-      <div class="history" id="history"></div>
+      <div class="movements-heading"><h2>Movimenti</h2><a href="revolut.html">Vedi tutti ↗</a></div>
+      <div class="movement-tabs" role="group" aria-label="Origine dei movimenti">
+        <button type="button" id="movement-manual-tab" class="movement-tab active" aria-pressed="true">Registrati</button>
+        <button type="button" id="movement-bank-tab" class="movement-tab" aria-pressed="false">Revolut</button>
+      </div>
+      <div class="history" id="history" aria-live="polite"></div>
+      <p class="movement-help" id="movement-help">I movimenti registrati manualmente non sono quelli bancari.</p>
       <button class="reset" id="reset-all-btn">Elimina tutto il registro</button>
     </aside>
   </div>
@@ -328,8 +329,8 @@
             <div>
               <div style="font-size:0.7rem; color:var(--muted); margin-bottom:5px; text-transform:uppercase;">Invia accredito a:</div>
               <select id="work-deposit-type" class="work-select" style="width:100%;">
-                <option value="Carta">Carta</option>
-                <option value="Cash">Cash</option>
+                <option value="Carta" disabled>Carta (Revolut: automatica)</option>
+                <option value="Cash" selected>Cash</option>
                 <option value="Extra">Risparmi Generali (Extra)</option>
               </select>
             </div>
@@ -351,6 +352,7 @@
 
   <script type="module">
     import { requireAuth } from "./auth-guard.js";
+    import { readRevolutBankData, extractEurBalance, bankTransactions } from "./bank-sync.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, getIdToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -381,61 +383,100 @@
 
     const safeText = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
-    // Read-only Revolut preview: NEVER writes to db.card, totals, or Firebase.
-    async function loadRevolutPreview() {
-      const value = document.getElementById('revolut-home-value');
-      const note = document.getElementById('revolut-home-note');
-      if (!value || !note) return;
+    // Bank data is read-only. NEVER overwrite historical db.card or Firebase wallet keys.
+    const bank = { balance:null, updatedAt:null, transactions:[], error:'', cached:false, checking:false };
+    let bankView = false;
+    let lastBankRequest = 0;
+    const euro = new Intl.NumberFormat('it-IT', {style:'currency',currency:'EUR'});
+    const dateLabel = date => {
+      const d = new Date(date);
+      return Number.isFinite(d.getTime()) ? d.toLocaleString('it-IT', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : 'data non disponibile';
+    };
+    function renderBankStatus() {
+      const card = document.querySelector('.balance-card');
+      const dot = document.getElementById('card-bank-dot');
+      const status = document.getElementById('card-sync-state');
+      const updated = document.getElementById('card-last-sync');
+      dot.classList.toggle('connected', bank.balance !== null && !bank.error);
+      card.classList.toggle('bank-unavailable', bank.balance === null);
+      status.textContent = bank.checking && bank.balance === null ? 'Verifica saldo in corso…' :
+        bank.error ? (bank.balance === null ? 'Saldo non disponibile · apri Revolut' : 'Ultimo saldo noto · collegamento non aggiornato') :
+        bank.balance === null ? 'Saldo in attesa di collegamento' : 'Collegato · aggiornamento automatico';
+      updated.textContent = bank.updatedAt ? `Dato bancario: ${dateLabel(bank.updatedAt)}${bank.cached?' · da cache bancaria':''}` : '';
+      if (bank.error && bank.balance === null) updated.textContent = bank.error;
+    }
+    function updateBankView() {
+      renderBankStatus();
+      updateUI();
+    }
+    async function refreshBank(force=false) {
+      if (bank.checking || !navigator.onLine) return;
+      // Frontend polling does not bypass the Workers' ~30-minute banking cache.
+      if (Date.now() - lastBankRequest < (force ? 15000 : 4 * 60 * 1000)) return;
+      bank.checking = true;
+      lastBankRequest = Date.now();
+      renderBankStatus();
       try {
         const user = getAuth(app).currentUser;
-        if (!user) return;
+        if (!user) throw Error('Accedi nuovamente a ContoApp.');
         const token = await getIdToken(user);
-        const response = await fetch('https://contoapp-revolut.dan-neagota.workers.dev/api/revolut/data', {
-          headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
-        });
-        if (!response.ok) {
-          value.textContent = response.status === 404 ? 'Da collegare' : 'Non disponibile';
-          note.textContent = 'Vai alla sezione Revolut per controllare il collegamento. Nessun saldo manuale viene modificato.';
-          return;
-        }
-        const bank = await response.json();
-        const eur = (bank.accounts || []).filter(x => x.account?.currency === 'EUR');
-        const first = eur.find(x => (x.balances || []).length) || null;
-        const balances = first?.balances || [];
-        const available = balances.find(x => x.type === 'CLAV') ||
-          balances.find(x => x.type === 'ITAV') || balances[0];
-        if (!available || !Number.isFinite(available.amount)) {
-          value.textContent = 'Saldo non disponibile';
-          note.textContent = 'Controlla i dettagli nella sezione Revolut.';
-          return;
-        }
-        value.textContent = new Intl.NumberFormat('it-IT', {style:'currency',currency:'EUR'}).format(available.amount);
-        const when = bank.updated_at ? new Date(bank.updated_at).toLocaleString('it-IT') : 'non disponibile';
-        note.textContent = `Solo lettura • aggiornato ${when} • Il saldo Carta manuale non viene sovrascritto.`;
-      } catch {
-        value.textContent = 'Non disponibile';
-        note.textContent = 'La verifica bancaria non è riuscita. Apri Revolut per riprovare.';
+        const result = await readRevolutBankData(token);
+        const chosen = extractEurBalance(result);
+        if (!chosen.available) throw Error(chosen.reason);
+        bank.balance = chosen.balance;
+        bank.updatedAt = result.updated_at || new Date().toISOString();
+        bank.cached = !!result.cached;
+        bank.transactions = bankTransactions(result);
+        bank.error = '';
+      } catch (e) {
+        bank.error = e instanceof Error ? e.message : 'Saldo bancario non disponibile.';
+        // A successful earlier bank read can remain visible as "last known", never as live.
+      } finally {
+        bank.checking = false;
+        updateBankView();
       }
     }
-    loadRevolutPreview();
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') loadRevolutPreview();
+    document.getElementById('movement-manual-tab').addEventListener('click', () => {
+      bankView = false;
+      updateUI();
     });
+    document.getElementById('movement-bank-tab').addEventListener('click', () => {
+      bankView = true;
+      updateUI();
+    });
+    const syncOnReturn = () => {
+      if (document.visibilityState === 'visible') refreshBank(true);
+    };
+    document.addEventListener('visibilitychange', syncOnReturn);
+    window.addEventListener('online', () => refreshBank(true));
+    setInterval(() => {
+      if (document.visibilityState === 'visible') refreshBank();
+    }, 5 * 60 * 1000);
+    refreshBank(true);
+
+    function preventManualCard(source) {
+      if (source !== 'Carta') return false;
+      alert('Carta è sincronizzata con Revolut e non può essere modificata qui. Esegui le operazioni nell’app Revolut: il saldo comparirà automaticamente.');
+      return true;
+    }
 
     onValue(walletRef, (snapshot) => {
       const data = snapshot.val();
       accessGate.ready();
-      if (data) {
-        db = data;
-        if (!db.goals) db.goals = [];
-        if (!db.extraLogs) db.extraLogs = [];
-        if (!db.logs) db.logs = [];
-        if (!db.workLogs) db.workLogs = [];
-        updateUI();
+      if (data) db = data;
+      else db = { total:0, cash:0, card:0, logs:[], extra:0, extraLogs:[], goals:[], workLogs:[] };
+      for (const key of ['goals','extraLogs','logs','workLogs']) {
+        if (!Array.isArray(db[key])) db[key] = [];
       }
+      db.cash = Number.isFinite(Number(db.cash)) ? Number(db.cash) : 0;
+      db.card = Number.isFinite(Number(db.card)) ? Number(db.card) : 0;
+      updateUI();
     }, (error) => accessGate.error(error));
 
-    function pushToCloud() { set(walletRef, db); }
+    async function pushToCloud() {
+      try { await set(walletRef, db); }
+      catch (e) { console.error('ContoApp: salvataggio non riuscito',e?.code || 'network'); alert('Salvataggio non riuscito: controlla la connessione e ricarica i dati prima di riprovare.'); }
+    }
 
     function saveState() {
       lastState = JSON.stringify(db);
@@ -463,6 +504,8 @@
 
     // FUNZIONE DI ARROTONDAMENTO STRATEGICO PER BANCONOTE DA 20 E 50
     function getValidCashTarget(amount) {
+      // Avoid an unbounded loop for invalid, infinite or implausibly large inputs.
+      if (!Number.isFinite(amount) || amount <= 0 || amount > 10_000_000) return 0;
       let target = Math.ceil(amount);
       if (target <= 0) return 0;
       if (target < 20) return 20;
@@ -521,6 +564,7 @@
     
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
     function setModalType(type) {
+      if (preventManualCard(type)) return;
       tempType = type;
       document.getElementById('m-btn-cash').classList.toggle('active', type === 'Cash');
       document.getElementById('m-btn-card').classList.toggle('active', type === 'Carta');
@@ -535,6 +579,7 @@
     
     function closeSubModal() { document.getElementById('modal-sub').style.display = 'none'; }
     function setSubModalType(type) {
+      if (preventManualCard(type)) return;
       subTempType = type;
       document.getElementById('ms-btn-cash').classList.toggle('active', type === 'Cash');
       document.getElementById('ms-btn-card').classList.toggle('active', type === 'Carta');
@@ -542,6 +587,7 @@
 
     function confirmSub() {
       const motivo = document.getElementById('ms-reason').value || "Altro";
+      if (preventManualCard(subTempType)) return;
       if (subTempType === 'Cash' && db.cash < subTempVal) return alert("Cash insufficiente!");
       if (subTempType === 'Carta' && db.card < subTempVal) return alert("Carta insufficiente!");
       saveState();
@@ -552,6 +598,7 @@
     }
 
     function addMoney(source) {
+      if (preventManualCard(tempType)) return;
       saveState();
       if (tempType === 'Cash') db.cash += tempVal; else db.card += tempVal;
       saveLog(tempVal, 'add', `${source} (${tempType})`);
@@ -562,10 +609,12 @@
     function addMoneyToGoalModal() {
       const goalId = document.getElementById('modal-goal-select').value;
       if (!goalId) return alert("Seleziona un obiettivo!");
+      if (preventManualCard(tempType)) return;
       if (tempType === 'Cash' && db.cash < tempVal) return alert("Cash insufficiente!");
       if (tempType === 'Carta' && db.card < tempVal) return alert("Carta insufficiente!");
       saveState();
       const goal = db.goals.find(g => g.id == goalId);
+      if (!goal) return alert('Obiettivo non trovato. Ricarica la pagina.');
       if (tempType === 'Cash') db.cash -= tempVal; else db.card -= tempVal;
       const ora = new Date();
       const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
@@ -582,11 +631,13 @@
       const goalId = document.getElementById('quick-goal-select').value;
       const source = document.getElementById('quick-source-select').value;
       const val = parseFloat(v.value);
-      if (isNaN(val) || !goalId) return alert("Importo o obiettivo mancante!");
+      if (!Number.isFinite(val) || val <= 0 || !goalId) return alert("Inserisci un importo positivo e seleziona un obiettivo!");
+      if (preventManualCard(source)) return;
       if (source === 'Cash' && db.cash < val) return alert("Cash insufficiente!");
       if (source === 'Carta' && db.card < val) return alert("Carta insufficiente!");
       saveState();
       const goal = db.goals.find(g => g.id == goalId);
+      if (!goal) return alert('Obiettivo non trovato. Ricarica la pagina.');
       if (source === 'Cash') db.cash -= val; else db.card -= val;
       const ora = new Date();
       const timeStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
@@ -603,7 +654,8 @@
       const r = document.getElementById('add-reason-input');
       const t = document.getElementById('add-type-select').value;
       const val = parseFloat(v.value);
-      if (isNaN(val) || val <= 0) return alert("Manca l'importo!");
+      if (!Number.isFinite(val) || val <= 0) return alert("Manca l'importo!");
+      if (preventManualCard(t)) return;
       saveState();
       if (t === 'Cash') db.cash += val; else db.card += val;
       saveLog(val, 'add', `${r.value || "Entrata"} (${t})`);
@@ -616,7 +668,8 @@
       const r = document.getElementById('sub-reason-input');
       const t = document.getElementById('sub-type-select').value;
       const val = parseFloat(v.value);
-      if (isNaN(val) || val <= 0) return;
+      if (!Number.isFinite(val) || val <= 0) return alert('Inserisci un importo positivo.');
+      if (preventManualCard(t)) return;
       if ((t === 'Cash' && db.cash < val) || (t === 'Carta' && db.card < val)) return alert("Fondi insufficienti!");
       saveState();
       if (t === 'Cash') db.cash -= val; else db.card -= val;
@@ -643,12 +696,14 @@
       const rate = parseFloat(document.getElementById('work-rate').value);
       const depositType = document.getElementById('work-deposit-type').value;
 
-      if (isNaN(hours) || hours <= 0 || isNaN(rate) || rate <= 0) {
+      if (preventManualCard(depositType)) return;
+      if (!Number.isFinite(hours) || hours <= 0 || !Number.isFinite(rate) || rate <= 0) {
         return alert("Inserisci ore e paga oraria valide!");
       }
 
       // APPLICA L'ARROTONDAMENTO PER ECCESSO AL GUADAGNO
       const rawEarnings = hours * rate;
+      if (!Number.isFinite(rawEarnings) || rawEarnings > 10_000_000) return alert('Importo non valido. Controlla ore e tariffa.');
       const totalEarnings = getValidCashTarget(rawEarnings);
 
       const ora = new Date();
@@ -685,27 +740,89 @@
 
     function updateUI() {
       const Euro = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+      // Manual historical accounting remains intact in Firebase. Displayed totals use
+      // live-ish bank data only; never write bank numbers back to db.card/db.total.
       db.total = db.cash + db.card;
-      db.extra = db.extraLogs.reduce((total, log) => total + log.val, 0);
-      const workTotalSum = db.workLogs.reduce((total, log) => total + log.earnings, 0);
-      
-      document.getElementById('total').textContent = Euro.format(db.total);
+      db.extra = db.extraLogs.reduce((total, log) => total + Number(log.val || 0), 0);
+      const workTotalSum = db.workLogs.reduce((total, log) => total + Number(log.earnings || 0), 0);
+
+      const known = bank.balance !== null;
+      document.getElementById('total').textContent = known ? Euro.format(db.cash + bank.balance) : '—';
+      document.getElementById('total-context').textContent = known ?
+        `Contanti + saldo EUR Revolut${bank.error?' · saldo bancario non aggiornato':''}` :
+        'Patrimonio in attesa del saldo Revolut';
       document.getElementById('cash-display').textContent = Euro.format(db.cash);
-      document.getElementById('card-display').textContent = Euro.format(db.card);
+      document.getElementById('card-display').textContent = known ? Euro.format(bank.balance) : '—';
       document.getElementById('extra-display').textContent = Euro.format(db.extra);
       document.getElementById('work-total').textContent = Euro.format(workTotalSum);
       
-      const hist = document.getElementById('history'); hist.innerHTML = '';
-      for (let i = db.logs.length - 1; i >= 0; i--) {
-        const l = db.logs[i];
-        hist.innerHTML += `
-          <div class="log ${l.type}" style="border-left-color:${l.type==='add'?'var(--blue)':'var(--danger)'}">
-            <div style="flex: 1;">
-              <b style="color:${l.type==='add'?'var(--blue)':'var(--danger)'}">${l.type==='add'?'+':'-'} ${l.val}€</b>
-              <span class="meta-info">${safeText(l.source)} • ${safeText(l.date)}</span>
-            </div>
-            <button class="del-history-item" onclick="deleteLog(${i})">✕</button>
-          </div>`;
+      const hist = document.getElementById('history');
+      hist.replaceChildren();
+      const manualTab = document.getElementById('movement-manual-tab');
+      const bankTab = document.getElementById('movement-bank-tab');
+      manualTab.classList.toggle('active', !bankView);
+      bankTab.classList.toggle('active', bankView);
+      manualTab.setAttribute('aria-pressed', String(!bankView));
+      bankTab.setAttribute('aria-pressed', String(bankView));
+      const help = document.getElementById('movement-help');
+      help.textContent = bankView ?
+        'Movimenti bancari in sola lettura: non modificano lo storico manuale.' :
+        'Registro manuale conservato in Firebase. Le operazioni Revolut sono nell’altra scheda.';
+      const historyReset = document.getElementById('reset-all-btn');
+      historyReset.hidden = bankView;
+      if (bankView) {
+        if (!bank.transactions.length) {
+          const placeholder = document.createElement('p');
+          placeholder.className = 'empty-movements';
+          placeholder.textContent = bank.error ? `Movimenti bancari non disponibili: ${bank.error}` :
+            'Nessun movimento bancario recente da mostrare.';
+          hist.append(placeholder);
+        }
+        for (const tx of bank.transactions) {
+          const line = document.createElement('div');
+          line.className = `log bank-row ${tx.amount >= 0 ? 'add' : 'sub'}`;
+          const content = document.createElement('div');
+          content.style.flex = '1';
+          const amt = document.createElement('b');
+          amt.textContent = `${tx.amount>=0?'+ ':'− '}${new Intl.NumberFormat('it-IT',{style:'currency',currency:tx.currency}).format(Math.abs(tx.amount))}`;
+          const desc = document.createElement('span');
+          desc.className = 'meta-info';
+          desc.textContent = `${tx.description} · ${tx.date || 'data non disponibile'}`;
+          content.append(amt, desc);
+          const badge = document.createElement('span');
+          badge.className = 'bank-tx-pill';
+          badge.textContent = 'Revolut';
+          line.append(content,badge);
+          hist.append(line);
+        }
+      } else {
+        for (let i = db.logs.length - 1; i >= 0; i--) {
+          const l = db.logs[i];
+          const line = document.createElement('div');
+          line.className = `log ${l.type === 'add' ? 'add' : 'sub'}`;
+          const content = document.createElement('div');
+          content.style.flex = '1';
+          const amt = document.createElement('b');
+          amt.textContent = `${l.type === 'add' ? '+ ' : '− '}${Euro.format(Math.abs(Number(l.val)||0))}`;
+          const desc = document.createElement('span');
+          desc.className = 'meta-info';
+          desc.textContent = `${l.source || 'Operazione'} · ${l.date || ''}`;
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'del-history-item';
+          del.textContent = '×';
+          del.setAttribute('aria-label','Elimina registrazione manuale');
+          del.onclick = () => window.deleteLog(i);
+          content.append(amt,desc);
+          line.append(content,del);
+          hist.append(line);
+        }
+        if (!db.logs.length) {
+          const empty = document.createElement('p');
+          empty.className = 'empty-movements';
+          empty.textContent = 'Non ci sono ancora movimenti registrati.';
+          hist.append(empty);
+        }
       }
 
       const eHist = document.getElementById('extra-history'); eHist.innerHTML = '';
@@ -735,6 +852,7 @@
     window.deleteExtraLog = function(id) { saveState(); db.extraLogs = db.extraLogs.filter(item => item.id !== id); pushToCloud(); }
     
     document.getElementById('undo-btn-action').onclick = () => window.undo();
+    document.getElementById('cash-overview-btn').onclick = () => { document.getElementById('add-money-input').scrollIntoView({behavior:'smooth',block:'center'}); document.getElementById('add-money-input').focus({preventScroll:true}); };
     document.getElementById('note20').onclick = () => openModal(20);
     document.getElementById('note50').onclick = () => openModal(50);
     document.getElementById('sub20').onclick = () => op(20);
@@ -760,7 +878,7 @@
       const v = document.getElementById('extra-money-input');
       const r = document.getElementById('extra-reason-input');
       const val = parseFloat(v.value);
-      if (isNaN(val) || val <= 0) return;
+      if (!Number.isFinite(val) || val <= 0) return alert('Inserisci un importo valido.');
       saveState();
       db.extraLogs.push({ id: Date.now(), val: val, reason: r.value || "Risparmio", date: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) });
       v.value = ""; r.value = "";
@@ -769,7 +887,7 @@
 
     document.getElementById('reset-extra-btn').onclick = () => { if(confirm("Svuotare lista?")) { saveState(); db.extraLogs = []; pushToCloud(); } };
     document.getElementById('reset-work-btn').onclick = () => { if(confirm("Vuoi svuotare il registro delle giornate?")) { saveState(); db.workLogs = []; pushToCloud(); } };
-    document.getElementById('reset-all-btn').onclick = () => { if (confirm('Cancellare TUTTO il registro manuale, gli importi, le giornate e gli obiettivi? Questa operazione modifica Firebase.')) { db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [] }; pushToCloud(); } };
+    document.getElementById('reset-all-btn').onclick = () => { if (confirm('Vuoi davvero cancellare TUTTI i dati MANUALI? Il conto Revolut non sarà modificato. Consigliato esportare un backup Firebase.')) { const typed=prompt('Per confermare scrivi CANCELLA (maiuscolo):'); if (typed==='CANCELLA') { saveState(); db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [], workLogs: [] }; pushToCloud(); } } };
   </script>
   <script>
     if ('serviceWorker' in navigator) {

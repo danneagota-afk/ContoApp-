@@ -259,19 +259,25 @@
     monthPicker.onchange = processData;
 
     function parseCustomDate(dateStr) {
-      const parts = dateStr.split(',')[0].trim().split(' '); 
-      const day = parseInt(parts[0]);
-      let month;
-      if(parts[1] && isNaN(parts[1])) {
-        const monthsShort = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
-        month = monthsShort.indexOf(parts[1].toLowerCase());
-      } else {
-        const fullDate = dateStr.split(',')[0].split('/');
-        day = parseInt(fullDate[0]);
-        month = parseInt(fullDate[1]) - 1;
-      }
-      let d = new Date(); d.setDate(day); d.setMonth(month);
-      return d;
+      // Older manual entries can use "03 ott, 20:29" or "03/10/2026 20:29".
+      const str = String(dateStr || '').trim().toLowerCase();
+      const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+      const slash = str.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+      const short = str.match(/^(\d{1,2})\s+([a-zàèéìòù]{3,})/);
+      const today = new Date();
+      let day, month, year = today.getFullYear();
+      if (slash) {
+        day = Number(slash[1]);month = Number(slash[2])-1;
+        if (slash[3]) year = Number(slash[3].length===2 ? '20'+slash[3] : slash[3]);
+      } else if (short) {
+        day = Number(short[1]); month = months.findIndex(m => short[2].startsWith(m));
+      } else return new Date(NaN);
+      if (!(day>=1 && day<=31 && month>=0 && month<=11)) return new Date(NaN);
+      const date = new Date(year,month,day);
+      if (date.getDate() !== day || date.getMonth() !== month) return new Date(NaN);
+      // Legacy entries without a year were registered no later than today.
+      if (!slash?.[3] && date.getTime() > today.getTime()+86400000) date.setFullYear(year-1);
+      return date;
     }
 
     function processData() {
@@ -308,8 +314,8 @@
 
     function updateUI(logs, title) {
       document.getElementById('chartTitle').textContent = title;
-      const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + l.val, 0);
-      const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + l.val, 0);
+      const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + (Number(l.val)||0), 0);
+      const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + (Number(l.val)||0), 0);
       const netto = entrate - uscite;
       
       const fmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
@@ -344,7 +350,7 @@
            index = d.getMonth();
         }
         if(index >= 0 && index < points.length) {
-          points[index] += (l.type === 'add' ? l.val : -l.val);
+          points[index] += (l.type === 'add' ? 1 : -1) * (Number(l.val)||0);
         }
       });
 
