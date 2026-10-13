@@ -33,7 +33,7 @@ export function extractEurBalance(response) {
   return {available:true, balance:Math.round(total*100)/100, count};
 }
 
-export function bankTransactions(response) {
+export function bankTransactions(response, limit = 75) {
   if (!response || !Array.isArray(response.accounts)) return [];
   const items = [];
   for (const entry of response.accounts) {
@@ -46,11 +46,14 @@ export function bankTransactions(response) {
         amount,
         currency: String(tx.currency || entry.account?.currency || 'EUR'),
         account: String(entry.account?.name || 'Revolut'),
-        status: String(tx.status || '')
+        status: String(tx.status || ''),
+        // Facoltativi: disponibili solo se il Worker li espone davvero.
+        country: /^[A-Z]{2}$/.test(String(tx.country || '').toUpperCase()) ? String(tx.country).toUpperCase() : '',
+        city: String(tx.city || '').slice(0,70)
       });
     }
   }
-  return items.sort((a,b) => b.date.localeCompare(a.date)).slice(0,75);
+  return items.sort((a,b) => b.date.localeCompare(a.date)).slice(0, Math.min(1500, Math.max(1, Number(limit)||75)));
 }
 
 export async function readRevolutBankData(idToken, fetcher=fetch) {

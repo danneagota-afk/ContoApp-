@@ -25,7 +25,7 @@
     #error{min-height:0;color:#ff8c8c;font-size:13px;text-align:center;line-height:1.5;margin-top:14px}
     small{display:block;margin-top:20px;text-align:center;color:#8691a5;font-size:12px}
   </style>
-  <link rel="stylesheet" href="theme.css?v=20261013-dark-finance-1">
+  <link rel="stylesheet" href="theme.css?v=20261013-viaggi-analisi-2">
   <script defer src="ui.js?v=20261013-dark-finance-1"></script>
 </head>
 <body class="page-login">
@@ -60,7 +60,7 @@
     const auth = getAuth(app);
     const params = new URLSearchParams(location.search);
     const requested = params.get('next');
-    const next = ['index.html', 'analisi.html', 'risparmi.html', 'vinted.html', 'revolut.html', 'info.html'].includes(requested) ? requested : 'index.html';
+    const next = ['index.html', 'analisi.html', 'risparmi.html', 'vinted.html', 'revolut.html', 'viaggi.html', 'info.html'].includes(requested) ? requested : 'index.html';
     const form = document.getElementById('login-form');
     const button = document.getElementById('submit');
     const errorBox = document.getElementById('error');

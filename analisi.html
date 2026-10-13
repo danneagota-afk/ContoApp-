@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analitica Pro - Dan Finance</title>
+  <title>Analisi | ContoApp</title>
   
   <link rel="icon" type="image/png" href="logo.png?v=3">
   <link rel="apple-touch-icon" href="logo.png?v=3">
@@ -127,7 +127,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261013-dark-finance-1">
+  <link rel="stylesheet" href="theme.css?v=20261013-viaggi-analisi-2">
   <script defer src="ui.js?v=20261013-dark-finance-1"></script>
 </head>
 <body class="page-analisi">
@@ -140,267 +140,143 @@
       <a class="nav-link" href="risparmi.html"><span>Risparmi</span></a>
       <a class="nav-link active" href="analisi.html" aria-current="page"><span>Analisi</span></a>
       <a class="nav-link" href="revolut.html"><span>Revolut</span></a>
-      <a class="nav-link" href="info.html"><span>Info</span></a>
+      <a class="nav-link" href="viaggi.html"><span>Info</span></a>
     </div>
-    <a class="mobile-info" href="info.html">Info</a>
+    <a class="mobile-info" href="viaggi.html">Viaggi</a>
     <button type="button" class="privacy-toggle" aria-pressed="false" aria-label="Nascondi gli importi">◎ Nascondi importi</button>
   </nav>
 <header class="page-header">
     <div class="eyebrow">DATI E ANDAMENTI</div>
     <h1>Un quadro chiaro <span>delle tue finanze.</span></h1>
-    <p>Entrate, uscite e andamento della tua contabilità manuale, senza sovrapporre i dati bancari.</p>
+    <p>Contanti e Revolut nello stesso quadro. Movimenti distinti, saldo bancario aggiornato e nessun doppio conteggio della Carta manuale.</p>
   </header>
 
-  <div class="container">
-
-    <div class="card stat-box">
-        <small>Entrate</small>
-        <h2 id="total-in" style="color:var(--success)">€ 0</h2>
-    </div>
-    <div class="card stat-box">
-        <small>Uscite</small>
-        <h2 id="total-out" style="color:var(--danger)">€ 0</h2>
-    </div>
-    <div class="card stat-box">
-        <small>Risparmio Netto</small>
-        <h2 id="net-savings">€ 0</h2>
-    </div>
-    <div class="card stat-box">
-        <small>Saving Rate</small>
-        <h2 id="saving-rate" style="color:var(--blue)">0%</h2>
-    </div>
-
-    <div class="card insight-card">
-        <i class="fa-solid fa-lightbulb" style="color: var(--blue)"></i>
-        <p id="insight-text" style="margin:0; font-size: 0.9rem;">Analisi dei movimenti in tempo reale...</p>
-    </div>
-
-    <div class="card chart-box large-chart">
-      <div class="chart-controls">
-        <button class="btn-filter" data-view="week">Settimana</button>
-        <button class="btn-filter active" data-view="month">Mese</button>
-        <button class="btn-filter" data-view="year">Anno</button>
-        <select id="monthPicker" class="month-select"></select>
+  <main class="analytics-wrap">
+    <section class="analytics-bankline" aria-label="Patrimonio attuale">
+      <div class="analytics-balance"><span>CONTANTI</span><strong id="a-cash">—</strong></div>
+      <div class="analytics-balance"><span>CARTA · REVOLUT EUR</span><strong id="a-bank">Caricamento…</strong></div>
+      <div class="analytics-balance featured"><span>PATRIMONIO CONTANTI + REVOLUT EUR</span><strong id="a-total">—</strong></div>
+    </section>
+    <div class="analytics-details"><span id="analytics-bank-status" role="status">Controllo del collegamento bancario…</span><a href="revolut.html">Dettagli Revolut ↗</a></div>
+    <div class="analytics-toolbar" aria-label="Filtra i movimenti">
+      <div class="analytics-source-controls" role="group" aria-label="Origine delle transazioni">
+        <button type="button" class="source-button active" data-source="both" aria-pressed="true">Contanti + Revolut</button>
+        <button type="button" class="source-button" data-source="cash" aria-pressed="false">Solo contanti</button>
+        <button type="button" class="source-button" data-source="bank" aria-pressed="false">Solo Revolut</button>
       </div>
-      <h3 id="chartTitle">Andamento Mensile</h3>
-      <div style="height: 300px; width: 100%;">
-        <canvas id="lineChart"></canvas>
+      <div class="analytics-period-controls">
+        <div class="chart-controls" role="group" aria-label="Periodo">
+          <button class="btn-filter" data-view="week">7 giorni</button>
+          <button class="btn-filter active" data-view="month">Mese</button>
+          <button class="btn-filter" data-view="year">Anno</button>
+        </div>
+        <select id="monthPicker" class="month-select" aria-label="Seleziona mese"></select>
+        <select id="yearPicker" class="month-select" aria-label="Seleziona anno"></select>
       </div>
     </div>
-
-    <div class="card chart-box">
-      <h3>Distribuzione (%)</h3>
-      <div style="height: 200px; width: 100%;">
-        <canvas id="pieChart"></canvas>
-      </div>
+    <p id="analytics-coverage" class="analytics-notice" role="status"></p>
+    <div class="container">
+      <div class="card stat-box"><small>Entrate nel periodo</small><h2 id="total-in" class="success-color">—</h2></div>
+      <div class="card stat-box"><small>Uscite nel periodo</small><h2 id="total-out" class="danger-color">—</h2></div>
+      <div class="card stat-box"><small>Saldo movimenti</small><h2 id="net-savings">—</h2></div>
+      <div class="card stat-box"><small>Rapporto entrate/uscite</small><h2 id="saving-rate">—</h2></div>
+      <div class="card insight-card"><span class="analytics-insight-icon" aria-hidden="true">↗</span><p id="insight-text">Le entrate/uscite sono i flussi del periodo, non il patrimonio disponibile.</p></div>
+      <div class="card chart-box large-chart"><h3 id="chartTitle">Andamento movimenti</h3><div class="analytics-chart-height"><canvas id="lineChart" aria-label="Grafico andamento delle operazioni"></canvas></div></div>
+      <div class="card chart-box"><h3>Entrate e uscite</h3><div class="analytics-chart-height small"><canvas id="pieChart" aria-label="Grafico delle entrate e uscite"></canvas></div></div>
+      <div class="card chart-box analytics-daily"><small>Media uscite / giorno</small><h2 id="daily-avg">—</h2><p>Basata sui dati visibili nel periodo selezionato.</p></div>
     </div>
-
-    <div class="card chart-box" style="justify-content: center; text-align: center;">
-      <small style="color: var(--muted); text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px;">Media Uscite Periodo</small>
-      <h1 id="daily-avg" style="color: var(--danger); font-size: 2.2rem; margin: 15px 0;">€ 0</h1>
-      <p style="font-size: 0.75rem; color: var(--muted); padding: 0 10px;">Basato sulle uscite totali nel periodo selezionato.</p>
-    </div>
-  </div>
+    <p class="analytics-footnote">Il saldo Carta manuale resta conservato nel database ma non è sommato ai dati Revolut. I movimenti Carta manuali non vengono inclusi nei grafici per evitare duplicazioni. Il flusso Revolut può comprendere trasferimenti e rimborsi: non equivale automaticamente a reddito o spesa per consumi.</p>
+  </main>
 
   <script type="module">
-    import { requireAuth } from "./auth-guard.js";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { requireAuth } from './auth-guard.js';
+    import { readRevolutBankData, extractEurBalance, bankTransactions } from './bank-sync.js?v=20261013-viaggi-analisi-2';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, getIdToken } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { toCashFlows, toBankFlows, calculatePeriod, aggregateFlows } from './finance-analytics.js';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw",
-      authDomain: "conto-corrente.firebaseapp.com",
-      databaseURL: "https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "conto-corrente",
-      storageBucket: "conto-corrente.firebasestorage.app",
-      appId: "1:138913358347:web:35a016a855be2597989d0e"
-    };
+    const app=initializeApp({apiKey:'AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw',authDomain:'conto-corrente.firebaseapp.com',databaseURL:'https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app',projectId:'conto-corrente',appId:'1:138913358347:web:35a016a855be2597989d0e'});
+    const gate=await requireAuth(app);
+    const walletRef=ref(getDatabase(app),'wallet_infinite_data');
+    const fmt=new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
+    const months=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    const $=id=>document.getElementById(id);
+    let cash=0,cashFlows=[],bankFlows=[],bankBalance=null,bankError='',bankUpdated='',cashLoaded=false,source='both',view='month';
+    let lineChart=null,pieChart=null;
+    const today=new Date();
+    for(let i=0;i<12;i++) {$('monthPicker').add(new Option(months[i],String(i),i===today.getMonth(),i===today.getMonth()));}
+    for(let y=today.getFullYear();y>=today.getFullYear()-4;y--){$('yearPicker').add(new Option(String(y),String(y)));}
+    const num=id=>document.getElementById(id);
 
-    const app = initializeApp(firebaseConfig);
-    const accessGate = await requireAuth(app);
-    const dbFirebase = getDatabase(app);
-    const walletRef = ref(dbFirebase, 'wallet_infinite_data');
-
-    let pieChart, lineChart;
-    let rawLogs = [];
-    let currentView = 'month';
-
-    const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
-
-    const monthPicker = document.getElementById('monthPicker');
-    const now = new Date();
-    for(let i=0; i<12; i++) {
-      let opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = monthNames[i];
-      if(i === now.getMonth()) opt.selected = true;
-      monthPicker.appendChild(opt);
+    function summary(){
+      const ready=bankBalance!==null;
+      num('a-cash').textContent=cashLoaded?fmt.format(cash):'—';
+      num('a-bank').textContent=ready?fmt.format(bankBalance):'—';
+      num('a-total').textContent=cashLoaded&&ready?fmt.format(cash+bankBalance):'—';
+      num('analytics-bank-status').textContent=ready
+        ? `Saldo bancario ${bankError?'non aggiornato':'letto'} · ultimo dato: ${bankUpdated||'data sconosciuta'} · cache Enable Banking fino a 30 minuti`
+        : `Saldo Revolut non disponibile${bankError?': '+bankError:'. Verifica il collegamento.'}`;
     }
-
-    onValue(walletRef, (snapshot) => {
-      const data = snapshot.val();
-      accessGate.ready();
-      if (data) {
-        rawLogs = data.logs || [];
-        processData();
-      }
-    }, (error) => accessGate.error(error));
-
-    document.querySelectorAll('.btn-filter').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentView = btn.dataset.view;
-        monthPicker.style.display = currentView === 'month' ? 'block' : 'none';
-        processData();
-      };
+    function render(){
+      summary();
+      const y=Number($('yearPicker').value), m=Number($('monthPicker').value);
+      const period=calculatePeriod(view,y,m,new Date());
+      const flows=source==='cash'?cashFlows:source==='bank'?bankFlows:[...cashFlows,...bankFlows];
+      const chosen=flows.filter(t=> t.date>=period.start && t.date<=period.end);
+      const {income,expenses,points}=aggregateFlows(chosen,period);
+      const net=income-expenses;
+      $('total-in').textContent=fmt.format(income);
+      $('total-out').textContent=fmt.format(expenses);
+      $('net-savings').textContent=fmt.format(net);
+      $('net-savings').style.color=net>=0?'#51dea4':'#ff718b';
+      $('saving-rate').textContent=income>0?(100*net/income).toFixed(0)+'%':'—';
+      $('daily-avg').textContent=fmt.format(expenses/period.dayCount);
+      $('chartTitle').textContent=`Movimenti · ${period.label}`;
+      const banking=source!=='cash';
+      const oldest=bankFlows.map(t=>t.date).sort()[0];
+      const bankNotice=banking ? bankError ? `Revolut: ${bankError}. Il grafico mostra solo i dati effettivamente disponibili.` : `Revolut: ultimi 30 giorni richiesti dal Worker, fino a 150 movimenti per conto restituiti dal Worker. ${oldest?'Prima transazione ricevuta: '+oldest+'.':''} I periodi più vecchi possono essere incompleti.` : '';
+      $('analytics-coverage').textContent=[bankNotice,source==='both'?'Contanti + Revolut EUR, senza i vecchi movimenti Carta manuali.':source==='cash'?'Solo movimenti di contanti registrati in ContoApp.':'Solo movimenti del conto Revolut EUR, in sola lettura.'].filter(Boolean).join(' ');
+      $('insight-text').textContent=chosen.length ? `${chosen.length} movimenti nel periodo. I totali indicano entrate e uscite registrate, non un rendimento né una variazione effettiva del patrimonio.` : 'Nessun movimento disponibile per il periodo e la sorgente selezionati.';
+      if(typeof Chart !== 'function'){ $('chartTitle').textContent+=' · grafici non disponibili'; return; }
+      const chartData={labels:period.labels,datasets:[{data:points,borderColor:'#4698ff',backgroundColor:'rgba(65,143,255,.11)',fill:true,tension:.27,borderWidth:2,pointRadius:view==='year'?3:0}]};
+      if(lineChart)lineChart.destroy();
+      lineChart=new Chart($('lineChart'),{type:'line',data:chartData,options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#b7cbe4',maxTicksLimit:view==='month'?12:13},grid:{display:false}},y:{ticks:{color:'#a1b2c9'},grid:{color:'rgba(93,147,207,.12)'}}}}});
+      if(pieChart)pieChart.destroy();
+      pieChart=new Chart($('pieChart'),{type:'doughnut',data:{labels:['Entrate','Uscite'],datasets:[{data:income+expenses>0?[income,expenses]:[1,0],backgroundColor:['#18d692','#ff557a'],borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'77%',plugins:{legend:{display:true,position:'bottom',labels:{color:'#dce6f6'}}}}});
+    }
+    onValue(walletRef,snapshot=>{
+      const v=snapshot.val()||{};cash=Number.isFinite(Number(v.cash))?Number(v.cash):0;
+      cashFlows=toCashFlows(Array.isArray(v.logs)?v.logs:[]);cashLoaded=true;gate.ready();render();
+    },err=>gate.error(err));
+    async function syncBank(){
+      try{
+        const user=getAuth(app).currentUser;
+        if(!user)throw Error('Accedi nuovamente a ContoApp.');
+        const data=await readRevolutBankData(await getIdToken(user));
+        const balance=extractEurBalance(data);if(!balance.available)throw Error(balance.reason);
+        bankBalance=balance.balance;
+        bankFlows=toBankFlows(bankTransactions(data,1500));
+        bankUpdated=data.updated_at?new Date(data.updated_at).toLocaleString('it-IT'):'non specificato';
+        bankError='';
+      }catch(e){bankError=e?.message||'Non disponibile';}
+      render();
+    }
+    document.querySelectorAll('.source-button').forEach(b=>b.onclick=()=>{
+      source=b.dataset.source;
+      document.querySelectorAll('.source-button').forEach(x=>{const active=x===b;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active));});render();
     });
-
-    monthPicker.onchange = processData;
-
-    function parseCustomDate(dateStr) {
-      // Older manual entries can use "03 ott, 20:29" or "03/10/2026 20:29".
-      const str = String(dateStr || '').trim().toLowerCase();
-      const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
-      const slash = str.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
-      const short = str.match(/^(\d{1,2})\s+([a-zàèéìòù]{3,})/);
-      const today = new Date();
-      let day, month, year = today.getFullYear();
-      if (slash) {
-        day = Number(slash[1]);month = Number(slash[2])-1;
-        if (slash[3]) year = Number(slash[3].length===2 ? '20'+slash[3] : slash[3]);
-      } else if (short) {
-        day = Number(short[1]); month = months.findIndex(m => short[2].startsWith(m));
-      } else return new Date(NaN);
-      if (!(day>=1 && day<=31 && month>=0 && month<=11)) return new Date(NaN);
-      const date = new Date(year,month,day);
-      if (date.getDate() !== day || date.getMonth() !== month) return new Date(NaN);
-      // Legacy entries without a year were registered no later than today.
-      if (!slash?.[3] && date.getTime() > today.getTime()+86400000) date.setFullYear(year-1);
-      return date;
-    }
-
-    function processData() {
-      const now = new Date();
-      let filtered = [];
-      let labels = [];
-      let title = "";
-
-      if (currentView === 'week') {
-        title = "Grafico Settimanale";
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(now.getDate() - 7);
-        filtered = rawLogs.filter(l => parseCustomDate(l.date) >= oneWeekAgo);
-        for(let i=6; i>=0; i--) {
-          let d = new Date(); d.setDate(now.getDate() - i);
-          labels.push(d.toLocaleDateString('it-IT', {weekday: 'short'}));
-        }
-      } 
-      else if (currentView === 'month') {
-        const selMonth = parseInt(monthPicker.value);
-        title = `Grafico: ${monthNames[selMonth]}`;
-        filtered = rawLogs.filter(l => parseCustomDate(l.date).getMonth() === selMonth);
-        labels = Array.from({length: 31}, (_, i) => i + 1);
-      } 
-      else if (currentView === 'year') {
-        title = "Grafico Annuale " + now.getFullYear();
-        filtered = rawLogs.filter(l => parseCustomDate(l.date).getFullYear() === now.getFullYear());
-        labels = monthNames.map(m => m.substring(0,3));
-      }
-
-      updateUI(filtered, title);
-      renderCharts(filtered, labels, currentView);
-    }
-
-    function updateUI(logs, title) {
-      document.getElementById('chartTitle').textContent = title;
-      const entrate = logs.filter(l => l.type === 'add').reduce((s, l) => s + (Number(l.val)||0), 0);
-      const uscite = logs.filter(l => l.type === 'sub').reduce((s, l) => s + (Number(l.val)||0), 0);
-      const netto = entrate - uscite;
-      
-      const fmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
-      document.getElementById('total-in').textContent = fmt.format(entrate);
-      document.getElementById('total-out').textContent = fmt.format(uscite);
-      document.getElementById('net-savings').textContent = fmt.format(netto);
-      document.getElementById('net-savings').style.color = netto >= 0 ? 'var(--success)' : 'var(--danger)';
-      
-      const rate = entrate > 0 ? ((netto / entrate) * 100).toFixed(0) : 0;
-      document.getElementById('saving-rate').textContent = `${rate}%`;
-
-      const days = currentView === 'week' ? 7 : 30;
-      document.getElementById('daily-avg').textContent = fmt.format(uscite / (logs.length > 0 ? days : 1));
-
-      renderPie(entrate, uscite);
-    }
-
-    function renderCharts(logs, labels, view) {
-      const ctx = document.getElementById('lineChart').getContext('2d');
-      if (lineChart) lineChart.destroy();
-
-      let points = new Array(labels.length).fill(0);
-      logs.forEach(l => {
-        const d = parseCustomDate(l.date);
-        let index;
-        if(view === 'week') {
-           const diff = Math.floor((new Date() - d) / (1000 * 60 * 60 * 24));
-           index = 6 - diff;
-        } else if(view === 'month') {
-           index = d.getDate() - 1;
-        } else {
-           index = d.getMonth();
-        }
-        if(index >= 0 && index < points.length) {
-          points[index] += (l.type === 'add' ? 1 : -1) * (Number(l.val)||0);
-        }
-      });
-
-      let cumulative = 0;
-      const dataPoints = points.map(v => {
-        cumulative += v;
-        return cumulative;
-      });
-
-      lineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            data: dataPoints,
-            borderColor: '#3b82f6',
-            borderWidth: 3,
-            tension: 0.4,
-            fill: false,
-            pointBackgroundColor: '#3b82f6',
-            pointRadius: view === 'year' ? 4 : 1
-          }]
-        },
-        options: {
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#555' } },
-            y: { grid: { color: '#1a1a1a' }, ticks: { color: '#555' } }
-          }
-        }
-      });
-    }
-
-    function renderPie(inVal, outVal) {
-      const ctx = document.getElementById('pieChart').getContext('2d');
-      if (pieChart) pieChart.destroy();
-      pieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Entrate', 'Uscite'],
-          datasets: [{
-            data: [inVal || 1, outVal || 0],
-            backgroundColor: ['#22c55e', '#ff3333'],
-            borderWidth: 0
-          }]
-        },
-        options: { maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
-      });
-    }
+    document.querySelectorAll('.btn-filter').forEach(b=>b.onclick=()=>{
+      view=b.dataset.view;
+      document.querySelectorAll('.btn-filter').forEach(x=>x.classList.toggle('active',x===b));
+      $('monthPicker').hidden=view!=='month';
+      render();
+    });
+    $('monthPicker').onchange=render;$('yearPicker').onchange=render;
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncBank();});
+    window.addEventListener('online',syncBank);
+    syncBank();
+    setInterval(()=>{if(document.visibilityState==='visible')syncBank();},5*60*1000);
   </script>
   <script>
     if ('serviceWorker' in navigator) {
