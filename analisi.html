@@ -136,7 +136,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261013-global-privacy-1">
+  <link rel="stylesheet" href="theme.css?v=20261015-goals-history-1">
   <script defer src="ui.js?v=20261013-global-privacy-1"></script>
 </head>
 <body class="page-analisi">
@@ -194,6 +194,31 @@
       <div class="card chart-box"><h3>Entrate e uscite</h3><div class="analytics-chart-height small"><canvas id="pieChart" aria-label="Grafico delle entrate e uscite"></canvas></div></div>
       <div class="card chart-box analytics-daily"><small>Media uscite / giorno</small><h2 id="daily-avg">—</h2><p>Basata sui dati visibili nel periodo selezionato.</p></div>
     </div>
+    <section class="portfolio-evolution" aria-label="Evoluzione del patrimonio">
+      <div class="evolution-top">
+        <div>
+          <div class="evolution-eyebrow">PATRIMONIO NEL TEMPO</div>
+          <h2>La tua crescita, <span>giorno dopo giorno.</span></h2>
+          <p>I valori sono fotografie reali dei saldi Contanti + Revolut EUR. Lo storico inizia dal primo giorno in cui apri ContoApp con la banca disponibile.</p>
+        </div>
+        <div class="evolution-filters" role="group" aria-label="Periodo storico patrimonio">
+          <button type="button" class="evolution-period" data-history-days="7" aria-pressed="false">7G</button>
+          <button type="button" class="evolution-period active" data-history-days="30" aria-pressed="true">30G</button>
+          <button type="button" class="evolution-period" data-history-days="180" aria-pressed="false">6M</button>
+          <button type="button" class="evolution-period" data-history-days="365" aria-pressed="false">1A</button>
+          <button type="button" class="evolution-period" data-history-days="all" aria-pressed="false">Tutto</button>
+        </div>
+      </div>
+      <div class="evolution-stats">
+        <div><span>Primo saldo registrato</span><strong id="history-first" class="sensitive-number">—</strong></div>
+        <div><span>Ultimo saldo registrato</span><strong id="history-last" class="sensitive-number">—</strong></div>
+        <div><span>Variazione misurata</span><strong id="history-change" class="sensitive-number">—</strong></div>
+        <div><span>Giorni registrati</span><strong id="history-days">0</strong></div>
+      </div>
+      <div class="evolution-chart-wrap"><canvas id="patrimonyChart" aria-label="Grafico dello storico patrimonio registrato"></canvas></div>
+      <div id="history-empty" class="evolution-empty" role="status">Attendo la prima registrazione del patrimonio…</div>
+      <p class="evolution-legal" id="history-explainer">Nessun valore storico viene ricostruito da entrate e uscite. Se un giorno non è stato registrato, non viene inventato.</p>
+    </section>
     <p class="analytics-footnote">Il saldo Carta manuale resta conservato nel database ma non è sommato ai dati Revolut. I movimenti Carta manuali non vengono inclusi nei grafici per evitare duplicazioni. Il flusso Revolut può comprendere trasferimenti e rimborsi: non equivale automaticamente a reddito o spesa per consumi.</p>
   </main>
 
@@ -202,17 +227,58 @@
     import { readRevolutBankData, extractEurBalance, bankTransactions } from './bank-sync.js?v=20261013-viaggi-analisi-2';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, getIdToken } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getDatabase, ref, onValue, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { SNAPSHOT_PATH, normalizeHistory, filterHistory, recordSnapshot } from './portfolio-history.js?v=20261015-1';
     import { toCashFlows, toBankFlows, calculatePeriod, aggregateFlows } from './finance-analytics.js';
 
     const app=initializeApp({apiKey:'AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw',authDomain:'conto-corrente.firebaseapp.com',databaseURL:'https://conto-corrente-default-rtdb.europe-west1.firebasedatabase.app',projectId:'conto-corrente',appId:'1:138913358347:web:35a016a855be2597989d0e'});
     const gate=await requireAuth(app);
-    const walletRef=ref(getDatabase(app),'wallet_infinite_data');
+    const database=getDatabase(app);
+    const walletRef=ref(database,'wallet_infinite_data');
     const fmt=new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
     const months=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     const $=id=>document.getElementById(id);
     let cash=0,cashFlows=[],bankFlows=[],bankBalance=null,bankError='',bankUpdated='',cashLoaded=false,source='both',view='month';
-    let lineChart=null,pieChart=null;
+    let lineChart=null,pieChart=null, patrimonyChart=null;
+    let historicRecords=[],historyDays='30',snapshotWriting=false,bankRawUpdated='';
+    async function captureHistory() {
+      if (!cashLoaded || bankBalance === null || bankError || !bankRawUpdated || snapshotWriting) return;
+      snapshotWriting=true;
+      try { await recordSnapshot(database, ref, runTransaction, cash, bankBalance, bankRawUpdated); }
+      catch(e){console.warn('Non posso salvare lo storico del patrimonio',e?.code||'error');}
+      finally{snapshotWriting=false;}
+    }
+    function renderHistory() {
+      const list=filterHistory(historicRecords,historyDays);
+      const first=list[0],last=list[list.length-1];
+      const fmtAmount=n=>fmt.format(n);
+      $('history-first').textContent=first?fmtAmount(first.total):'—';
+      $('history-last').textContent=last?fmtAmount(last.total):'—';
+      const variation=first&&last&&list.length>=2?last.total-first.total:null;
+      $('history-change').textContent=variation===null?'—':`${variation>=0?'+':''}${fmtAmount(variation)}`;
+      $('history-change').style.color=variation===null?'':variation>=0?'#4cdeb3':'#ff8fa6';
+      $('history-days').textContent=String(list.length);
+      const enough=list.length>0;
+      $('history-empty').hidden=enough;
+      $('history-explainer').textContent = enough ? `Dati registrati dal ${first.day} al ${last.day}. I giorni mancanti non vengono stimati. Fonte: saldo contanti ContoApp + saldo bancario EUR disponibile tramite Enable Banking (cache possibile fino a 30 minuti).` : 'Non ci sono ancora osservazioni per questo periodo. Apri ContoApp online con Revolut collegato: lo storico inizierà a registrarsi automaticamente.';
+      if (patrimonyChart) {patrimonyChart.destroy();patrimonyChart=null;}
+      if (!enough || typeof Chart !== 'function') return;
+      patrimonyChart=new Chart($('patrimonyChart'),{
+        type:'line',
+        data:{labels:list.map(p=>new Date(`${p.day}T12:00:00`).toLocaleDateString('it-IT',{day:'2-digit',month:'short'})),
+          datasets:[{label:'Patrimonio',data:list.map(p=>p.total),tension:0.2,borderColor:'#52a9ff',backgroundColor:'rgba(34,127,238,.16)',borderWidth:3,pointRadius:Math.min(4,list.length>40?1:4),fill:true}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Patrimonio: '+fmtAmount(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#b4c6db',maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:'#b4c6db',callback:value=>fmt.format(value)},grid:{color:'rgba(94,164,239,.13)'}}}}
+      });
+    }
+    onValue(ref(database,SNAPSHOT_PATH),snapshot=>{
+      historicRecords=normalizeHistory(snapshot.val());
+      renderHistory();
+    },e=>{$('history-empty').hidden=false;$('history-empty').textContent='Storico non disponibile. Verifica le regole Firebase.';console.warn('HISTORY_READ',e?.code||'error');});
+    document.querySelectorAll('.evolution-period').forEach(b=>b.addEventListener('click',()=>{
+      historyDays=b.dataset.historyDays;
+      document.querySelectorAll('.evolution-period').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});
+      renderHistory();
+    }));
     const today=new Date();
     for(let i=0;i<12;i++) {$('monthPicker').add(new Option(months[i],String(i),i===today.getMonth(),i===today.getMonth()));}
     for(let y=today.getFullYear();y>=today.getFullYear()-4;y--){$('yearPicker').add(new Option(String(y),String(y)));}
@@ -256,7 +322,7 @@
     }
     onValue(walletRef,snapshot=>{
       const v=snapshot.val()||{};cash=Number.isFinite(Number(v.cash))?Number(v.cash):0;
-      cashFlows=toCashFlows(Array.isArray(v.logs)?v.logs:[]);cashLoaded=true;gate.ready();render();
+      cashFlows=toCashFlows(Array.isArray(v.logs)?v.logs:[]);cashLoaded=true;gate.ready();render();void captureHistory();
     },err=>gate.error(err));
     async function syncBank(){
       try{
@@ -266,10 +332,12 @@
         const balance=extractEurBalance(data);if(!balance.available)throw Error(balance.reason);
         bankBalance=balance.balance;
         bankFlows=toBankFlows(bankTransactions(data,1500));
+        bankRawUpdated=data.updated_at || new Date().toISOString();
         bankUpdated=data.updated_at?new Date(data.updated_at).toLocaleString('it-IT'):'non specificato';
         bankError='';
       }catch(e){bankError=e?.message||'Non disponibile';}
       render();
+      void captureHistory();
     }
     document.querySelectorAll('.source-button').forEach(b=>b.onclick=()=>{
       source=b.dataset.source;
