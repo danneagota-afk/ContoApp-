@@ -1,7 +1,7 @@
 /* ContoApp Experience. Local preferences only; this file never writes financial balances. */
 (() => {
   'use strict';
-  const THEMES = Object.freeze({blue:['Blu',' #2594ff'],violet:['Viola','#a28aff'],jade:['Verde acqua','#28d7aa'],amber:['Oro','#f4b645']});
+  const THEMES = Object.freeze({blue:['Ocean Blue','#419cff'],violet:['Royal Violet','#b293ff'],jade:['Emerald Dark','#2be4b6'],amber:['Gold Night','#fbc15d'],crimson:['Crimson Luxe','#ff719c']});
   const THEME_KEY='contoapp.theme.v1', HOME_KEY='contoapp.homeWidgets.v1', REMINDER_KEY='contoapp.reminder.v1';
   const $ = id => document.getElementById(id);
   const read = (key, fallback=null) => { try {const value=localStorage.getItem(key);return value?JSON.parse(value):fallback;} catch {return fallback;} };
@@ -12,7 +12,7 @@
   const element = (tag,cls='',label='') => {const el=document.createElement(tag);if(cls)el.className=cls;if(label)el.textContent=label;return el;};
 
   function currentTheme(){const v=plain(THEME_KEY);return Object.hasOwn(THEMES,v)?v:'blue';}
-  function setTheme(theme){if(!Object.hasOwn(THEMES,theme))return;document.documentElement.dataset.accent=theme;try{localStorage.setItem(THEME_KEY,theme);}catch{};document.querySelectorAll('.app-theme-option').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.theme===theme)));}
+  function setTheme(theme){if(!Object.hasOwn(THEMES,theme))return;document.documentElement.dataset.accent=theme;const bar={blue:'#050e1d',violet:'#100b1e',jade:'#051713',amber:'#1a110a',crimson:'#190a14'};document.querySelector('meta[name="theme-color"]')?.setAttribute('content',bar[theme]);try{localStorage.setItem(THEME_KEY,theme);}catch{};document.querySelectorAll('.app-theme-option').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.theme===theme)));}
   function modal(title){
     const dialog=element('dialog','app-settings-dialog');
     const body=element('div','app-settings-body');
@@ -24,8 +24,8 @@
     return {dialog,body};
   }
   function themeSettings(){
-    const {dialog,body}=modal('Aspetto di ContoApp');
-    body.append(element('p','','Scegli il colore che preferisci: vale per tutte le pagine su questo dispositivo e non modifica nessun dato.'));
+    const {dialog,body}=modal('Colori e aspetto');
+    body.append(element('p','','Ogni tema cambia lo sfondo, le schede, i campi e i pulsanti in tutte le pagine. La scelta resta sul dispositivo e non modifica i tuoi soldi.'));
     const grid=element('div','app-theme-grid');
     for(const [key,[name,color]] of Object.entries(THEMES)){
       const btn=element('button','app-theme-option');btn.type='button';btn.dataset.theme=key;
@@ -37,7 +37,7 @@
   }
   function initThemeControl(){
     const nav=document.querySelector('.navbar');if(!nav)return;
-    const button=element('button','app-settings-trigger','⚙ Aspetto');button.type='button';button.title='Personalizza i colori';button.setAttribute('aria-label','Aspetto e colori');
+    const button=element('button','app-settings-trigger','Temi');button.type='button';button.title='Personalizza i colori di ContoApp';button.setAttribute('aria-label','Aspetto e colori');
     button.addEventListener('click',themeSettings);
     const privacy=nav.querySelector('.privacy-toggle');if(privacy)privacy.before(button);else nav.append(button);
     setTheme(currentTheme());
@@ -83,35 +83,7 @@
       refresh();const reset=element('button','home-customizer-open','Ripristina disposizione originale');reset.type='button';reset.onclick=()=>{config={};save(HOME_KEY,config);apply();refresh();};body.append(reset);dialog.showModal();
     };
   }
-  function initMobileNavigation(){
-    const nav=document.querySelector('.nav-links');if(!nav||document.body.classList.contains('page-login'))return;
-    const icons={'index.html':'⌂','risparmi.html':'◎','analisi.html':'▥','viaggi.html':'✈'};
-    nav.querySelectorAll('a.nav-link').forEach(anchor=>{
-      const href=(anchor.getAttribute('href')||'').split('?')[0];
-      if(icons[href]&&!anchor.querySelector('.app-mobile-nav-icon')){
-        const icon=element('span','app-mobile-nav-icon',icons[href]);icon.setAttribute('aria-hidden','true');anchor.prepend(icon);
-      }
-    });
-    if($('app-mobile-more-button'))return;
-    const more=element('button','app-mobile-more','Altro');more.id='app-mobile-more-button';more.type='button';more.setAttribute('aria-expanded','false');more.setAttribute('aria-controls','app-mobile-more-menu');
-    more.prepend(element('span','app-mobile-nav-icon','•••'));
-    nav.append(more);
-    const menu=element('div','app-mobile-menu');menu.id='app-mobile-more-menu';menu.hidden=true;
-    [['revolut.html','💳 Revolut'],['vinted.html','🛍 Vinted']].forEach(([href,label])=>{const link=element('a','',label);link.href=href;menu.append(link);});
-    document.body.append(menu);
-    function closeMenu(){menu.hidden=true;more.setAttribute('aria-expanded','false');}
-    more.addEventListener('click',()=>{const next=menu.hidden;menu.hidden=!next;more.setAttribute('aria-expanded',String(next));});
-    document.addEventListener('click',event=>{if(!menu.contains(event.target)&&!more.contains(event.target))closeMenu();});
-    document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMenu();});
-    if(document.body.classList.contains('page-index')){
-      const add=element('button','app-mobile-add','+');add.type='button';add.title='Nuova entrata';add.setAttribute('aria-label','Vai alla nuova entrata');
-      add.onclick=()=>{const field=$('add-money-input');if(!field)return;
-        const wrapper=field.closest('.extra-box');if(wrapper?.classList.contains('app-widget-hidden')){wrapper.classList.remove('app-widget-hidden');}
-        field.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>field.focus({preventScroll:true}),400);
-      };
-      document.body.append(add);
-    }
-  }
+  // Niente barra fissa inferiore né pulsanti extra: tutte le pagine usano il menu superiore.
   function renderGoalOptions(){
     const select=$('saving-reminder-goal');if(!select)return;
     const selection=select.value;
@@ -162,7 +134,7 @@
     actions.append(link,done);panel.append(actions);document.body.append(panel);
   }
   function init(){
-    initThemeControl();initHomeCustomizer();initMobileNavigation();initReminderForm();maybeShowReminder();
+    initThemeControl();initHomeCustomizer();initReminderForm();maybeShowReminder();
     window.addEventListener('storage',event=>{
       if(event.key===THEME_KEY)setTheme(currentTheme());
       if(event.key===REMINDER_KEY){document.querySelector('.app-reminder-alert')?.remove();maybeShowReminder();}

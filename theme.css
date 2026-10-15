@@ -535,7 +535,6 @@ html.mask-values :is(.extra-fund-total strong,.extra-fund-stats strong,.extra-ro
 :root[data-accent="jade"]{--ca-accent:#28d7aa;--ca-accent-rgb:40,215,170;--blue:#20c19d}
 :root[data-accent="amber"]{--ca-accent:#f4b645;--ca-accent-rgb:244,182,69;--blue:#efa72a}
 :root[data-accent="blue"]{--ca-accent:#2594ff;--ca-accent-rgb:37,148,255;--blue:#3b82f6}
-:root[data-accent]:not([data-accent="blue"]) .navbar .nav-link.active,
 :root[data-accent]:not([data-accent="blue"]) .sub-nav-btn.active,
 :root[data-accent]:not([data-accent="blue"]) .btn-create,
 :root[data-accent]:not([data-accent="blue"]) .travel-primary,
@@ -593,3 +592,288 @@ html.mask-values :is(.extra-fund-total strong,.extra-fund-stats strong,.extra-ro
 }
 @media(max-width:520px){.saving-reminder-form{grid-template-columns:1fr}.saving-reminder-form button{grid-column:auto}.app-theme-grid{grid-template-columns:1fr 1fr}.travel-budget-heading{align-items:flex-start}}
 html.mask-values :is(.travel-budget-heading .travel-money,.travel-budget-box small,.saving-reminder-bottom p,.app-reminder-alert p){filter:blur(8px);user-select:none}
+
+
+/* -----------------------------------------------------------------------
+   ContoApp | Temi completi + navigazione essenziale, 15 ottobre 2026.
+   Non cambia dati finanziari e preserva il colore semantico di entrate/uscite.
+   Mobile: link sempre in alto, nessuna barra o pulsante flottante superfluo.
+   ----------------------------------------------------------------------- */
+:root, :root[data-accent="blue"] {
+  --ca-bg:#050e1d; --ca-nav:#09192d; --ca-surface:#0d1d34;
+  --ca-surface-2:#132a47; --ca-field:#0a192e; --ca-border:#284568;
+  --ca-subtle:#a8c2df; --ca-fg:#f2f7ff; --ca-accent:#419cff;
+  --ca-accent-rgb:65,156,255; --ca-glow:rgba(46,133,245,.16);
+  --bg:var(--ca-bg); --card:var(--ca-surface); --surface:var(--ca-surface-2);
+  --text:var(--ca-fg); --muted:var(--ca-subtle); --blue:var(--ca-accent);
+  --border:var(--ca-border);
+}
+:root[data-accent="violet"] {
+  --ca-bg:#100b1e; --ca-nav:#180f2d; --ca-surface:#211630;
+  --ca-surface-2:#2d2044; --ca-field:#1b142c; --ca-border:#533b75;
+  --ca-subtle:#c5b5df; --ca-fg:#f9f5ff; --ca-accent:#b293ff;
+  --ca-accent-rgb:178,147,255; --ca-glow:rgba(159,101,245,.20);
+}
+:root[data-accent="jade"] {
+  --ca-bg:#051713; --ca-nav:#08221c; --ca-surface:#0e2924;
+  --ca-surface-2:#163b33; --ca-field:#0a211c; --ca-border:#286354;
+  --ca-subtle:#add1c5; --ca-fg:#effff9; --ca-accent:#2be4b6;
+  --ca-accent-rgb:43,228,182; --ca-glow:rgba(18,179,135,.18);
+}
+:root[data-accent="amber"] {
+  --ca-bg:#1a110a; --ca-nav:#26180e; --ca-surface:#302013;
+  --ca-surface-2:#422d1a; --ca-field:#25190f; --ca-border:#785331;
+  --ca-subtle:#e1c4a4; --ca-fg:#fff8ee; --ca-accent:#fbc15d;
+  --ca-accent-rgb:251,193,93; --ca-glow:rgba(229,157,53,.18);
+}
+:root[data-accent="crimson"] {
+  --ca-bg:#190a14; --ca-nav:#260e1c; --ca-surface:#2e1526;
+  --ca-surface-2:#412038; --ca-field:#230f1d; --ca-border:#79445e;
+  --ca-subtle:#e2b8ce; --ca-fg:#fff3fa; --ca-accent:#ff719c;
+  --ca-accent-rgb:255,113,156; --ca-glow:rgba(224,59,116,.18);
+}
+html, body, body.page-revolut, body.page-login {
+  background:var(--ca-bg) !important; background-color:var(--ca-bg)!important;
+  background-image:none!important; color:var(--ca-fg)!important;
+}
+/* Navbar and the areas around it reflect the selected palette. */
+.navbar{border-bottom-color:var(--ca-border)!important;background:transparent!important}
+.nav-links{background:transparent!important}
+.nav-links .nav-link,.nav-links a{color:var(--ca-subtle)!important}
+.nav-links .nav-link:hover,.nav-links .nav-link.active,.nav-links a[aria-current="page"]{color:var(--ca-fg)!important}
+.nav-links .nav-link.active::after,.nav-links a[aria-current="page"]::after{background:var(--ca-accent)!important;box-shadow:0 0 12px var(--ca-glow)!important}
+.app-brand-mark i{background:var(--ca-accent)!important;box-shadow:0 0 12px var(--ca-glow)!important}
+.app-brand-name span,.page-header h1 span{color:var(--ca-accent)!important}
+.navbar .app-settings-trigger,.privacy-toggle,#contoapp-logout{
+  background:var(--ca-nav)!important;color:var(--ca-fg)!important;
+  border:1px solid var(--ca-border)!important;
+  box-shadow:inset 0 1px 0 #ffffff10!important;
+}
+.navbar .app-settings-trigger:hover,.privacy-toggle:hover,#contoapp-logout:hover{
+  background:var(--ca-surface-2)!important;border-color:var(--ca-accent)!important;
+}
+/* Panels, including analysis, cash, goals, trips and bank screens. */
+:is(.total-card,.total-card-wrap,.extra-box,.work-box,.side,.balance-box,.box,.card,
+.creator-box,.goal-card,.panel,.account,.chart-box,.insight-card,.stat-box,
+.evolution-card,.evolution-stat,.forecast-card,.forecast-kpi,.extra-fund,
+.extra-fund-form,.extra-fund-stats,.extra-fund-stat,.extra-fund-item,
+.saving-reminder-panel,.travel-hero,.travel-card,.travel-stat,.travel-stat-card,
+.travel-budget-box,.travel-suggestion,.app-widget-row,.app-settings-dialog,
+.info-card,.modal-content,.quick-panel,.quick-form,.work-log-item,.extra-log-item){
+  background-color:var(--ca-surface)!important;
+  background-image:none!important;
+  border-color:var(--ca-border)!important;
+  color:var(--ca-fg)!important;
+}
+/* Inner cards: maintain contrast without brightening the dark background. */
+:is(.insight-card,.stat-box,.evolution-stat,.forecast-kpi,.travel-stat-card,
+.extra-fund-stat,.extra-fund-item,.app-widget-row,.travel-suggestion,
+.extra-fund-filter-row,.saving-reminder-form,.goal-stat){
+  background-color:var(--ca-surface-2)!important;
+}
+/* Fields and editable controls in every section, including modal windows. */
+:is(input:not([type="checkbox"]):not([type="radio"]),select,textarea,
+.extra-input,.extra-select,.work-input,.work-select,
+.saving-reminder-form input,.saving-reminder-form select,
+.extra-fund-form input,.extra-fund-form select,.extra-fund-form textarea){
+  background:var(--ca-field)!important;color:var(--ca-fg)!important;
+  border-color:var(--ca-border)!important;
+}
+:is(input,select,textarea):focus-visible,
+:is(button,a):focus-visible{outline:2px solid var(--ca-accent)!important;outline-offset:2px!important}
+input::placeholder,textarea::placeholder{color:var(--ca-subtle)!important}
+/* Neutral/primary controls follow the theme. Critical green/red money actions
+   intentionally keep their semantic colors so income is never confused with expense. */
+:is(.sub-nav-btn.active,.btn-create,.home-customizer-open,
+.travel-primary,.travel-suggestion button,.saving-reminder-save,
+.forecast-period.active,.btn-filter.active,.app-settings-body .app-widget-row button,
+button.btn-primary,button.primary,.btn-blue){
+  background:var(--ca-accent)!important;
+  background-image:none!important;border-color:var(--ca-accent)!important;
+  color:var(--ca-bg)!important;box-shadow:0 3px 20px var(--ca-glow)!important;
+}
+:is(.sub-nav-btn,.app-theme-option,.app-settings-head button,.month-select,
+.travel-budget-box,.app-mobile-menu a,.btn-filter,.period-btn){
+  background-color:var(--ca-surface-2)!important;border-color:var(--ca-border)!important;
+  color:var(--ca-fg)!important;
+}
+:is(.sub-nav-btn,.app-theme-option,.app-settings-head button,.month-select,.btn-filter):hover{
+  border-color:var(--ca-accent)!important;
+}
+.app-theme-option[aria-pressed="true"]{
+  background:var(--ca-surface-2)!important;
+  border-color:var(--ca-accent)!important;
+  box-shadow:0 0 0 2px var(--ca-glow)!important;
+}
+.app-settings-dialog{background:var(--ca-nav)!important;border-color:var(--ca-border)!important}
+.app-settings-body p,.page-header p,.travel-help,.info-card p{color:var(--ca-subtle)!important}
+/* Keep the user's account identities recognizable while changing the surrounding cards. */
+.page-index .balance-card.cash{background:linear-gradient(135deg,var(--ca-surface),#3b270e)!important}
+.page-index .balance-card.card{background:linear-gradient(135deg,var(--ca-surface),var(--ca-surface-2))!important;border-color:var(--ca-accent)!important}
+.page-index .balance-card.card h2,.card-text{color:var(--ca-accent)!important}
+.page-index .note.n20{background:linear-gradient(125deg,var(--ca-surface-2),var(--ca-accent))!important;border-color:var(--ca-accent)!important}
+/* Respect semantic expenditure/income colors despite theme changes. */
+:is(.tx.plus,.positive,.extra-fund-positive){color:#37e4a6!important}
+:is(.tx.minus,.negative,.extra-fund-negative){color:#ff7b8e!important}
+/* Avoid phantom/duplicate links, bottom bars, and floating plus after old PWA cache. */
+.app-mobile-more,.app-mobile-menu,.app-mobile-add,.app-mobile-nav-icon,.mobile-info{
+  display:none!important;
+}
+/* New, simple responsive navbar: navigation remains at the TOP on phones. */
+@media(max-width:1050px){
+  body:not(.page-login),body.page-revolut{
+    padding:0 14px 34px!important;
+  }
+  .navbar{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto auto auto;
+    gap:8px 7px!important;
+    width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:unset!important;
+    padding:11px 0 9px!important;margin:0 auto 16px!important;
+    align-items:center!important;
+  }
+  .app-brand{grid-column:1;grid-row:1;min-width:0;font-size:19px!important;gap:7px!important}
+  .app-brand-mark{transform:scale(.85);transform-origin:left center}
+  .navbar .app-settings-trigger{
+    grid-row:1;grid-column:2;min-width:0!important;min-height:34px!important;
+    padding:6px 9px!important;font-size:12px!important;white-space:nowrap!important;
+  }
+  .navbar .app-settings-trigger::before{content:none!important;display:none!important}
+  .privacy-toggle{
+    grid-row:1;grid-column:3;min-width:0!important;min-height:34px!important;
+    padding:6px 9px!important;font-size:0!important;white-space:nowrap!important;
+  }
+  .privacy-toggle::after{content:'Nascondi'!important;font-size:11px!important}
+  .privacy-toggle[aria-pressed="true"]::after{content:'Mostra'!important}
+  #contoapp-logout{grid-row:1;grid-column:4;min-height:34px!important;padding:6px 9px!important;font-size:11px!important}
+  .nav-links{
+    grid-row:2;grid-column:1/-1;
+    position:static!important;inset:auto!important;z-index:auto!important;
+    width:100%!important;min-width:0!important;
+    display:flex!important;flex-direction:row!important;justify-content:flex-start!important;
+    flex-wrap:nowrap!important;gap:5px!important;
+    padding:1px 0 6px!important;margin:0!important;
+    overflow-x:auto!important;overscroll-behavior-x:contain;
+    scrollbar-width:thin;scrollbar-color:var(--ca-border) transparent;
+    background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;
+  }
+  .nav-links .nav-link,.nav-links .nav-link[href="vinted.html"],.nav-links .nav-link[href="revolut.html"]{
+    display:inline-flex!important;flex-direction:row!important;align-items:center!important;
+    justify-content:center!important;flex:none!important;
+    min-height:38px!important;padding:8px 12px!important;
+    border-radius:9px!important;border:1px solid transparent!important;
+    background:transparent!important;color:var(--ca-subtle)!important;
+    font-size:12px!important;font-weight:700!important;
+  }
+  .nav-links .nav-link.active{
+    color:var(--ca-fg)!important;background:var(--ca-surface-2)!important;
+    border-color:var(--ca-border)!important;
+  }
+  .nav-links .nav-link.active::after{display:none!important}
+}
+@media(max-width:430px){
+  .navbar{gap:6px 4px!important}
+  .app-brand{font-size:18px!important;gap:4px!important}
+  .navbar .app-settings-trigger,.privacy-toggle,#contoapp-logout{padding:6px 7px!important}
+  .page-header{margin-top:8px!important}
+}
+@media(max-width:350px){
+  .app-brand{font-size:16px!important}
+  .navbar .app-settings-trigger,.privacy-toggle,#contoapp-logout{padding:5px!important;font-size:10px!important}
+}
+
+/* Final specificity pass: legacy layouts use !important on dark-blue cards.
+   Override those too, otherwise themes would only recolor the background. */
+html[data-accent] body :is(.total-card,.extra-box,.work-box,.side,.balance-box,.box,.card,
+.creator-box,.goal-card,.panel,.account,.chart-box,.insight-card,.stat-box,
+.evolution-card,.evolution-stat,.forecast-card,.forecast-kpi,.extra-fund,
+.extra-fund-form,.extra-fund-stats,.extra-fund-stat,.extra-fund-item,
+.saving-reminder-panel,.travel-hero,.travel-card,.travel-stat,.travel-stat-card,
+.travel-budget-box,.travel-suggestion,.app-widget-row,.info-card,.modal-content,
+.quick-panel,.quick-form,.work-log-item,.extra-log-item,.forecast-panel,
+.analytics-panel,.movement-card,.movements-panel,.extra-fund-summary) {
+  background-color:var(--ca-surface)!important;
+  background-image:none!important;
+  border-color:var(--ca-border)!important;
+  box-shadow:inset 0 1px 0 #ffffff0b!important;
+}
+html[data-accent] body.page-index :is(.total-card,.extra-box,.side,.quick-panel,.balance-box,
+.quick-form,.work-box) {
+  background:var(--ca-surface)!important;
+  border-color:var(--ca-border)!important;
+}
+html[data-accent] body :is(.history,.log-item,.movement-row,.tx,.movements-list,
+.extra-fund-filters,.saving-reminder-panel,.travel-budget-box,.travel-suggestion) {
+  border-color:var(--ca-border)!important;
+}
+html[data-accent] body :is(.sub-section-nav,.movements-tabs,.movements-tabs button,
+.chart-controls,.forecast-controls,.work-tabs,.btn-filter,.account-status,
+.goal-progress-wrap){background-color:var(--ca-surface-2)!important;border-color:var(--ca-border)!important}
+html[data-accent] body :is(.sub-nav-btn,.movements-tabs button){color:var(--ca-subtle)!important}
+html[data-accent] body :is(.sub-nav-btn.active,.movements-tabs button.active){
+  background:var(--ca-accent)!important;color:var(--ca-bg)!important;border-color:var(--ca-accent)!important;
+}
+html[data-accent] body .navbar .nav-links .nav-link.active,
+html[data-accent] body .navbar .nav-links .nav-link[aria-current="page"]{
+  background:transparent!important;background-image:none!important;
+  color:var(--ca-fg)!important;
+  border:0!important;box-shadow:none!important;
+}
+html[data-accent] body .navbar .nav-links .nav-link:hover{
+  background:var(--ca-surface-2)!important;
+}
+html[data-accent] body.page-index .balance-card.card{
+  background:linear-gradient(125deg,var(--ca-surface),var(--ca-surface-2))!important;
+  border-color:var(--ca-accent)!important;
+}
+html[data-accent] body.page-index .balance-card.cash{
+  background:linear-gradient(120deg,var(--ca-surface),#3b270e)!important;
+  border-color:#73501c!important;
+}
+html[data-accent] body :is(.page-header .eyebrow,.evolution-eyebrow,.travel-eyebrow,
+.saving-reminder-kicker,.forecast-eyebrow){color:var(--ca-accent)!important}
+@media(max-width:1050px){
+  html[data-accent] body .navbar .nav-links .nav-link.active,
+  html[data-accent] body .navbar .nav-links .nav-link[aria-current="page"]{
+    background:var(--ca-surface-2)!important;
+    border:1px solid var(--ca-border)!important;
+    border-radius:9px!important;
+  }
+}
+
+/* Deep-page surfaces: Analytics, Savings, Vinted, Revolut and Travel. */
+html[data-accent] body :is(.analytics-balance,.analytics-notice,.analytics-source-controls,
+.analytics-insight,.portfolio-evolution,.evolution-chart-wrap,.forecast-kpis>div,
+.forecast-duration,.forecast-empty,.goal-overview>div,.goal-plan-form,
+.travel-section,.travel-journey,.travel-journey-card,.travel-journey-body,
+.travel-empty,.travel-import,.travel-limits,.extra-fund-row,.extra-edit-form,
+.extra-fund-summary,.extra-fund-filters,.extra-fund-stats>div,
+.extra-fund-stat,.saving-reminder-panel,.saving-reminder-form,
+.vinted-summary,.vinted-stat,.item,.history-item,.bank-status,.status,.tx,
+.movement-tabs,.movement-tab,.quick-panel.move-goal){
+  background-color:var(--ca-surface-2)!important;
+  background-image:none!important;
+  border-color:var(--ca-border)!important;
+}
+html[data-accent] body :is(.analytics-balance.featured,.travel-hero,.portfolio-evolution,
+.saving-reminder-panel,.forecast-card){background:var(--ca-surface)!important}
+html[data-accent] body :is(.analytics-balance.featured,.movement-tab.active,
+.source-button.active,.forecast-period.active,.goal-date-label input:focus,
+.btn-filter.active){border-color:var(--ca-accent)!important}
+html[data-accent] body :is(.movement-tab.active,.source-button.active,
+.forecast-period.active,.btn-filter.active){
+  background:var(--ca-accent)!important;color:var(--ca-bg)!important;
+}
+html[data-accent] body :is(.evolution-chart-wrap,.forecast-chart-wrap,.chart-container,
+.analytics-chart-height){background-color:var(--ca-field)!important;border-color:var(--ca-border)!important}
+html[data-accent] body :is(a,.analytics-details a,.travel-help a,.travel-card a):not(.nav-link):not(.app-brand){
+  color:var(--ca-accent);
+}
+/* Each modal and toast is consistent with the selected theme. */
+html[data-accent] body :is(.app-settings-dialog,.app-reminder-alert,.modal-content,
+#undo-toast,.danger-zone){background:var(--ca-nav)!important;border-color:var(--ca-border)!important}
+html[data-accent] body .app-settings-head button{
+  background:var(--ca-surface-2)!important;color:var(--ca-fg)!important;
+  border-color:var(--ca-border)!important;
+}

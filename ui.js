@@ -16,7 +16,7 @@
       document.body.classList.toggle('mask-values', hidden);
       if (toggle) {
         toggle.setAttribute('aria-pressed', String(hidden));
-        toggle.textContent = hidden ? '◉ Mostra importi' : '◎ Nascondi importi';
+        toggle.textContent = hidden ? 'Mostra importi' : 'Nascondi importi';
         toggle.setAttribute('aria-label', hidden ? 'Mostra gli importi' : 'Nascondi gli importi');
         toggle.setAttribute('title', hidden ? 'Mostra gli importi in tutte le pagine' : 'Nascondi gli importi in tutte le pagine');
       }
