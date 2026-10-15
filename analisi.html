@@ -136,7 +136,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261015-goals-history-1">
+  <link rel="stylesheet" href="theme.css?v=20261015-extra-forecast-2">
   <script defer src="ui.js?v=20261013-global-privacy-1"></script>
 </head>
 <body class="page-analisi">
@@ -219,12 +219,38 @@
       <div id="history-empty" class="evolution-empty" role="status">Attendo la prima registrazione del patrimonio…</div>
       <p class="evolution-legal" id="history-explainer">Nessun valore storico viene ricostruito da entrate e uscite. Se un giorno non è stato registrato, non viene inventato.</p>
     </section>
+    <section class="forecast-section" aria-labelledby="forecast-title">
+      <header class="forecast-header">
+        <div><span class="forecast-eyebrow">SIMULAZIONE · PROSSIMI MESI</span><h2 id="forecast-title">Dove potrebbe arrivare <em>il tuo patrimonio?</em></h2><p>Tre scenari basati su un risparmio mensile modificabile. Le proiezioni non sono promesse e non considerano futuri imprevisti.</p></div>
+        <span class="forecast-spark" aria-hidden="true">↗</span>
+      </header>
+      <div class="forecast-toolbar">
+        <label>Variazione mensile ipotizzata (€)
+          <input id="forecast-monthly" type="number" inputmode="decimal" step="0.01" min="-1000000" max="1000000" placeholder="Es. 250" aria-describedby="forecast-basis">
+        </label>
+        <div class="forecast-duration" role="group" aria-label="Orizzonte previsione">
+          <button type="button" class="forecast-period" data-forecast-months="3" aria-pressed="false">3 mesi</button>
+          <button type="button" class="forecast-period" data-forecast-months="6" aria-pressed="false">6 mesi</button>
+          <button type="button" class="forecast-period active" data-forecast-months="12" aria-pressed="true">12 mesi</button>
+        </div>
+      </div>
+      <p id="forecast-basis" class="forecast-basis" role="status">Attendo lo storico del patrimonio per valutare la tendenza. Puoi inserire una simulazione manuale.</p>
+      <div class="forecast-kpis">
+        <div class="forecast-prudent"><span>Prudente</span><strong id="forecast-prudent" class="sensitive-number">—</strong></div>
+        <div class="forecast-base"><span>Medio</span><strong id="forecast-base" class="sensitive-number">—</strong></div>
+        <div class="forecast-optimistic"><span>Ottimistico</span><strong id="forecast-optimistic" class="sensitive-number">—</strong></div>
+      </div>
+      <div class="forecast-chart-wrap"><canvas id="forecastChart" aria-label="Grafico simulazione dei tre scenari futuri"></canvas></div>
+      <p id="forecast-empty" class="forecast-empty" role="status">Inserisci un importo mensile e attendi il saldo attuale Revolut per visualizzare la previsione.</p>
+      <p class="forecast-disclaimer">La stima automatica viene proposta solo con almeno quattro osservazioni distribuite su 14 giorni. Le ipotesi prudente e ottimista differiscono dal valore mensile di almeno 50 € o del 35%. Il grafico usa il saldo attuale Contanti + Revolut EUR; i Risparmi Extra restano separati.</p>
+    </section>
     <p class="analytics-footnote">Il saldo Carta manuale resta conservato nel database ma non è sommato ai dati Revolut. I movimenti Carta manuali non vengono inclusi nei grafici per evitare duplicazioni. Il flusso Revolut può comprendere trasferimenti e rimborsi: non equivale automaticamente a reddito o spesa per consumi.</p>
   </main>
 
   <script type="module">
     import { requireAuth } from './auth-guard.js';
     import { readRevolutBankData, extractEurBalance, bankTransactions } from './bank-sync.js?v=20261013-viaggi-analisi-2';
+    import { historicalMonthlyTrend, forecastPatrimony } from './patrimony-forecast.js?v=20261015-2';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, getIdToken } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
     import { getDatabase, ref, onValue, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -239,7 +265,8 @@
     const months=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     const $=id=>document.getElementById(id);
     let cash=0,cashFlows=[],bankFlows=[],bankBalance=null,bankError='',bankUpdated='',cashLoaded=false,source='both',view='month';
-    let lineChart=null,pieChart=null, patrimonyChart=null;
+    let lineChart=null,pieChart=null, patrimonyChart=null, forecastChart=null;
+    let forecastHorizon=12,forecastTouched=false;
     let historicRecords=[],historyDays='30',snapshotWriting=false,bankRawUpdated='';
     async function captureHistory() {
       if (!cashLoaded || bankBalance === null || bankError || !bankRawUpdated || snapshotWriting) return;
@@ -270,9 +297,42 @@
         options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Patrimonio: '+fmtAmount(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#b4c6db',maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:'#b4c6db',callback:value=>fmt.format(value)},grid:{color:'rgba(94,164,239,.13)'}}}}
       });
     }
+    function renderForecast(){
+      const trend=historicalMonthlyTrend(historicRecords);
+      const monthlyEl=$('forecast-monthly');
+      const balance=cashLoaded && bankBalance!==null && !bankError ? cash+bankBalance : null;
+      if(!forecastTouched && trend && (monthlyEl.value==='' || monthlyEl.dataset.automatic==='yes')){
+        monthlyEl.value=trend.monthly.toFixed(2);
+        monthlyEl.dataset.automatic='yes';
+      }
+      const entered=monthlyEl.value.trim();
+      const monthly=entered!=='' ? Number(entered) : null;
+      const forecast=balance!==null && monthly!==null ? forecastPatrimony(balance,monthly,forecastHorizon) : null;
+      $('forecast-basis').textContent=trend
+        ? (forecastTouched?'Hai impostato manualmente la variazione mensile.':'Ipotesi iniziale calcolata dalla variazione dei saldi negli ultimi '+trend.days+' giorni ('+trend.observations+' osservazioni). Puoi modificarla.')
+        : 'Storico insufficiente per stimare una tendenza affidabile (servono almeno 4 saldi su 14 giorni). Inserisci tu una variazione mensile per simulare.';
+      if(forecastChart){forecastChart.destroy();forecastChart=null;}
+      $('forecast-empty').hidden=!!forecast;
+      const values=['prudent','base','optimistic'];
+      for(const key of values) $('forecast-'+key).textContent=forecast?fmt.format(forecast.points.at(-1)[key]):'—';
+      if(!forecast){$('forecast-empty').textContent=balance===null?'Saldo Revolut EUR non disponibile o non aggiornato: impossibile calcolare la previsione.':'Inserisci una variazione mensile (può essere anche negativa) per iniziare.';return;}
+      if(typeof Chart!=='function'){$('forecast-empty').hidden=false;$('forecast-empty').textContent='Grafico temporaneamente non disponibile; i valori finali sono calcolati.';return;}
+      const series=[['prudent','Prudente','#f4b66b'],['base','Medio','#579bff'],['optimistic','Ottimistico','#49ddb5']];
+      forecastChart=new Chart($('forecastChart'),{
+        type:'line',data:{labels:forecast.points.map(p=>p.month===0?'Oggi':p.month+' m'),datasets:series.map(([key,label,color])=>({label,data:forecast.points.map(p=>p[key]),borderColor:color,backgroundColor:color,borderWidth:key==='base'?3:2,tension:.18,pointRadius:0}))},
+        options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{color:'#d3dff3',usePointStyle:true}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt.format(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#9fb5d3',maxTicksLimit:7},grid:{display:false}},y:{ticks:{color:'#9fb5d3',callback:value=>fmt.format(value)},grid:{color:'rgba(87,155,255,.13)'}}}}
+      });
+    }
+    $('forecast-monthly').addEventListener('input',()=>{forecastTouched=true;renderForecast();});
+    document.querySelectorAll('.forecast-period').forEach(button=>button.addEventListener('click',()=>{
+      forecastHorizon=Number(button.dataset.forecastMonths);
+      document.querySelectorAll('.forecast-period').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',String(b===button));});
+      renderForecast();
+    }));
     onValue(ref(database,SNAPSHOT_PATH),snapshot=>{
       historicRecords=normalizeHistory(snapshot.val());
       renderHistory();
+      renderForecast();
     },e=>{$('history-empty').hidden=false;$('history-empty').textContent='Storico non disponibile. Verifica le regole Firebase.';console.warn('HISTORY_READ',e?.code||'error');});
     document.querySelectorAll('.evolution-period').forEach(b=>b.addEventListener('click',()=>{
       historyDays=b.dataset.historyDays;
@@ -289,6 +349,7 @@
       num('a-cash').textContent=cashLoaded?fmt.format(cash):'—';
       num('a-bank').textContent=ready?fmt.format(bankBalance):'—';
       num('a-total').textContent=cashLoaded&&ready?fmt.format(cash+bankBalance):'—';
+      renderForecast();
       num('analytics-bank-status').textContent=ready
         ? `Saldo bancario ${bankError?'non aggiornato':'letto'} · ultimo dato: ${bankUpdated||'data sconosciuta'} · cache Enable Banking fino a 30 minuti`
         : `Saldo Revolut non disponibile${bankError?': '+bankError:'. Verifica il collegamento.'}`;

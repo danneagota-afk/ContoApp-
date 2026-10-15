@@ -60,7 +60,7 @@
     // Visually separate irreversible bulk deletions from ordinary controls.
     for (const id of ['reset-all-btn', 'reset-extra-btn', 'reset-work-btn', 'btn-reset']) {
       const target = document.getElementById(id);
-      if (!target || target.closest('.danger-zone')) continue;
+      if (!target || target.closest('.danger-zone, .extra-fund-danger')) continue;
       const details = document.createElement('details');
       details.className = 'danger-zone';
       const summary = document.createElement('summary');

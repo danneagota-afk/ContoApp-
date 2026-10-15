@@ -150,8 +150,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261015-goals-history-1">
-  <script defer src="ui.js?v=20261013-global-privacy-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261015-extra-forecast-2">
+  <script defer src="ui.js?v=20261015-extra-forecast-2"></script>
 </head>
 <body class="page-index">
 
@@ -280,19 +280,46 @@
         </div>
       </div>
 
-      <div class="extra-box extra-savings-box">
-        <h3>Risparmi Generali (Extra)</h3>
-        <div class="extra-input-group">
-          <input type="number" id="extra-money-input" class="extra-input" placeholder="€">
-          <input type="text" id="extra-reason-input" class="extra-input" placeholder="Motivo...">
-          <button class="extra-btn" id="add-extra-btn">AGGIUNGI</button>
+      <section class="extra-box extra-savings-box extra-fund" aria-labelledby="extra-fund-heading">
+        <header class="extra-fund-header">
+          <div><div class="extra-fund-eyebrow">FONDO PERSONALE</div><h3 id="extra-fund-heading">Risparmi <span>Extra</span></h3><p>Accantonamenti e prelievi registrati da te.</p></div>
+          <span class="extra-fund-icon" aria-hidden="true">✦</span>
+        </header>
+        <div class="extra-fund-total"><span>SALDO RISPARMI EXTRA</span><strong id="extra-display" class="sensitive-number">0,00 €</strong><small>Fondo separato dal totale Contanti + Revolut per evitare doppi conteggi.</small></div>
+        <div class="extra-fund-stats">
+          <div><span>Accantonato nel registro</span><strong class="sensitive-number" id="extra-deposits">—</strong></div>
+          <div><span>Prelevato dal registro</span><strong class="sensitive-number" id="extra-withdrawals">—</strong></div>
+          <div><span>Movimenti</span><strong id="extra-count">0</strong></div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-            <div class="extra-val" id="extra-display">€ 0,00</div>
-            <button class="reset" id="reset-extra-btn">Svuota risparmi extra</button>
+        <form class="extra-fund-form" id="extra-operation-form">
+          <div class="extra-fund-form-title"><strong>Nuovo movimento</strong><span>Aggiungi al fondo oppure registra un prelievo</span></div>
+          <div class="extra-fund-fields">
+            <label>Importo (€)<input type="number" id="extra-money-input" class="extra-input" min="0.01" max="10000000" step="0.01" placeholder="0,00" required></label>
+            <label>Descrizione<input type="text" id="extra-reason-input" class="extra-input" maxlength="120" placeholder="Es. Lavoro 9 ore" required></label>
+          </div>
+          <div class="extra-fund-actions">
+            <button type="submit" class="extra-fund-btn extra-fund-add" id="add-extra-btn"><span aria-hidden="true">＋</span> Aggiungi</button>
+            <button type="button" class="extra-fund-btn extra-fund-withdraw" id="withdraw-extra-btn"><span aria-hidden="true">−</span> Preleva</button>
+          </div>
+          <p class="extra-fund-feedback" role="status" id="extra-feedback" aria-live="polite"></p>
+        </form>
+        <div class="extra-fund-history-head"><div><strong>Cronologia risparmi</strong><span id="extra-found-count">Tutti i movimenti</span></div></div>
+        <div class="extra-fund-filter-row">
+          <label>Tipo<select id="extra-type-filter" aria-label="Filtra per tipo"><option value="all">Tutti</option><option value="deposits">Accantonamenti</option><option value="withdrawals">Prelievi</option></select></label>
+          <label>Periodo<select id="extra-month-filter" aria-label="Filtra per mese"><option value="all">Tutti i periodi</option><option value="undated">Storico senza anno</option></select></label>
+          <label class="extra-search">Cerca<input type="search" id="extra-search" placeholder="Cerca motivo o data"></label>
         </div>
-        <div id="extra-history"></div>
-      </div>
+        <div id="extra-history" class="extra-fund-history" aria-live="polite"></div>
+        <button id="extra-undo-delete" class="extra-fund-btn extra-fund-neutral" type="button" hidden>Annulla eliminazione</button>
+        <form id="extra-edit-form" class="extra-edit-form" hidden>
+          <h4>Modifica movimento</h4>
+          <label>Importo (€)<input id="extra-edit-amount" type="number" step="0.01" min="0.01" required></label>
+          <label>Motivo<input id="extra-edit-reason" type="text" maxlength="120" required></label>
+          <label>Tipo<select id="extra-edit-type"><option value="deposit">Accantonamento</option><option value="withdrawal">Prelievo</option></select></label>
+          <div class="extra-fund-actions"><button class="extra-fund-btn extra-fund-add" type="submit">Salva modifica</button><button class="extra-fund-btn extra-fund-neutral" type="button" id="extra-edit-cancel">Annulla</button></div>
+        </form>
+        <details class="extra-fund-danger"><summary>Gestione e cancellazione dati</summary><p>Attenzione: questa operazione elimina tutto lo storico di questo fondo. Non modifica la banca né gli obiettivi.</p><button class="reset" id="reset-extra-btn" type="button">Svuota risparmi extra</button></details>
+      </section>
     </main>
 
     <aside class="side">
@@ -366,6 +393,7 @@
     import { getAuth, getIdToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getDatabase, ref, set, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { recordSnapshot } from './portfolio-history.js?v=20261015-1';
+    import { extraTotals, filterExtraLogs, normalizeExtraLogs, newExtraLog, validMoney, parseExtraDay } from './extra-savings.js?v=20261015-2';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw",
@@ -491,6 +519,7 @@
       }
       db.cash = Number.isFinite(Number(db.cash)) ? Number(db.cash) : 0;
       db.card = Number.isFinite(Number(db.card)) ? Number(db.card) : 0;
+      db.extraLogs = normalizeExtraLogs(db.extraLogs);
       walletReadyForHistory = true;
       updateUI();
       void tryRecordHistory();
@@ -740,7 +769,9 @@
           id: Date.now(),
           val: totalEarnings,
           reason: `Lavoro: ${hours}h`,
-          date: dateShortStr
+          date: dateShortStr,
+          dateISO: `${ora.getFullYear()}-${String(ora.getMonth()+1).padStart(2,'0')}-${String(ora.getDate()).padStart(2,'0')}`,
+          createdAt: ora.getTime()
         });
       } else {
         if (depositType === 'Cash') db.cash += totalEarnings; else db.card += totalEarnings;
@@ -766,7 +797,7 @@
       // Manual historical accounting remains intact in Firebase. Displayed totals use
       // live-ish bank data only; never write bank numbers back to db.card/db.total.
       db.total = db.cash + db.card;
-      db.extra = db.extraLogs.reduce((total, log) => total + Number(log.val || 0), 0);
+      db.extra = extraTotals(db.extraLogs).balance;
       const workTotalSum = db.workLogs.reduce((total, log) => total + Number(log.earnings || 0), 0);
 
       const known = bank.balance !== null;
@@ -776,7 +807,7 @@
         'Patrimonio in attesa del saldo Revolut';
       document.getElementById('cash-display').textContent = Euro.format(db.cash);
       document.getElementById('card-display').textContent = known ? Euro.format(bank.balance) : '—';
-      document.getElementById('extra-display').textContent = Euro.format(db.extra);
+      renderExtraFund();
       document.getElementById('work-total').textContent = Euro.format(workTotalSum);
       
       const hist = document.getElementById('history');
@@ -848,12 +879,6 @@
         }
       }
 
-      const eHist = document.getElementById('extra-history'); eHist.innerHTML = '';
-      [...db.extraLogs].reverse().forEach(l => {
-          eHist.innerHTML += `<div class="extra-log-item"><div style="display:flex; align-items:center"><button class="del-log" onclick="deleteExtraLog(${l.id})">×</button>
-            <span>${safeText(l.reason)} <small style="color:#555">(${safeText(l.date)})</small></span></div><b style="color:var(--success)">+${l.val}€</b></div>`;
-      });
-
       const wHist = document.getElementById('work-history-list'); wHist.innerHTML = '';
       for (let i = db.workLogs.length - 1; i >= 0; i--) {
         const w = db.workLogs[i];
@@ -872,8 +897,114 @@
       refreshGoalDropdowns();
     }
 
-    window.deleteExtraLog = function(id) { saveState(); db.extraLogs = db.extraLogs.filter(item => item.id !== id); pushToCloud(); }
-    
+    let extraBusy=false,extraEditId=null,extraUndo=null,extraUndoTimeout=null;
+    const extraMoney=new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
+    const extraFeedback=(message,isError=false)=>{
+      const el=document.getElementById('extra-feedback');
+      el.textContent=message;
+      el.classList.toggle('error',isError);
+    };
+    async function extraTransaction(change) {
+      if(extraBusy) return false;
+      extraBusy=true;
+      document.querySelectorAll('#extra-fund-heading, #extra-operation-form button, #extra-edit-form button, #reset-extra-btn, .extra-row-actions button').forEach(el=>{if('disabled' in el)el.disabled=true;});
+      try {
+        const result=await runTransaction(ref(dbFirebase,'wallet_infinite_data/extraLogs'),value=>{
+          const logs=normalizeExtraLogs(value);
+          const next=change(logs);
+          return next === null ? undefined : next;
+        },{applyLocally:false});
+        if(!result.committed) {extraFeedback('Operazione annullata: aggiorna la pagina e riprova.',true);return false;}
+        extraFeedback('Modifica salvata correttamente.');
+        return true;
+      }catch(e) {
+        console.error('EXTRA_SAVINGS_WRITE',e?.code||'error');
+        extraFeedback('Salvataggio non riuscito: controlla la connessione.',true);
+        return false;
+      }finally{extraBusy=false;document.querySelectorAll('#extra-operation-form button, #extra-edit-form button, #reset-extra-btn, .extra-row-actions button').forEach(el=>{el.disabled=false;});}
+    }
+    const extraKey=id=>String(id);
+    async function submitExtra(kind) {
+      const amount=document.getElementById('extra-money-input');
+      const reason=document.getElementById('extra-reason-input');
+      let entry;
+      try {entry=newExtraLog(amount.value,reason.value,kind);}
+      catch(e){extraFeedback(e.message,true);return;}
+      const ok=await extraTransaction(logs=>{
+        if(kind==='withdrawal' && extraTotals(logs).balance < Math.abs(entry.val)-0.001)return null;
+        if(logs.some(l=>extraKey(l.id)===extraKey(entry.id)))return null;
+        return [...logs,entry];
+      });
+      if(ok){ amount.value=''; reason.value=''; }
+      else if(kind==='withdrawal')extraFeedback('Prelievo non completato: controlla il saldo del fondo e riprova.',true);
+    }
+    function renderExtraFund() {
+      const totals=extraTotals(db.extraLogs);
+      document.getElementById('extra-display').textContent=extraMoney.format(totals.balance);
+      document.getElementById('extra-deposits').textContent=extraMoney.format(totals.deposited);
+      document.getElementById('extra-withdrawals').textContent=extraMoney.format(totals.withdrawn);
+      document.getElementById('extra-count').textContent=String(totals.count);
+      const monthSelect=document.getElementById('extra-month-filter');
+      const selected=monthSelect.value;
+      const months=[...new Set(db.extraLogs.map(l=>parseExtraDay(l)?.slice(0,7)).filter(Boolean))].sort().reverse();
+      monthSelect.replaceChildren(new Option('Tutti i periodi','all'),...months.map(month=>new Option(new Date(month+'-15T12:00:00').toLocaleDateString('it-IT',{month:'long',year:'numeric'}),month)),new Option('Storico senza anno','undated'));
+      monthSelect.value=[...monthSelect.options].some(o=>o.value===selected)?selected:'all';
+      const filtered=filterExtraLogs(db.extraLogs,{type:document.getElementById('extra-type-filter').value,month:monthSelect.value,query:document.getElementById('extra-search').value});
+      document.getElementById('extra-found-count').textContent=`${filtered.length} movimenti visualizzati`;
+      const history=document.getElementById('extra-history');history.replaceChildren();
+      if(!filtered.length){const empty=document.createElement('p');empty.className='extra-empty';empty.textContent='Nessun movimento per questi filtri.';history.append(empty);return;}
+      for(const item of [...filtered].reverse()){
+        const row=document.createElement('div');row.className='extra-fund-row';
+        row.classList.add(item.val<0?'is-withdrawal':'is-deposit');
+        const icon=document.createElement('span');icon.className='extra-row-icon';icon.textContent=item.val<0?'↗':'↙';icon.setAttribute('aria-hidden','true');
+        const details=document.createElement('div');details.className='extra-row-details';
+        const name=document.createElement('strong');name.textContent=String(item.reason||'Movimento');
+        const date=document.createElement('small');date.textContent=String(item.date||'Data non disponibile');details.append(name,date);
+        const val=document.createElement('strong');val.className='extra-row-value sensitive-number';val.textContent=(item.val>=0?'+':'−')+extraMoney.format(Math.abs(item.val));
+        const actions=document.createElement('div');actions.className='extra-row-actions';
+        const edit=document.createElement('button');edit.type='button';edit.textContent='Modifica';edit.setAttribute('aria-label','Modifica '+String(item.reason||'movimento'));edit.addEventListener('click',()=>{
+          extraEditId=item.id;document.getElementById('extra-edit-amount').value=Math.abs(item.val).toFixed(2);
+          document.getElementById('extra-edit-reason').value=String(item.reason||'');document.getElementById('extra-edit-type').value=item.val<0?'withdrawal':'deposit';
+          const form=document.getElementById('extra-edit-form');form.hidden=false;form.scrollIntoView({behavior:'smooth',block:'nearest'});
+        });
+        const remove=document.createElement('button');remove.type='button';remove.className='extra-remove';remove.textContent='Elimina';remove.setAttribute('aria-label','Elimina '+String(item.reason||'movimento'));
+        remove.addEventListener('click',async()=>{
+          if(!confirm('Eliminare solo questo movimento dai Risparmi Extra?'))return;
+          const copy={...item};
+          const ok=await extraTransaction(logs=>logs.filter(l=>extraKey(l.id)!==extraKey(copy.id)));
+          if(ok){extraUndo=copy;extraFeedback('Movimento eliminato. Premi “Annulla eliminazione” per recuperarlo.');document.getElementById('extra-undo-delete').hidden=false;
+            clearTimeout(extraUndoTimeout);extraUndoTimeout=setTimeout(()=>{extraUndo=null;document.getElementById('extra-undo-delete').hidden=true;},15000);}
+        });
+        actions.append(edit,remove);row.append(icon,details,val,actions);history.append(row);
+      }
+    }
+    document.getElementById('extra-operation-form').addEventListener('submit',event=>{event.preventDefault();void submitExtra('deposit');});
+    document.getElementById('withdraw-extra-btn').addEventListener('click',()=>void submitExtra('withdrawal'));
+    document.getElementById('extra-edit-form').addEventListener('submit',async event=>{
+      event.preventDefault();
+      const value=validMoney(document.getElementById('extra-edit-amount').value);
+      const reason=document.getElementById('extra-edit-reason').value.trim();
+      const kind=document.getElementById('extra-edit-type').value;
+      if(value===null||!reason){extraFeedback('Importo o descrizione non validi.',true);return;}
+      const amount=kind==='withdrawal'?-value:value,id=extraEditId;
+      const success=await extraTransaction(logs=>{
+        const idx=logs.findIndex(l=>extraKey(l.id)===extraKey(id));if(idx<0)return null;
+        const amended=logs.map((l,i)=>i===idx?{...l,val:amount,reason:reason.slice(0,120)}:l);
+        if(extraTotals(amended).balance < -0.001)return null;
+        return amended;
+      });
+      if(success){extraEditId=null;document.getElementById('extra-edit-form').hidden=true;}
+    });
+    document.getElementById('extra-edit-cancel').addEventListener('click',()=>{extraEditId=null;document.getElementById('extra-edit-form').hidden=true;});
+    document.getElementById('extra-undo-delete').addEventListener('click',async()=>{
+      if(!extraUndo)return;const entry=extraUndo;
+      if(await extraTransaction(logs=>logs.some(l=>extraKey(l.id)===extraKey(entry.id))?null:[...logs,entry])){
+        extraUndo=null;clearTimeout(extraUndoTimeout);document.getElementById('extra-undo-delete').hidden=true;
+      }
+    });
+    for(const id of ['extra-type-filter','extra-month-filter','extra-search']){
+      const el=document.getElementById(id);el.addEventListener(id==='extra-search'?'input':'change',renderExtraFund);
+    }
     document.getElementById('undo-btn-action').onclick = () => window.undo();
     document.getElementById('cash-overview-btn').onclick = () => { document.getElementById('add-money-input').scrollIntoView({behavior:'smooth',block:'center'}); document.getElementById('add-money-input').focus({preventScroll:true}); };
     document.getElementById('note20').onclick = () => openModal(20);
@@ -897,18 +1028,11 @@
     document.getElementById('sub-custom-btn').onclick = () => subCustom();
     document.getElementById('save-work-btn').onclick = () => saveWorkTurn();
     
-    document.getElementById('add-extra-btn').onclick = () => {
-      const v = document.getElementById('extra-money-input');
-      const r = document.getElementById('extra-reason-input');
-      const val = parseFloat(v.value);
-      if (!Number.isFinite(val) || val <= 0) return alert('Inserisci un importo valido.');
-      saveState();
-      db.extraLogs.push({ id: Date.now(), val: val, reason: r.value || "Risparmio", date: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) });
-      v.value = ""; r.value = "";
-      pushToCloud();
+    document.getElementById('reset-extra-btn').onclick = async () => {
+      if(!confirm('Vuoi cancellare TUTTI i movimenti dei Risparmi Extra? Gli altri dati e Revolut non saranno modificati.'))return;
+      if(prompt('Per confermare scrivi SVUOTA (maiuscolo):')!=='SVUOTA')return;
+      await extraTransaction(()=>[]);
     };
-
-    document.getElementById('reset-extra-btn').onclick = () => { if(confirm("Svuotare lista?")) { saveState(); db.extraLogs = []; pushToCloud(); } };
     document.getElementById('reset-work-btn').onclick = () => { if(confirm("Vuoi svuotare il registro delle giornate?")) { saveState(); db.workLogs = []; pushToCloud(); } };
     document.getElementById('reset-all-btn').onclick = () => { if (confirm('Vuoi davvero cancellare TUTTI i dati MANUALI? Il conto Revolut non sarà modificato. Consigliato esportare un backup Firebase.')) { const typed=prompt('Per confermare scrivi CANCELLA (maiuscolo):'); if (typed==='CANCELLA') { saveState(); db = { total: 0, cash: 0, card: 0, logs: [], extra: 0, extraLogs: [], goals: [], workLogs: [] }; pushToCloud(); } } };
   </script>
