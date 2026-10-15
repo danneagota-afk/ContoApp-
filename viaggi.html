@@ -7,12 +7,18 @@
       document.documentElement.classList.add('mask-values');
     }
   } catch (_) { /* Browser con archiviazione privata non disponibile. */ }
+
+  try {
+    const accent = localStorage.getItem('contoapp.theme.v1');
+    if (['blue', 'violet', 'jade', 'amber'].includes(accent)) document.documentElement.dataset.accent = accent;
+  } catch (_) {}
 </script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#06101f"><title>Viaggi e tappe | ContoApp</title>
 <meta name="description" content="Paesi visitati, tappe e spese bancarie associate ai periodi dei tuoi viaggi">
 <link rel="icon" href="logo.png"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="theme.css?v=20261013-global-privacy-1"><script defer src="ui.js?v=20261013-global-privacy-1"></script></head>
+<link rel="stylesheet" href="theme.css?v=20261015-experience-1"><script defer src="ui.js?v=20261015-experience-1"></script>
+<script defer src="experience.js?v=20261015-experience-1"></script></head>
 <body class="page-viaggi">
 <nav class="navbar" aria-label="Navigazione principale">
 <a class="app-brand" href="index.html"><span class="app-brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="app-brand-name">Conto<span>App</span></span></a>
@@ -36,17 +42,18 @@
 <section class="travel-section"><div class="travel-section-head"><div><span class="travel-eyebrow">DIARIO</span><h2>Le mie tappe</h2></div><p id="travel-count-text"></p></div><div id="travel-journeys" class="travel-journeys" aria-live="polite"></div></section>
 <section class="travel-section travel-import"><div class="travel-section-head"><div><span class="travel-eyebrow">STORICO FACOLTATIVO</span><h2>Importa movimenti Revolut precedenti</h2></div></div><p class="travel-help">Per i viaggi di mesi o anni fa puoi caricare sul dispositivo un <strong>estratto conto in formato CSV</strong> esportato da Revolut, se disponibile. Viene letto solo nel browser: non viene caricato su un server né salvato in Firebase. Carica anche i conti in altre valute per vedere le spese RON, GBP ecc. Non importa i paesi se il CSV non li contiene.</p><label class="travel-csv-label" for="travel-csv-input">Scegli CSV Revolut</label><input id="travel-csv-input" type="file" accept=".csv,text/csv" multiple><button type="button" id="travel-clear-csv" class="travel-clear-import">Svuota gli importi caricati</button><p id="travel-import-status" role="status">Nessun estratto conto importato.</p></section>
 <section class="travel-section travel-suggest"><div class="travel-section-head"><div><span class="travel-eyebrow">RILEVATE DAI DATI DISPONIBILI</span><h2>Tappe da verificare</h2></div></div><p class="travel-help">Qui compaiono solo eventuali pagamenti con un <strong>paese del commerciante esplicito</strong> fornito dalla banca. Un commerciante estero non dimostra che tu fossi fisicamente lì: verifica prima di aggiungere la tappa.</p><div id="travel-suggestions" class="travel-suggestions"></div></section>
-<section class="travel-section travel-limits"><h2>Come vengono calcolate le spese?</h2><p>ContoApp associa alle date di una tappa <strong>solo gli addebiti Revolut in EUR disponibili</strong>. È un confronto temporale: non dimostra che la spesa sia avvenuta in quel paese. Le date sovrapposte tra tappe vengono escluse dal conteggio per evitare duplicazioni. Il Worker attuale richiede circa 30 giorni di movimenti; per periodi precedenti puoi importare facoltativamente un CSV Revolut nel browser. Le altre valute non vengono convertite automaticamente.</p><p>La funzione ufficiale Revolut Trips può usare anche la posizione del dispositivo e dati di pagamento più ricchi, che questa connessione non fornisce. Le tue tappe vengono salvate separatamente in Firebase e non cambiano il patrimonio.</p></section>
+<section class="travel-section travel-limits"><h2>Come vengono calcolate le spese?</h2><p>ContoApp associa alle date di una tappa <strong>solo gli addebiti Revolut in EUR disponibili</strong>. È un confronto temporale: non dimostra che la spesa sia avvenuta in quel paese. Le date sovrapposte tra tappe vengono escluse dal conteggio per evitare duplicazioni. Il Worker attuale richiede circa 30 giorni di movimenti; per periodi precedenti puoi importare facoltativamente un CSV Revolut nel browser. Le altre valute non vengono convertite automaticamente. Il budget confronta soltanto le spese EUR identificate e le spese manuali dichiarate per la tappa, senza considerarle conferme geografiche.</p><p>La funzione ufficiale Revolut Trips può usare anche la posizione del dispositivo e dati di pagamento più ricchi, che questa connessione non fornisce. Le tue tappe vengono salvate separatamente in Firebase e non cambiano il patrimonio.</p></section>
 </main>
 <dialog id="trip-dialog" class="trip-dialog"><form id="trip-form" method="dialog" novalidate><div class="trip-dialog-header"><div><span class="travel-eyebrow">IL TUO DIARIO</span><h2 id="trip-dialog-title">Nuova tappa</h2></div><button type="button" id="trip-close" aria-label="Chiudi">✕</button></div>
 <label>Paese <select id="trip-country" required></select></label>
 <label>Città / luogo <input id="trip-city" type="text" maxlength="70" placeholder="Es. Barcellona" autocomplete="off"></label>
 <div class="trip-form-dates"><label>Dal <input id="trip-start" type="date" required></label><label>Al <input id="trip-end" type="date" required></label></div>
 <label>Nota personale (facoltativa) <textarea id="trip-note" maxlength="350" placeholder="Un ricordo del viaggio…" rows="3"></textarea></label>
+<label>Budget del viaggio (€) <input id="trip-budget" type="number" min="0" max="10000000" step="0.01" inputmode="decimal" placeholder="Es. 800 (facoltativo)"></label>
 <label>Spese aggiuntive (€) <input id="trip-extra" type="number" min="0" max="10000000" step="0.01" inputmode="decimal" placeholder="Solo spese NON già presenti su Revolut"></label>
 <p class="trip-dialog-hint">Il totale bancario viene letto automaticamente quando disponibile, ma resta distinto dalle spese aggiuntive che inserisci manualmente.</p>
 <div class="trip-dialog-actions"><button type="button" id="trip-cancel">Annulla</button><button class="travel-primary" type="submit" id="trip-save">Salva tappa</button></div>
 <p id="trip-error" role="alert"></p></form></dialog>
-<script type="module" src="viaggi.js?v=20261013-travel-analytics-2"></script>
+<script type="module" src="viaggi.js?v=20261015-budget-1"></script>
 <script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
 </body></html>

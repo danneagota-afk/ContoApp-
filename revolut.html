@@ -8,6 +8,11 @@
       document.documentElement.classList.add('mask-values');
     }
   } catch (_) { /* Browser con archiviazione privata non disponibile. */ }
+
+  try {
+    const accent = localStorage.getItem('contoapp.theme.v1');
+    if (['blue', 'violet', 'jade', 'amber'].includes(accent)) document.documentElement.dataset.accent = accent;
+  } catch (_) {}
 </script>
 
   <meta charset="utf-8">
@@ -49,8 +54,9 @@
     .foot{color:#8e9cae;font-size:12px;line-height:1.6;margin-top:25px}
     [hidden]{display:none!important}
   </style>
-  <link rel="stylesheet" href="theme.css?v=20261013-global-privacy-1">
-  <script defer src="ui.js?v=20261013-global-privacy-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261015-experience-1">
+  <script defer src="ui.js?v=20261015-experience-1"></script>
+<script defer src="experience.js?v=20261015-experience-1"></script>
 </head>
 <body class="page-revolut">
 <main>
@@ -62,7 +68,7 @@
       <a class="nav-link" href="risparmi.html"><span>Risparmi</span></a>
       <a class="nav-link" href="analisi.html"><span>Analisi</span></a>
       <a class="nav-link active" href="revolut.html" aria-current="page"><span>Revolut</span></a>
-      <a class="nav-link" href="viaggi.html"><span>Info</span></a>
+      <a class="nav-link" href="viaggi.html"><span>Viaggi</span></a>
     </div>
     <a class="mobile-info" href="viaggi.html">Viaggi</a>
     <button type="button" class="privacy-toggle" aria-pressed="false" aria-label="Nascondi gli importi">◎ Nascondi importi</button>

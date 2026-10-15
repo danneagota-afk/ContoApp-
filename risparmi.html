@@ -8,6 +8,11 @@
       document.documentElement.classList.add('mask-values');
     }
   } catch (_) { /* Browser con archiviazione privata non disponibile. */ }
+
+  try {
+    const accent = localStorage.getItem('contoapp.theme.v1');
+    if (['blue', 'violet', 'jade', 'amber'].includes(accent)) document.documentElement.dataset.accent = accent;
+  } catch (_) {}
 </script>
 
   <meta charset="UTF-8" />
@@ -107,8 +112,9 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261015-goals-history-1">
-  <script defer src="ui.js?v=20261013-global-privacy-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261015-experience-1">
+  <script defer src="ui.js?v=20261015-experience-1"></script>
+<script defer src="experience.js?v=20261015-experience-1"></script>
 </head>
 <body class="page-risparmi">
 
@@ -120,7 +126,7 @@
       <a class="nav-link active" href="risparmi.html" aria-current="page"><span>Risparmi</span></a>
       <a class="nav-link" href="analisi.html"><span>Analisi</span></a>
       <a class="nav-link" href="revolut.html"><span>Revolut</span></a>
-      <a class="nav-link" href="viaggi.html"><span>Info</span></a>
+      <a class="nav-link" href="viaggi.html"><span>Viaggi</span></a>
     </div>
     <a class="mobile-info" href="viaggi.html">Viaggi</a>
     <button type="button" class="privacy-toggle" aria-pressed="false" aria-label="Nascondi gli importi">◎ Nascondi importi</button>
@@ -148,6 +154,17 @@
       </div>
     </div>
 
+    <section class="saving-reminder-panel" aria-labelledby="saving-reminder-title">
+      <div class="saving-reminder-head"><div><span class="saving-reminder-kicker">LA TUA ABITUDINE MENSILE</span><h2 id="saving-reminder-title">Ricordami di risparmiare <span>ogni mese</span></h2><p>Decidi tu quando e quanto: ContoApp non preleva automaticamente denaro.</p></div><span class="saving-reminder-symbol" aria-hidden="true">◷</span></div>
+      <form id="saving-reminder-form" class="saving-reminder-form">
+        <label>Importo da ricordare (€)<input id="saving-reminder-amount" type="number" inputmode="decimal" min="1" max="1000000" step="0.01" placeholder="Es. 100" required></label>
+        <label>Giorno di ogni mese<select id="saving-reminder-day" required></select></label>
+        <label>Per quale obiettivo?<select id="saving-reminder-goal"><option value="">Risparmio generale</option></select></label>
+        <button class="saving-reminder-save" type="submit">Salva promemoria</button>
+      </form>
+      <div class="saving-reminder-bottom"><p id="saving-reminder-status" role="status">Nessun promemoria impostato.</p><button id="saving-reminder-clear" class="saving-reminder-clear" type="button" hidden>Disattiva</button></div>
+      <p class="saving-reminder-disclaimer">Promemoria locale: appare quando apri ContoApp, anche se il giorno indicato è passato. Per una notifica puntuale mentre l'app è chiusa serve un servizio esterno programmato. Non viene effettuato alcun trasferimento bancario.</p>
+    </section>
     <section class="goal-overview" aria-label="Riepilogo obiettivi">
       <div><span>Obiettivi in corso</span><strong id="goals-count">—</strong></div>
       <div><span>Ancora da accantonare</span><strong id="goals-missing" class="sensitive-number">—</strong></div>

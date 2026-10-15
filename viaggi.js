@@ -62,6 +62,22 @@ function render(){
       if(m.count){total+=m.amount;if(m.amount>0)any=true;}
     }
     row.append(info);
+    // The trip budget is its own field; never changes cash, Revolut or goals.
+    if(Number.isFinite(Number(trip.budget)) && Number(trip.budget)>0){
+      const budget=Number(trip.budget), extra=Number(trip.extra)||0;
+      const hasBank=bankReady || csvTransactions.length>0;
+      const available=m.state!=='not-covered' && m.state!=='invalid' && hasBank;
+      const spent=(available?m.amount:0)+extra;
+      const fraction=Math.max(0,Math.min(100,spent/budget*100));
+      const budgetBox=node('div','travel-budget-box');
+      const summary=node('div','travel-budget-heading');
+      summary.append(node('strong','','Budget · '+formatEuro(budget)),node('span','travel-money',available?formatEuro(spent)+' registrati':extra>0?formatEuro(extra)+' dichiarati':'Spese bancarie non disponibili'));
+      const track=node('div','travel-budget-track');const fill=node('span','travel-budget-fill');
+      fill.style.width=fraction+'%'; if(spent>budget)fill.classList.add('travel-budget-over');
+      track.append(fill);budgetBox.append(summary,track);
+      const foot=available ? (spent>budget?`${formatEuro(spent-budget)} oltre il budget`:`${formatEuro(budget-spent)} rimanenti rispetto ai movimenti disponibili`) : 'Spese bancarie non disponibili: confronto provvisorio';
+      budgetBox.append(node('small','',foot));row.append(budgetBox);
+    }
     if(trip.extra>0)row.append(node('p','travel-extra-note',`Spese aggiuntive dichiarate: ${formatEuro(trip.extra)} (non sommate automaticamente a Revolut)`));
     if(trip.note)row.append(node('p','travel-memory',trip.note));
     container.append(row);
@@ -89,6 +105,7 @@ function openDialog(trip=null){
   $('trip-end').value=trip?.end||'';
   $('trip-note').value=trip?.note||'';
   $('trip-extra').value=trip?.extra||'';
+  $('trip-budget').value=trip?.budget||'';
   $('trip-error').textContent='';$('trip-save').disabled=false;
   $('trip-dialog').showModal();
 }
@@ -100,10 +117,11 @@ async function deleteTrip(trip){
 $('trip-form').addEventListener('submit',async e=>{
   e.preventDefault();if(busy)return;
   const country=$('trip-country').value,start=$('trip-start').value,end=$('trip-end').value;
-  const extra=Number($('trip-extra').value||0);
+  const extra=Number($('trip-extra').value||0), budget=Number($('trip-budget').value||0);
   if(!COUNTRY_CODES.includes(country)||!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||start>end){$('trip-error').textContent='Seleziona un paese e inserisci date valide (inizio prima della fine).';return;}
+  if(!Number.isFinite(budget)||budget<0||budget>10000000){$('trip-error').textContent='Budget non valido.';return;}
   if(!Number.isFinite(extra)||extra<0||extra>10000000){$('trip-error').textContent='Importo aggiuntivo non valido.';return;}
-  const updated={id:editing||crypto.randomUUID(),country,city:$('trip-city').value.trim().slice(0,70),start,end,note:$('trip-note').value.trim().slice(0,350),extra:Math.round(extra*100)/100};
+  const updated={id:editing||crypto.randomUUID(),country,city:$('trip-city').value.trim().slice(0,70),start,end,note:$('trip-note').value.trim().slice(0,350),extra:Math.round(extra*100)/100,budget:Math.round(budget*100)/100};
   const others=trips.filter(t=>t.id!==editing);
   if(others.length>=200){$('trip-error').textContent='Limite di 200 tappe raggiunto.';return;}
   const newList=[...others,updated];
