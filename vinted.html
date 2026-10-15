@@ -10,8 +10,17 @@
   } catch (_) { /* Browser con archiviazione privata non disponibile. */ }
 
   try {
-    const accent = localStorage.getItem('contoapp.theme.v1');
-    if (['blue', 'violet', 'jade', 'amber', 'crimson'].includes(accent)) document.documentElement.dataset.accent = accent;
+    let accent = localStorage.getItem('contoapp.theme.v1');
+    if (!localStorage.getItem('contoapp.auroraIntroduced.v1')) {
+      if (!accent || accent === 'blue') {
+        accent = 'aurora';
+        localStorage.setItem('contoapp.theme.v1', accent);
+      }
+      localStorage.setItem('contoapp.auroraIntroduced.v1', '1');
+    }
+    if (['aurora', 'blue', 'violet', 'jade', 'amber', 'crimson'].includes(accent)) {
+      document.documentElement.dataset.accent = accent;
+    }
   } catch (_) {}
 </script>
 
@@ -84,9 +93,9 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261015-palettes-2">
-  <script defer src="ui.js?v=20261015-palettes-2"></script>
-<script defer src="experience.js?v=20261015-palettes-2"></script>
+  <link rel="stylesheet" href="theme.css?v=20261015-aurora-verticale-1">
+  <script defer src="ui.js?v=20261015-aurora-verticale-1"></script>
+<script defer src="experience.js?v=20261015-aurora-verticale-1"></script>
 </head>
 <body class="page-vinted">
 

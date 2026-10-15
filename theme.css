@@ -877,3 +877,179 @@ html[data-accent] body .app-settings-head button{
   background:var(--ca-surface-2)!important;color:var(--ca-fg)!important;
   border-color:var(--ca-border)!important;
 }
+
+/* ----------------------------------------------------------------------
+   ContoApp / AURORA POP — look inspired by the approved colourful concept.
+   COLOURS ONLY: no grid/flex/order/position/height/width rules in this theme.
+   The original desktop and vertical mobile layouts remain unchanged.
+   ---------------------------------------------------------------------- */
+:root[data-accent="aurora"] {
+  color-scheme:dark;
+  --ca-bg:#080a1b;
+  --ca-nav:#100d2a;
+  --ca-surface:#11152d;
+  --ca-surface-2:#1b1a40;
+  --ca-field:#0c1430;
+  --ca-border:#3c326e;
+  --ca-subtle:#c6c1e6;
+  --ca-fg:#fcf8ff;
+  --ca-accent:#d879ff;
+  --ca-accent-rgb:216,121,255;
+  --ca-glow:rgba(196,84,255,.26);
+  --bg:var(--ca-bg);--card:var(--ca-surface);--surface:var(--ca-surface-2);
+  --text:var(--ca-fg);--muted:var(--ca-subtle);--blue:var(--ca-accent);
+  --border:var(--ca-border);
+}
+/* Deep blue-black canvas, with only soft ambient light; NO decorative waves. */
+html[data-accent="aurora"],
+html[data-accent="aurora"] body,
+html[data-accent="aurora"] body.page-revolut,
+html[data-accent="aurora"] body.page-login {
+  background-color:#080a1b!important;
+  background-image:
+    radial-gradient(ellipse at 3% 0%,rgba(120,45,199,.17),transparent 37%),
+    radial-gradient(ellipse at 96% 7%,rgba(30,73,194,.14),transparent 38%),
+    linear-gradient(180deg,#080a1b,#060b18 70%)!important;
+  color:#fcf8ff!important;
+}
+html[data-accent="aurora"] .navbar {
+  border-bottom-color:#4c3477!important;
+  background:linear-gradient(90deg,rgba(38,22,78,.15),rgba(12,16,41,.12))!important;
+}
+html[data-accent="aurora"] .app-brand-mark i{
+  background:linear-gradient(180deg,#ff749e 0%,#d777ff 45%,#6b87ff 100%)!important;
+  box-shadow:0 0 14px rgba(212,98,249,.42)!important;
+}
+html[data-accent="aurora"] .app-brand-name span{
+  color:#ec88ff!important;
+}
+html[data-accent="aurora"] .navbar .nav-links .nav-link.active,
+html[data-accent="aurora"] .navbar .nav-links .nav-link[aria-current="page"]{
+  color:#fff!important;
+  text-shadow:0 0 14px rgba(223,136,255,.35);
+}
+html[data-accent="aurora"] .nav-links .nav-link.active::after,
+html[data-accent="aurora"] .nav-links a[aria-current="page"]::after{
+  background:linear-gradient(90deg,#9f65ff,#fa69bc)!important;
+  box-shadow:0 0 13px #da69ff70!important;
+}
+html[data-accent="aurora"] .navbar :is(.app-settings-trigger,.privacy-toggle,#contoapp-logout){
+  background:linear-gradient(145deg,#241b4b,#11192d)!important;
+  border-color:#5a4286!important;
+  color:#f6eaff!important;
+  box-shadow:inset 0 1px #ffffff17,0 3px 12px #0005!important;
+}
+html[data-accent="aurora"] .navbar :is(.app-settings-trigger,.privacy-toggle,#contoapp-logout):hover{
+  border-color:#d377ff!important;
+  background:linear-gradient(140deg,#39265e,#20244d)!important;
+}
+/* A very subtle blue-purple panel gradient gives depth while retaining original geometry. */
+html[data-accent="aurora"] body :is(
+  .total-card,.total-card-wrap,.extra-box,.work-box,.side,.box,.card,
+  .creator-box,.goal-card,.panel,.account,.chart-box,.insight-card,.stat-box,
+  .evolution-card,.evolution-stat,.forecast-card,.forecast-kpi,.extra-fund,
+  .extra-fund-form,.extra-fund-summary,.saving-reminder-panel,.travel-hero,
+  .travel-card,.travel-stat,.travel-stat-card,.travel-budget-box,.travel-suggestion,
+  .quick-panel,.quick-form,.work-log-item,.extra-log-item,.forecast-panel,
+  .analytics-panel,.movement-card,.movements-panel,.portfolio-evolution,
+  .analytics-balance,.analytics-notice,.analytics-insight,
+  .app-settings-dialog,.app-widget-row,.modal-content){
+  background:linear-gradient(150deg,rgba(28,24,65,.97),rgba(12,23,48,.97))!important;
+  border-color:#55427c!important;
+  box-shadow:inset 0 1px #ffffff12,0 8px 24px #00000029!important;
+}
+/* Different semantic sections get a distinct colour, not one uniform purple. */
+html[data-accent="aurora"] body.page-index .total-card{
+  background:linear-gradient(135deg,#171b3d,#0b1833)!important;
+  border-color:#4c4d93!important;
+  box-shadow:inset 0 1px #ffffff15,0 0 28px #526cff10!important;
+}
+html[data-accent="aurora"] .hero-amount h1{
+  color:#fff!important;
+  text-shadow:0 0 26px #d866ff40!important;
+}
+html[data-accent="aurora"] :is(.hero-icon,.balance-card .balance-icon){
+  color:#b98eff!important;
+}
+html[data-accent="aurora"] body.page-index .balance-card.cash,
+html[data-accent="aurora"] body.page-index .balance-cash{
+  background:linear-gradient(125deg,#2a1c22,#302013 75%,#3c2913)!important;
+  border-color:#ad7545!important;
+  box-shadow:inset 0 1px #ffcc7533,0 0 20px #f5a33c12!important;
+}
+html[data-accent="aurora"] body.page-index .balance-card.card,
+html[data-accent="aurora"] body.page-index .balance-card:not(.cash):not(.balance-cash){
+  background:linear-gradient(125deg,#141b4c,#13214a 75%,#102e55)!important;
+  border-color:#577cf7!important;
+  box-shadow:inset 0 1px #99c7ff24,0 0 20px #5b80ff16!important;
+}
+html[data-accent="aurora"] body.page-index .card-text,
+html[data-accent="aurora"] body.page-index .balance-card.card h2{
+  color:#79adff!important;
+}
+html[data-accent="aurora"] body.page-index :is(.cash-text,.balance-cash h2){
+  color:#ffc75c!important;
+}
+html[data-accent="aurora"] body.page-index .note.n20{
+  background:linear-gradient(125deg,#4731b9 0%,#643de8 47%,#2c88ff 100%)!important;
+  border-color:#a17cff!important;
+  box-shadow:inset 0 2px #ffffff30,0 8px 22px #4526cc44!important;
+}
+html[data-accent="aurora"] body.page-index .note.n50{
+  background:linear-gradient(125deg,#a3415e 0%,#df607d 43%,#ff9d42 100%)!important;
+  border-color:#ffaf76!important;
+  box-shadow:inset 0 2px #ffffff38,0 8px 22px #b9464f33!important;
+}
+html[data-accent="aurora"] body.page-index .sub-section-nav::before,
+html[data-accent="aurora"] body :is(.sub-section-nav,.movements-tabs,.chart-controls,.forecast-controls){
+  background:linear-gradient(100deg,#1b1941,#111c37)!important;
+  border-color:#534378!important;
+}
+html[data-accent="aurora"] body :is(.sub-nav-btn.active,.movement-tab.active,.source-button.active,
+ .forecast-period.active,.btn-filter.active,.btn-create,.home-customizer-open,
+ .travel-primary,.saving-reminder-save,button.btn-primary,button.primary,.btn-blue){
+  background:linear-gradient(110deg,#6849ef,#b351dc 55%,#e363b5)!important;
+  color:#fff!important;
+  border-color:#aa77ff!important;
+  box-shadow:inset 0 1px #ffffff3b,0 5px 20px #8543dd4a!important;
+}
+/* Legacy green = income, pink-red = spend. They remain easy to distinguish. */
+html[data-accent="aurora"] :is(.positive,.tx.plus,.extra-fund-positive){color:#49ebb6!important}
+html[data-accent="aurora"] :is(.negative,.tx.minus,.extra-fund-negative){color:#ff7c9d!important}
+html[data-accent="aurora"] body :is(.quick-panel:not(.move-goal),.extra-fund-summary,.extra-fund-stat){
+  border-color:#3e806e!important;
+}
+html[data-accent="aurora"] body :is(.quick-panel.move-goal,.goal-card,.forecast-card){
+  border-color:#8a59c1!important;
+}
+html[data-accent="aurora"] body :is(.analytics-balance.featured,.portfolio-evolution,
+ .travel-hero,.saving-reminder-panel){
+  background:linear-gradient(115deg,#201b4b,#102240)!important;
+  border-color:#6e58a3!important;
+}
+html[data-accent="aurora"] body :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select,
+ .extra-input,.extra-select,.work-input,.work-select){
+  background:#0f1831!important;
+  border-color:#554d82!important;
+  color:#f6f3ff!important;
+}
+html[data-accent="aurora"] body :is(input,textarea,select):focus{
+  border-color:#bc83ff!important;
+  box-shadow:0 0 0 3px #b977ff24!important;
+}
+html[data-accent="aurora"] body :is(.history,.log-item,.movement-row,.tx,.movement-card,
+ .extra-fund-row,.extra-fund-item,.travel-journey-card){
+  border-color:#4a3d6c!important;
+}
+html[data-accent="aurora"] body :is(.app-settings-dialog,.modal-content,.app-reminder-alert){
+  background:linear-gradient(145deg,#191333,#0d1b36)!important;
+  border-color:#7354a7!important;
+}
+html[data-accent="aurora"] body .app-theme-option[aria-pressed="true"]{
+  background:#322153!important;
+  border-color:#d879ff!important;
+  box-shadow:0 0 0 2px #d879ff44!important;
+}
+@media (prefers-reduced-motion: reduce){
+ html[data-accent="aurora"] *{scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important}
+}

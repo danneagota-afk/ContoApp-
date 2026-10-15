@@ -1,7 +1,7 @@
 /* ContoApp Experience. Local preferences only; this file never writes financial balances. */
 (() => {
   'use strict';
-  const THEMES = Object.freeze({blue:['Ocean Blue','#419cff'],violet:['Royal Violet','#b293ff'],jade:['Emerald Dark','#2be4b6'],amber:['Gold Night','#fbc15d'],crimson:['Crimson Luxe','#ff719c']});
+  const THEMES = Object.freeze({aurora:['Aurora Pop','#d879ff'],blue:['Ocean Blue','#419cff'],violet:['Royal Violet','#b293ff'],jade:['Emerald Dark','#2be4b6'],amber:['Gold Night','#fbc15d'],crimson:['Crimson Luxe','#ff719c']});
   const THEME_KEY='contoapp.theme.v1', HOME_KEY='contoapp.homeWidgets.v1', REMINDER_KEY='contoapp.reminder.v1';
   const $ = id => document.getElementById(id);
   const read = (key, fallback=null) => { try {const value=localStorage.getItem(key);return value?JSON.parse(value):fallback;} catch {return fallback;} };
@@ -11,8 +11,17 @@
   const money = value => new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(value);
   const element = (tag,cls='',label='') => {const el=document.createElement(tag);if(cls)el.className=cls;if(label)el.textContent=label;return el;};
 
-  function currentTheme(){const v=plain(THEME_KEY);return Object.hasOwn(THEMES,v)?v:'blue';}
-  function setTheme(theme){if(!Object.hasOwn(THEMES,theme))return;document.documentElement.dataset.accent=theme;const bar={blue:'#050e1d',violet:'#100b1e',jade:'#051713',amber:'#1a110a',crimson:'#190a14'};document.querySelector('meta[name="theme-color"]')?.setAttribute('content',bar[theme]);try{localStorage.setItem(THEME_KEY,theme);}catch{};document.querySelectorAll('.app-theme-option').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.theme===theme)));}
+  function currentTheme(){
+    let v=plain(THEME_KEY);
+    try {
+      if (!localStorage.getItem('contoapp.auroraIntroduced.v1')) {
+        if (!v || v==='blue') {v='aurora';localStorage.setItem(THEME_KEY,v);}
+        localStorage.setItem('contoapp.auroraIntroduced.v1','1');
+      }
+    } catch (_) { /* private mode: simply use default */ }
+    return Object.hasOwn(THEMES,v)?v:'aurora';
+  }
+  function setTheme(theme){if(!Object.hasOwn(THEMES,theme))return;document.documentElement.dataset.accent=theme;const bar={aurora:'#080a1b',blue:'#050e1d',violet:'#100b1e',jade:'#051713',amber:'#1a110a',crimson:'#190a14'};document.querySelector('meta[name="theme-color"]')?.setAttribute('content',bar[theme]);try{localStorage.setItem(THEME_KEY,theme);}catch{};document.querySelectorAll('.app-theme-option').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.theme===theme)));}
   function modal(title){
     const dialog=element('dialog','app-settings-dialog');
     const body=element('div','app-settings-body');
