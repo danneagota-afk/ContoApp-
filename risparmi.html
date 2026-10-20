@@ -28,9 +28,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Risparmi - Obiettivi</title>
   
-  <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-<link rel="icon" type="image/png" sizes="192x192" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 
 <meta name="theme-color" content="#060c17">
   
@@ -121,9 +121,9 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261015-aurora-verticale-1">
-  <script defer src="ui.js?v=20261015-aurora-verticale-1"></script>
-<script defer src="experience.js?v=20261015-aurora-verticale-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261020-audit-v1">
+  <script defer src="ui.js?v=20261020-audit-v1"></script>
+<script defer src="experience.js?v=20261020-audit-v1"></script>
 </head>
 <body class="page-risparmi">
 
@@ -252,7 +252,8 @@
     }
 
     window.editTarget = function(id) {
-        const goal = currentData.goals.find(g => g.id === id);
+        const goal = currentData.goals.find(g => Number(g.id) === Number(id));
+        if (!goal) return alert('Obiettivo non trovato. Ricarica la pagina.');
         const newTarget = prompt(`Modifica obiettivo per "${goal.name}":`, goal.target);
         if (newTarget !== null && !isNaN(parseFloat(newTarget)) && parseFloat(newTarget) > 0) {
             showUndo();
@@ -266,19 +267,19 @@
       const val = parseFloat(input.value);
       if (!Number.isFinite(val) || val <= 0) return alert("Importo non valido!");
 
-      const goal = currentData.goals.find(g => g.id === id);
+      const goal = currentData.goals.find(g => Number(g.id) === Number(id));
       if (!goal) return;
       if (type === 'sub' && Number(goal.amount) < val) return alert('Fondi insufficienti!');
       showUndo();
       const timeStr = new Date().toLocaleString('it-IT', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
 
       if (type === 'add') {
-        goal.amount += val;
+        goal.amount = Math.round((Number(goal.amount) + val) * 100) / 100;
         if(!goal.history) goal.history = [];
         goal.history.push({ val: `+${val.toFixed(2)}`, date: timeStr, color: 'var(--success)' });
       } else {
         if (goal.amount < val) return alert("Fondi insufficienti!");
-        goal.amount -= val;
+        goal.amount = Math.round((Number(goal.amount) - val) * 100) / 100;
         if(!goal.history) goal.history = [];
         goal.history.push({ val: `-${val.toFixed(2)}`, date: timeStr, color: 'var(--danger)' });
       }
@@ -290,7 +291,7 @@
     window.deleteGoal = function(id) {
       if (confirm("Eliminare questo obiettivo?")) {
         showUndo();
-        currentData.goals = currentData.goals.filter(g => g.id !== id);
+        currentData.goals = currentData.goals.filter(g => Number(g.id) !== Number(id));
         saveToFirebase(currentData);
       }
     }
@@ -330,14 +331,19 @@
       }
 
       currentData.goals.forEach(goal => {
+        const safeId = Number(goal?.id);
+        if (!Number.isSafeInteger(safeId) || safeId < 0) return;
+        const current = Number(goal.amount);
+        const target = Number(goal.target);
+        if (!Number.isFinite(current) || !Number.isFinite(target) || target <= 0) return;
         const plan = calculateGoalPlan(goal);
         const forecastDate = plan.projectedDate ? plan.projectedDate.toLocaleDateString('it-IT',{month:'long',year:'numeric'}) : 'Non stimabile';
         const status = plan.completed ? 'Obiettivo raggiunto' : plan.months === null ? 'Imposta una quota mensile per avere una previsione' : `Con ${money(plan.monthly)} al mese: circa ${forecastDate} (${plan.months} mesi)`;
         const deadlineInfo = !plan.deadline ? 'Nessuna scadenza impostata' : plan.completed ? 'Traguardo completato' : plan.deadlineMonths === null ? 'Data di scadenza non valida' : plan.deadlineMonths === 0 ? 'Scadenza raggiunta: valuta una nuova data' : `Entro ${plan.deadline}: servono circa ${money(plan.requiredMonthly)} al mese${plan.months !== null ? (plan.onTrack?' · In linea con il piano':' · Aumenta la quota mensile') : ''}`;
-        const perc = Math.min((goal.amount / goal.target) * 100, 100).toFixed(0);
+        const perc = Math.max(0,Math.min((current / target) * 100, 100)).toFixed(0);
         const historyHTML = (goal.history || []).slice().reverse().map(h => `
           <div class="hist-item">
-            <span style="color:${h.color === "var(--success)" ? "var(--success)" : "var(--danger)"}; font-weight:800">${safeText(h.val)}€</span>
+            <span style="color:${h.color === "var(--success)" ? "var(--success)" : "var(--danger)"}; font-weight:800">${safeText(h?.val ?? '—')}€</span>
             <span style="color:var(--muted)">${safeText(h.date)}</span>
           </div>
         `).join('') || '<div style="color:#222; text-align:center; margin-top:20px;">Nessun movimento</div>';
@@ -345,12 +351,12 @@
         const card = document.createElement('div');
         card.className = 'goal-card';
         card.innerHTML = `
-          <button class="delete-btn" onclick="deleteGoal(${goal.id})">×</button>
+          <button class="delete-btn" type="button" aria-label="Elimina obiettivo" onclick="deleteGoal(${safeId})">×</button>
           <div class="goal-main">
             <h3>${safeText(goal.name)}</h3>
             <div class="amount-display">
-              <span class="current-amount">€ ${goal.amount.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
-              <span class="target-amount" onclick="editTarget(${goal.id})">/ € ${goal.target.toLocaleString('it-IT')}</span>
+              <span class="current-amount">€ ${current.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
+              <button type="button" class="target-amount goal-target-edit" aria-label="Modifica importo obiettivo" onclick="editTarget(${safeId})">/ € ${target.toLocaleString('it-IT')}</button>
             </div>
             
             <div class="progress-container">
@@ -362,17 +368,17 @@
               <div class="goal-forecast-label">PREVISIONE</div>
               <p>${safeText(status)}</p>
               <small>${safeText(deadlineInfo)}</small>
-              <button type="button" class="goal-plan-toggle" data-plan-id="${Number(goal.id)}" aria-expanded="false">Modifica piano mensile e data ▾</button>
-              <div class="goal-plan-form" id="plan-${Number(goal.id)}" hidden>
-                <label>Quota mensile prevista (€)<input type="number" min="0" step="0.01" id="monthly-${Number(goal.id)}" value="${Number.isFinite(Number(goal.monthlyContribution)) ? Math.max(0,Number(goal.monthlyContribution)) : 0}"></label>
-                <label>Data desiderata<input type="date" id="deadline-${Number(goal.id)}" value="${/^\d{4}-\d{2}-\d{2}$/.test(goal.targetDate||'')?goal.targetDate:''}"></label>
-                <button type="button" class="goal-plan-save" data-save-id="${Number(goal.id)}">Salva piano</button>
+              <button type="button" class="goal-plan-toggle" data-plan-id="${safeId}" aria-expanded="false">Modifica piano mensile e data ▾</button>
+              <div class="goal-plan-form" id="plan-${safeId}" hidden>
+                <label>Quota mensile prevista (€)<input type="number" min="0" step="0.01" id="monthly-${safeId}" value="${Number.isFinite(Number(goal.monthlyContribution)) ? Math.max(0,Number(goal.monthlyContribution)) : 0}"></label>
+                <label>Data desiderata<input type="date" id="deadline-${safeId}" value="${/^\d{4}-\d{2}-\d{2}$/.test(goal.targetDate||'')?goal.targetDate:''}"></label>
+                <button type="button" class="goal-plan-save" data-save-id="${safeId}">Salva piano</button>
               </div>
             </section>
             <div class="goal-controls">
-              <input type="number" id="input-${goal.id}" placeholder="€">
-              <button class="btn-op" style="background:var(--success); color:black" onclick="updateGoal(${goal.id}, 'add')">Aggiungi</button>
-              <button class="btn-op" style="background:var(--danger); color:white" onclick="updateGoal(${goal.id}, 'sub')">Togli</button>
+              <input type="number" min="0.01" max="10000000" step="0.01" id="input-${safeId}" placeholder="Importo €" aria-label="Importo da aggiungere o togliere all'obiettivo">
+              <button class="btn-op" style="background:var(--success); color:black" onclick="updateGoal(${safeId}, 'add')">Aggiungi</button>
+              <button class="btn-op" style="background:var(--danger); color:white" onclick="updateGoal(${safeId}, 'sub')">Togli</button>
             </div>
           </div>
           <div class="goal-history">

@@ -28,9 +28,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Home | ContoApp</title>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
   <meta name="theme-color" content="#060c17">
 
@@ -164,9 +164,9 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261015-aurora-verticale-1">
-  <script defer src="ui.js?v=20261015-aurora-verticale-1"></script>
-<script defer src="experience.js?v=20261015-aurora-verticale-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261020-audit-v1">
+  <script defer src="ui.js?v=20261020-audit-v1"></script>
+<script defer src="experience.js?v=20261020-audit-v1"></script>
 </head>
 <body class="page-index">
 
@@ -614,12 +614,19 @@
 
 
     function refreshGoalDropdowns() {
-      const modalSelect = document.getElementById('modal-goal-select');
-      const quickSelect = document.getElementById('quick-goal-select');
-      const goalOptions = db.goals.map(g => `<option value="${g.id}">${safeText(g.name)}</option>`).join('');
-      const placeholder = '<option value="">-- Scegli --</option>';
-      if(modalSelect) modalSelect.innerHTML = placeholder + goalOptions;
-      if(quickSelect) quickSelect.innerHTML = placeholder + goalOptions;
+      // DOM APIs: labels from Firebase cannot become HTML; preserve what the user selected.
+      for (const id of ['modal-goal-select', 'quick-goal-select']) {
+        const select = document.getElementById(id);
+        if (!select) continue;
+        const previous = select.value;
+        select.replaceChildren(new Option('-- Scegli --', ''));
+        for (const goal of db.goals) {
+          const id = Number(goal?.id);
+          if (!Number.isSafeInteger(id)) continue;
+          select.add(new Option(String(goal.name ?? 'Obiettivo').slice(0,120), String(id)));
+        }
+        if ([...select.options].some(option => option.value === previous)) select.value = previous;
+      }
     }
 
     function openModal(val) { 
@@ -896,19 +903,45 @@
         }
       }
 
-      const wHist = document.getElementById('work-history-list'); wHist.innerHTML = '';
+      // The old work register used innerHTML with untrusted values and assumed
+      // earnings was always a number. Render DOM safely even with legacy data.
+      const wHist = document.getElementById('work-history-list');
+      wHist.replaceChildren();
       for (let i = db.workLogs.length - 1; i >= 0; i--) {
         const w = db.workLogs[i];
-        const destLabel = w.depositType === 'Extra' ? 'Risparmi' : w.depositType;
-        wHist.innerHTML += `
-          <div class="log" style="border-left-color:var(--success)">
-            <div style="flex: 1;">
-              <b style="color:var(--success)">+ ${w.earnings.toFixed(2)}€</b>
-              <span class="meta-info">Turno: ${w.hours}h x ${w.rate}€/h</span>
-              <span class="meta-info" style="font-size:0.75rem; opacity:0.6">${safeText(w.date)} • Versato in ${safeText(destLabel)}</span>
-            </div>
-            <button class="del-history-item" onclick="deleteWorkLog(${w.id})">✕</button>
-          </div>`;
+        if (!w || typeof w !== 'object') continue;
+        const amount = Number(w.earnings);
+        const rate = Number(w.rate);
+        const hours = Number(w.hours);
+        const row = document.createElement('div');
+        row.className = 'log work-history-entry';
+        const details = document.createElement('div');
+        details.className = 'work-history-details';
+        const value = document.createElement('b');
+        value.className = 'work-history-amount';
+        value.textContent = Number.isFinite(amount) ? `+ ${Euro.format(amount)}` : 'Importo non disponibile';
+        const subtitle = document.createElement('span');
+        subtitle.className = 'meta-info';
+        subtitle.textContent = `Turno: ${Number.isFinite(hours) ? hours : '—'}h × ${Number.isFinite(rate) ? Euro.format(rate) : '—'}/h`;
+        const date = document.createElement('span');
+        date.className = 'meta-info work-history-date';
+        const destination = w.depositType === 'Extra' ? 'Risparmi' : String(w.depositType || 'Non indicato');
+        date.textContent = `${String(w.date || 'Data non disponibile')} · Versato in ${destination}`;
+        details.append(value, subtitle, date);
+        const remove = document.createElement('button');
+        remove.className = 'del-history-item';
+        remove.type = 'button';
+        remove.textContent = '×';
+        remove.setAttribute('aria-label', 'Elimina la registrazione del turno');
+        remove.addEventListener('click', () => window.deleteWorkLog(w.id));
+        row.append(details, remove);
+        wHist.append(row);
+      }
+      if (!wHist.childElementCount) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-movements';
+        empty.textContent = 'Nessun turno registrato. I tuoi prossimi guadagni compariranno qui.';
+        wHist.append(empty);
       }
 
       refreshGoalDropdowns();

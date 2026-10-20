@@ -28,9 +28,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vinted - Registro Attività</title>
   
-  <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-<link rel="icon" type="image/png" sizes="192x192" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 
 <meta name="theme-color" content="#060c17">
   
@@ -93,9 +93,9 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="stylesheet" href="theme.css?v=20261015-aurora-verticale-1">
-  <script defer src="ui.js?v=20261015-aurora-verticale-1"></script>
-<script defer src="experience.js?v=20261015-aurora-verticale-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261020-audit-v1">
+  <script defer src="ui.js?v=20261020-audit-v1"></script>
+<script defer src="experience.js?v=20261020-audit-v1"></script>
 </head>
 <body class="page-vinted">
 
@@ -143,7 +143,7 @@
   <script type="module">
     import { requireAuth } from "./auth-guard.js?v=20261013-viaggi-analisi-2";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDTYLxWmpTqJDsbrww39Rk7r72FC40xqkw",
@@ -168,8 +168,8 @@
       accessGate.ready();
       if (data) {
         datiVinted = {
-            entrate: data.entrate || [],
-            uscite: data.uscite || []
+            entrate: Array.isArray(data.entrate) ? data.entrate : [],
+            uscite: Array.isArray(data.uscite) ? data.uscite : []
         };
       } else {
         datiVinted = { entrate: [], uscite: [] };
@@ -178,69 +178,100 @@
     }, (error) => accessGate.error(error));
 
     // --- FUNZIONE AGGIUNGI ---
-    window.aggiungi = function(tipo) {
+    // Transaction avoids double submission and racing edits from another device.
+    let vintedBusy = false;
+    window.aggiungi = async function(tipo) {
+      if (vintedBusy || !['in','out'].includes(tipo)) return;
       const input = document.getElementById(`input-${tipo}`);
-      const valore = parseFloat(input.value);
-      
-      if (!Number.isFinite(valore) || valore <= 0) {
-        alert("Inserisci un importo valido");
+      const valore = Number(input.value);
+      if (!Number.isFinite(valore) || valore <= 0 || valore > 10000000 ||
+          Math.abs(Math.round(valore * 100) - valore * 100) > 1e-7) {
+        alert('Inserisci un importo valido, massimo due decimali.');
         return;
       }
-
-      // Controllo saldo per uscite
-      if (tipo === 'out') {
-        const sommaIn = datiVinted.entrate.reduce((acc, t) => acc + t.valore, 0);
-        const sommaOut = datiVinted.uscite.reduce((acc, t) => acc + t.valore, 0);
-        const saldoDisponibile = sommaIn - sommaOut;
-
-        if (valore > saldoDisponibile) {
-          alert("Operazione bloccata: fondi Vinted insufficienti!");
+      const cleaned = Math.round(valore * 100) / 100;
+      const ora = new Date();
+      const date = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      const tx = {valore:cleaned,data:date};
+      vintedBusy = true;
+      const buttons = [document.getElementById('btn-add-in'),document.getElementById('btn-add-out')];
+      buttons.forEach(button => button.disabled = true);
+      try {
+        const result = await runTransaction(vintedRef, current => {
+          const data = current && typeof current === 'object' ? current : {};
+          const entrate = Array.isArray(data.entrate) ? data.entrate.slice() : [];
+          const uscite = Array.isArray(data.uscite) ? data.uscite.slice() : [];
+          if (tipo === 'out') {
+            const incoming = entrate.reduce((acc,t)=>acc+(Number(t?.valore)||0),0);
+            const outgoing = uscite.reduce((acc,t)=>acc+(Number(t?.valore)||0),0);
+            if (cleaned > Math.round((incoming-outgoing)*100)/100) return;
+            uscite.push(tx);
+          } else entrate.push(tx);
+          return {...data,entrate,uscite};
+        },{applyLocally:false});
+        if (!result.committed) {
+          alert('Fondi Vinted insufficienti o dati cambiati. Riprova dopo averli aggiornati.');
           return;
         }
+        input.value = '';
+      } catch (error) {
+        console.error('VINTED_SAVE',error?.code||'network');
+        alert('Salvataggio non riuscito. Controlla la connessione e riprova.');
+      } finally {
+        vintedBusy = false;
+        buttons.forEach(button=>button.disabled = false);
       }
-
-      const ora = new Date();
-      const dataStr = ora.toLocaleDateString('it-IT') + ' ' + ora.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-      const nuovaTransazione = { valore, data: dataStr };
-
-      if (tipo === 'in') {
-        datiVinted.entrate.push(nuovaTransazione);
-      } else {
-        datiVinted.uscite.push(nuovaTransazione);
-      }
-
-      input.value = '';
-      set(vintedRef, datiVinted);
-    }
+    };
 
     // --- RENDER ---
     function renderizzaListe() {
-      const listaIn = document.getElementById('lista-in');
-      const listaOut = document.getElementById('lista-out');
-      let totaleE = 0;
-      let totaleU = 0;
-
-      listaIn.innerHTML = '';
-      [...datiVinted.entrate].reverse().forEach(t => {
-        totaleE += t.valore;
-        listaIn.innerHTML += `<div class="item in"><div class="item-info"><b>+ €${t.valore.toFixed(2)}</b><span>${String(t.data||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}</span></div></div>`;
-      });
-
-      listaOut.innerHTML = '';
-      [...datiVinted.uscite].reverse().forEach(t => {
-        totaleU += t.valore;
-        listaOut.innerHTML += `<div class="item out"><div class="item-info"><b>- €${t.valore.toFixed(2)}</b><span>${String(t.data||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}</span></div></div>`;
-      });
-
-      document.getElementById('tot-in').textContent = `€ ${totaleE.toFixed(2)}`;
-      document.getElementById('tot-out').textContent = `€ ${totaleU.toFixed(2)}`;
+      // Older Firebase records may contain strings. Always sum numeric cents.
+      const money = n => new Intl.NumberFormat('it-IT', {style:'currency',currency:'EUR'}).format(n);
+      const renderGroup = (containerId, records, outgoing) => {
+        const container = document.getElementById(containerId);
+        container.replaceChildren();
+        let total = 0;
+        for (const tx of records) {
+          const value = Number(tx?.valore);
+          if (!Number.isFinite(value) || value < 0) continue;
+          total += value;
+          const item = document.createElement('div');
+          item.className = `item ${outgoing ? 'out' : 'in'}`;
+          const info = document.createElement('div');
+          info.className = 'item-info';
+          const amount = document.createElement('b');
+          amount.textContent = `${outgoing ? '− ' : '+ '}${money(value)}`;
+          const date = document.createElement('span');
+          date.textContent = String(tx.data || 'Data non disponibile');
+          info.append(amount, date);
+          item.append(info);
+          container.prepend(item);
+        }
+        if (!container.childElementCount) {
+          const empty = document.createElement('p');
+          empty.className = 'empty-movements';
+          empty.textContent = outgoing ? 'Nessuna uscita Vinted.' : 'Nessuna entrata Vinted.';
+          container.append(empty);
+        }
+        return Math.round(total * 100) / 100;
+      };
+      const entrate = renderGroup('lista-in', datiVinted.entrate, false);
+      const uscite = renderGroup('lista-out', datiVinted.uscite, true);
+      document.getElementById('tot-in').textContent = money(entrate);
+      document.getElementById('tot-out').textContent = money(uscite);
     }
 
     // --- RESET ---
-    window.resetVinted = function() {
-      if (confirm("Vuoi cancellare definitivamente tutto lo storico di Vinted?")) {
-        set(vintedRef, { entrate: [], uscite: [] });
-      }
+    window.resetVinted = async function() {
+      if (vintedBusy) return;
+      if (!confirm('Vuoi eliminare definitivamente tutte le entrate e uscite Vinted?')) return;
+      if (prompt('Per confermare, scrivi ELIMINA in maiuscolo:') !== 'ELIMINA') return;
+      vintedBusy = true;
+      const button = document.getElementById('btn-reset');
+      button.disabled = true;
+      try { await set(vintedRef, {entrate:[],uscite:[]}); }
+      catch (error) { console.error('VINTED_RESET',error?.code||'network'); alert('Cancellazione non riuscita. I dati non sono stati eliminati dal server.'); }
+      finally { button.disabled=false; vintedBusy=false; }
     }
 
     // Aggancio eventi ai bottoni
