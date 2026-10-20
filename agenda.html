@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Agenda e Lavoro | ContoApp</title>
+<script>
+try{if(localStorage.getItem('contoapp.hideAmounts.v1')==='1')document.documentElement.classList.add('mask-values');const t=localStorage.getItem('contoapp.theme.v1');document.documentElement.dataset.accent=['aurora','blue','violet','jade','amber','crimson'].includes(t)?t:'aurora';}catch(_){document.documentElement.dataset.accent='aurora';}
+</script>
+<meta name="theme-color" content="#080a1b"><link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" type="image/png" href="icon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css?v=20261020-audit-v1"><link rel="stylesheet" href="planner.css?v=20261020-pro-v1">
+<script defer src="ui.js?v=20261020-audit-v1"></script><script defer src="experience.js?v=20261020-audit-v1"></script>
+</head>
+<body class="page-agenda">
+<nav class="navbar" aria-label="Navigazione principale">
+<a class="app-brand" href="index.html" aria-label="ContoApp, torna alla Home"><span class="app-brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="app-brand-name">Conto<span>App</span></span></a>
+<div class="nav-links">
+<a class="nav-link" href="index.html">Home</a><a class="nav-link" href="vinted.html">Vinted</a><a class="nav-link" href="risparmi.html">Risparmi</a><a class="nav-link" href="analisi.html">Analisi</a><a class="nav-link" href="revolut.html">Revolut</a><a class="nav-link" href="viaggi.html">Viaggi</a><a class="nav-link active" href="agenda.html" aria-current="page">Agenda</a>
+</div><button class="privacy-toggle" type="button" aria-pressed="false">Nascondi importi</button>
+</nav>
+<main class="planner-shell">
+<section class="planner-hero">
+<div><span class="planner-eyebrow">CONTROLLA LA TUA GIORNATA</span><h1>Organizza oggi.<br><em>Muoviti meglio domani.</em></h1><p id="planner-date-label">Agenda, turni e impegni in un unico posto.</p></div>
+<div class="planner-sync-card"><span class="planner-sync-lamp" id="planner-sync-lamp"></span><strong id="planner-sync-status">Collegamento in corso…</strong><small id="planner-sync-help">I dati finanziari non vengono toccati.</small></div>
+</section>
+<section class="planner-metrics" aria-label="Riepilogo organizzazione">
+<article class="planner-metric pink"><span>Da fare / In ritardo</span><strong id="planner-due">—</strong><small>Attività con scadenza oggi o prima</small></article>
+<article class="planner-metric blue"><span>Prossimi 7 giorni</span><strong id="planner-week">—</strong><small>Altre attività in arrivo</small></article>
+<article class="planner-metric green"><span>Ore previste nel mese</span><strong id="planner-hours">—</strong><small>Turni programmati e svolti</small></article>
+<article class="planner-metric gold"><span>Guadagno teorico del mese</span><strong class="planner-money" id="planner-earnings">—</strong><small>Stima, non soldi accreditati</small></article>
+</section>
+<section class="planner-week-panel" aria-label="Settimana rapida">
+<div class="planner-panel-heading"><div><span class="planner-eyebrow">SETTIMANA</span><h2>Il tuo programma</h2></div><button class="planner-quiet-btn" type="button" id="planner-jump-today">Torna a oggi</button></div>
+<div class="planner-week-strip" id="planner-week-strip" aria-label="Seleziona un giorno"></div>
+<div id="planner-day-details" class="planner-day-details" aria-live="polite">Seleziona una giornata per vedere gli impegni.</div>
+</section>
+<div class="planner-panels">
+<section class="planner-board" id="attivita">
+<div class="planner-panel-heading"><div><span class="planner-eyebrow">PRIORITÀ CHIARE</span><h2>Le tue attività</h2><p>Invece di ricordarti tutto a mente, mettilo qui.</p></div><span class="planner-pill" id="planner-task-count">0 aperte</span></div>
+<form class="planner-form" id="planner-task-form">
+<input type="hidden" id="planner-task-id">
+<label class="planner-field wide">Cosa devi fare?<input id="planner-task-title" maxlength="110" required placeholder="Es. Consegnare documenti, allenamento, telefonata…" autocomplete="off"></label>
+<label class="planner-field">Scadenza<input id="planner-task-due" type="date" required></label>
+<label class="planner-field">Ambito<select id="planner-task-category"><option value="Lavoro">Lavoro</option><option value="Personale">Personale</option><option value="Soldi">Soldi</option><option value="Viaggi">Viaggi</option><option value="Altro">Altro</option></select></label>
+<label class="planner-field">Priorità<select id="planner-task-priority"><option value="normal">Normale</option><option value="high">Alta</option><option value="low">Bassa</option></select></label>
+<label class="planner-field">Ripeti<select id="planner-task-repeat"><option value="none">Mai</option><option value="weekly">Ogni settimana</option><option value="monthly">Ogni mese</option></select></label>
+<div class="planner-actions"><button class="planner-primary" type="submit" id="planner-task-save">Salva attività</button><button class="planner-quiet-btn" type="button" id="planner-task-cancel" hidden>Annulla modifica</button></div>
+</form>
+<div class="planner-filterbar"><div class="planner-filters" role="group" aria-label="Filtro attività"><button class="active" data-task-filter="open" type="button">Da fare</button><button data-task-filter="today" type="button">Oggi</button><button data-task-filter="week" type="button">7 giorni</button><button data-task-filter="done" type="button">Completate</button><button data-task-filter="all" type="button">Tutte</button></div><input type="search" id="planner-task-search" placeholder="Cerca un'attività…" aria-label="Cerca attività"></div>
+<div id="planner-task-list" class="planner-list" aria-live="polite"><p class="planner-empty">Caricamento attività…</p></div>
+</section>
+<section class="planner-board" id="turni">
+<div class="planner-panel-heading"><div><span class="planner-eyebrow">LAVORO SENZA CONFUSIONE</span><h2>Turni e guadagni</h2><p>Programma gli orari, le pause e la paga. Controlla cosa hai fatto e cosa ti devono pagare.</p></div><span class="planner-pill green" id="planner-shifts-count">0 turni</span></div>
+<form class="planner-form" id="planner-shift-form"><input type="hidden" id="planner-shift-id">
+<label class="planner-field wide">Luogo / attività<input id="planner-shift-place" maxlength="90" placeholder="Es. Negozio, magazzino, evento…" autocomplete="off" required></label>
+<label class="planner-field">Giorno<input id="planner-shift-date" type="date" required></label>
+<label class="planner-field">Inizio<input id="planner-shift-start" type="time" value="09:00" required></label>
+<label class="planner-field">Fine<input id="planner-shift-end" type="time" value="17:00" required></label>
+<label class="planner-field">Pausa (min)<input id="planner-shift-break" type="number" min="0" max="1380" step="5" value="30" required></label>
+<label class="planner-field">Paga (€/h)<input id="planner-shift-rate" class="planner-money-input" type="number" min="0" max="10000" step="0.01" value="10" required></label>
+<label class="planner-field">Note facoltative<input id="planner-shift-note" maxlength="180" placeholder="Straordinario, cliente, dettagli…"></label>
+<div class="planner-shift-estimate" aria-live="polite"><span>Totale previsto per questo turno</span><strong id="planner-shift-preview" class="planner-money">—</strong><small id="planner-shift-hours-preview">Inserisci gli orari</small></div>
+<div class="planner-actions"><button class="planner-primary" id="planner-shift-save" type="submit">Programma turno</button><button class="planner-quiet-btn" type="button" id="planner-shift-cancel" hidden>Annulla modifica</button></div>
+</form>
+<div class="planner-filterbar"><label class="planner-field month">Mese<input type="month" id="planner-month"></label><label class="planner-field month">Stato<select id="planner-shift-status-filter"><option value="all">Tutti</option><option value="planned">Programmato</option><option value="done">Svolto</option><option value="paid">Pagato</option></select></label></div>
+<div class="planner-pay-stats"><div><span>Turni</span><strong id="planner-month-count">0</strong></div><div><span>Ore nette</span><strong id="planner-month-hours">0h</strong></div><div><span>Previsti</span><strong class="planner-money" id="planner-month-value">0 €</strong></div><div><span>Segnati pagati</span><strong class="planner-money" id="planner-month-paid">0 €</strong></div></div>
+<div id="planner-shift-list" class="planner-list"><p class="planner-empty">Caricamento turni…</p></div>
+<div class="planner-foot-actions">
+<div class="planner-export-buttons"><button class="planner-quiet-btn" id="planner-export-calendar" type="button">Esporta nel Calendario (.ics)</button><button class="planner-quiet-btn" id="planner-backup" type="button">Backup Agenda (.json)</button><button class="planner-quiet-btn" id="planner-restore" type="button">Importa backup</button><input id="planner-file" type="file" accept=".json,application/json" hidden aria-label="File backup Agenda"></div>
+<p>Il Calendario può ricordarti i turni e le scadenze. Il backup JSON serve per conservare anche stati, priorità e note, senza inviare file a nessun server.</p></div>
+</section>
+</div>
+<section class="planner-rule"><div><strong>Organizzazione ≠ patrimonio</strong><p>Questa agenda organizza il lavoro e mostra solo stime. Un turno segnato come “Pagato” non aggiunge denaro a Contanti, Risparmi o Revolut. Per registrare il denaro realmente ricevuto usa il registro Lavoro nella Home.</p></div><a href="index.html#view-lavoro" class="planner-quiet-btn">Vai al registro Lavoro →</a></section>
+</main>
+<div role="status" id="planner-toast" class="planner-toast" hidden></div>
+<script type="module" src="planner.js?v=20261020-pro-v1"></script>
+</body></html>

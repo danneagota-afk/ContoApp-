@@ -165,6 +165,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <link rel="stylesheet" href="theme.css?v=20261020-audit-v1">
+  <link rel="stylesheet" href="planner.css?v=20261020-pro-v1">
   <script defer src="ui.js?v=20261020-audit-v1"></script>
 <script defer src="experience.js?v=20261020-audit-v1"></script>
 </head>
@@ -179,8 +180,8 @@
       <a class="nav-link" href="analisi.html"><span>Analisi</span></a>
       <a class="nav-link" href="revolut.html"><span>Revolut</span></a>
       <a class="nav-link" href="viaggi.html"><span>Viaggi</span></a>
+          <a class="nav-link" href="agenda.html">Agenda</a>
     </div>
-    <a class="mobile-info" href="viaggi.html">Viaggi</a>
     <button type="button" class="privacy-toggle" aria-pressed="false" aria-label="Nascondi gli importi">Nascondi importi</button>
   </nav>
 <header class="page-header">
@@ -190,6 +191,11 @@
   </header>
 
   <div class="home-customizer-entry"><button type="button" id="home-customizer-open" class="home-customizer-open">Personalizza la Home</button><span>Mostra solo ciò che vuoi, nell'ordine che preferisci</span></div>
+
+  <section class="planner-home-digest" aria-label="Organizzazione della giornata">
+    <div class="home-agenda-copy"><span class="planner-eyebrow">OGGI IN CONTROLLO</span><strong>Il tuo programma, in breve</strong><small id="home-agenda-status">Caricamento impegni…</small></div>
+    <a href="agenda.html">Apri Agenda e Turni →</a>
+  </section>
 
   <div class="sub-section-nav">
     <button class="sub-nav-btn active" id="btn-view-portafoglio" onclick="switchHomeView('portafoglio')">Portafoglio</button>
@@ -360,6 +366,7 @@
       </div>
 
       <div class="work-box" style="border-color: rgba(59, 130, 246, 0.3);">
+        <div class="planner-work-callout"><div><strong>Pianifica prima, registra dopo</strong><p>In Agenda vedi la paga teorica precisa; il vecchio calcolatore arrotonda alle banconote da 20/50 €. Qui registra soltanto somme realmente ricevute.</p></div><a href="agenda.html#turni">Apri pianificazione turni →</a></div>
         <h3>Calcolatore Giornaliero</h3>
         <div class="extra-input-group" style="margin-top: 15px;">
           <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -403,6 +410,7 @@
   </div>
 
 
+  <script type="module" src="planner-home.js?v=20261020-pro-v1"></script>
   <script type="module">
     import { requireAuth } from "./auth-guard.js?v=20261013-viaggi-analisi-2";
     import { readRevolutBankData, extractEurBalance, bankTransactions } from "./bank-sync.js?v=20261013-viaggi-analisi-2";
@@ -570,6 +578,8 @@
       document.getElementById('btn-view-portafoglio').classList.toggle('active', view === 'portafoglio');
       document.getElementById('btn-view-lavoro').classList.toggle('active', view === 'lavoro');
     }
+
+    if (location.hash === '#view-lavoro') window.switchHomeView('lavoro');
 
     // FUNZIONE DI ARROTONDAMENTO STRATEGICO PER BANCONOTE DA 20 E 50
     function getValidCashTarget(amount) {

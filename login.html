@@ -84,7 +84,7 @@
     const auth = getAuth(app);
     const params = new URLSearchParams(location.search);
     const requested = params.get('next');
-    const next = ['index.html', 'analisi.html', 'risparmi.html', 'vinted.html', 'revolut.html', 'viaggi.html', 'info.html'].includes(requested) ? requested : 'index.html';
+    const next = ['index.html', 'analisi.html', 'risparmi.html', 'vinted.html', 'revolut.html', 'viaggi.html', 'agenda.html', 'info.html'].includes(requested) ? requested : 'index.html';
     const form = document.getElementById('login-form');
     const button = document.getElementById('submit');
     const errorBox = document.getElementById('error');
